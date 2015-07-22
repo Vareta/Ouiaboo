@@ -3,4 +3,27 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- ****************************************************************      activity_main      *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+
+    <string name="activity_main.titulo_1.ES">Seleccione la página desde donde desea ver animes</string>
+    <string name="activity_main.subtitulo.ES">La selección de la página quedará registrada para futuras visitas. En caso de querer cambiar la pagina, puede hacerlo en cualquier
+                                                momento mediante las opciones de la aplicacion.</string>
+    <string-array name="paginas_anime">
+        <item>AnimeFLV</item>
+        <item>KissAnime</item>
+    </string-array>
+    <string-array name="idioma_paginas_anime">
+        <item>Español</item>
+        <item>Ingles</item>
+    </string-array>
+
+
+
+    <!--********************************************************************************************************************************************************************* -->
+
+
+
 </resources>
