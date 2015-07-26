@@ -1,129 +1,100 @@
 package com.ouiaboo.ouiaboo;
 
-import android.app.ListActivity;
-import android.content.Context;
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import com.ouiaboo.ouiaboo.adaptadores.AdaptadorSitiosWeb;
+import com.ouiaboo.ouiaboo.clases.SitiosWeb;
 
 import java.util.ArrayList;
 
 
-public class MainActivity extends ListActivity {
+public class MainActivity extends Activity implements AdapterView.OnItemClickListener{
 
+    private static final String TAG = "";
+    public static final String PREFERENCIAS = "preferencias";
     ListView paginasAnime;
-    ArrayAdapter<String> adaptador;
+    ArrayAdapter adaptador;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE); //se cargan las preferencias
+        if (!sharedPreferences.contains("animeflv")){//si no tiene el string, quiere decir que es primera vez que se crean las preferencias
+            SharedPreferences.Editor editor = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE).edit();
+            editor.putBoolean("animeflv", false);
+            editor.putBoolean("kissanime", false);
+            editor.apply();
+        } else {
+            Intent intent = new Intent(getBaseContext(), Central.class);
+            startActivity(intent); //pasa a la nueva actividad
+            finish(); //cierra la actividad actual, para no poder volver con el boton back
+        }
+
         setContentView(R.layout.activity_main);
+        //se setean las preferencias sobre los sitios web de anime
+        SharedPreferences.Editor editor = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE).edit();
+        editor.putBoolean("animeflv", false);
+        editor.putBoolean("kissanime", false);
+        editor.apply();
+
         String[] paginasWebNombre = getResources().getStringArray(R.array.paginas_anime);
         String[] paginasWebIdioma = getResources().getStringArray(R.array.idioma_paginas_anime);
 
-        ArrayList<SitiosWeb> webList = new ArrayList<SitiosWeb>();
+        ArrayList webList = new ArrayList<SitiosWeb>();
 
         for (int i = 0; i < paginasWebNombre.length; i++){
             webList.add(new SitiosWeb(paginasWebNombre[i], paginasWebIdioma[i]));
         }
 
-        setListAdapter(new SitiosWebAdapter(this, R.layout.paginas_anime_lista, webList));
+        //Instancia del ListView (es por ello que va el id del listview)
+        paginasAnime = (ListView)findViewById(R.id.listView);
+
+        //Inicializar el adaptador con la fuente de datos
+        adaptador = new AdaptadorSitiosWeb(this, webList);
+
+        //Relacionando la lista con el adaptador
+        paginasAnime.setAdapter(adaptador);
+
+        paginasAnime.setOnItemClickListener(this);
     }
+
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        /*
+        position 0 = AnimeFLV
+        position 1 = KissAnime
+        */
+        SharedPreferences.Editor editor = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE).edit();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    //clase de las paginas web para ver anime
-    public class SitiosWeb{
-
-        private String nombre;
-        private String idioma;
-
-        public SitiosWeb(String nombre, String idioma){
-            this.nombre = nombre;
-            this.idioma = idioma;
-        }
-
-        public void setNombre(String nombre){
-            this.nombre = nombre;
-        }
-
-        public void setIdioma(String idioma){
-            this.idioma = idioma;
-        }
-
-        public String getNombre(){
-            return nombre;
-        }
-
-        public String getIdioma(){
-            return idioma;
-        }
-    }
-
-    public class SitiosWebAdapter extends ArrayAdapter<SitiosWeb>{
-        private ArrayList<SitiosWeb> items;
-        private SitiosWebViewHolder sitiosWebViewHolder;
-
-        private class SitiosWebViewHolder {
-            TextView nombre;
-            TextView idioma;
-        }
-
-        public SitiosWebAdapter(Context context, int layout, ArrayList<SitiosWeb> items){
-            super(context, layout, items);
-            this.items = items;
-        }
-
-        @Override
-        public View getView(int pos, View convertView, ViewGroup parent) {
-            View v = convertView;
-
-            if (v == null){
-                LayoutInflater vi = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
-                v = vi.inflate(R.layout.paginas_anime_lista , null);
-                sitiosWebViewHolder = new SitiosWebViewHolder();
-                sitiosWebViewHolder.nombre = (TextView)v.findViewById(R.id.pagina);
-                sitiosWebViewHolder.idioma = (TextView)v.findViewById(R.id.idioma);
-                v.setTag(sitiosWebViewHolder);
-            } else {
-                sitiosWebViewHolder = (SitiosWebViewHolder)v.getTag();
+            if (position == 0){ //AnimeFLV
+                editor.putBoolean("animeflv", true);
+                editor.putBoolean("kissanime", false);
+            }else{
+                if (position == 1){ //KissAnime
+                    editor.putBoolean("animeflv", false);
+                    editor.putBoolean("kissanime", true);
+                }
             }
+        editor.apply();
 
-            SitiosWeb sitiosWeb = items.get(pos);
+        SharedPreferences prefs = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE);
 
-            if (sitiosWeb != null){
-                sitiosWebViewHolder.nombre.setText(sitiosWeb.getNombre());
-                sitiosWebViewHolder.idioma.setText(sitiosWeb.getIdioma());
-            }
+        Log.d(TAG,  "AnimeFLV  "+prefs.getBoolean("animeflv", false) + "  KissAnime" + prefs.getBoolean("kissanime", false));
 
-            return v;
-        }
+        Intent intent = new Intent(getBaseContext(), Central.class);
+        startActivity(intent);
+        finish();
     }
 }

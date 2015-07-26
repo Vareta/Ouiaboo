@@ -20,6 +20,24 @@
         <item>Ingles</item>
     </string-array>
 
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        drawer_list_uno        *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+    <string name="drawer_list_uno.paginas_anime.ES">Paginas de anime</string>
+    <string-array name="drawer_list_cero">
+        <item>Paginas de anime</item>
+    </string-array>
+    <string-array name="drawer_list_uno">
+        <item>Inicio</item>
+        <item>Favoritos</item>
+        <item>FAQ</item>
+        <item>Aviso Legal</item>
+    </string-array>
+    <string name="title_vistacentral_list">VistaCentrals</string>
+    <string name="title_vistacentral_detail">VistaCentral Detail</string>
+    <string name="title_activity_central">Central</string>
+    <string name="title_activity_adaptador_sitios_web">AdaptadorSitiosWeb</string>
+
 
 
     <!--********************************************************************************************************************************************************************* -->
