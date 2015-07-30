@@ -3,9 +3,12 @@ package com.ouiaboo.ouiaboo;
 import android.app.Activity;
 import android.app.ExpandableListActivity;
 import android.database.DataSetObserver;
+import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,13 +22,15 @@ import com.ouiaboo.ouiaboo.adaptadores.AdapatadorDrawerExpList;
 import com.ouiaboo.ouiaboo.adaptadores.AdaptadorDrawerListUno;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.SitiosWeb;
+import com.ouiaboo.ouiaboo.fragments.HomeScreen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
-public class Central extends Activity {
+public class Central extends Activity implements HomeScreen.OnFragmentInteractionListener{
     private DrawerLayout drawerLayout;
     private ListView drawerList;
     LinearLayout linearLayout;
@@ -38,6 +43,8 @@ public class Central extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_central);
+
+        HomeScreen homeScreen = (HomeScreen)getFragmentManager().findFragmentById(R.id.fragment_home_animeflv);
 
         String[] drawerTitulos = getResources().getStringArray(R.array.drawer_list_uno); //arreglo de strings de la lista
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout); //el drawerLayout
@@ -74,6 +81,25 @@ public class Central extends Activity {
         listAdapter = new AdapatadorDrawerExpList(this, listDataHeader, listDataChild);
         expListView.setAdapter(listAdapter);
         drawerLayout.closeDrawer(linearLayout);
+
+        Utilities.DownloadWebPageTask task = new Utilities.DownloadWebPageTask();
+        task.execute(new String[]{"http://animeflv.net/"});
+        List<String> codigoFuente = null;
+        try {
+            codigoFuente = task.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        if (codigoFuente != null) {
+            Log.d("NULL", "no es nulo");
+            Animeflv util = new Animeflv();
+            util.homeScreenAnimeflv(codigoFuente);
+        } else {
+            Log.d("NULL", "nulo");
+        }
+
     }
 
     @Override
@@ -96,5 +122,9 @@ public class Central extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onFragmentInteraction(Uri uri){
+        //you can leave it empty
     }
 }

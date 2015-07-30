@@ -38,6 +38,9 @@
     <string name="title_activity_central">Central</string>
     <string name="title_activity_adaptador_sitios_web">AdaptadorSitiosWeb</string>
 
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 
 
     <!--********************************************************************************************************************************************************************* -->

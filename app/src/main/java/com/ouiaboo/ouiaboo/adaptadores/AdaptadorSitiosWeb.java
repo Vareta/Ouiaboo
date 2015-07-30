@@ -40,7 +40,7 @@ public class AdaptadorSitiosWeb extends ArrayAdapter<SitiosWeb> {
         TextView titulo = (TextView) listItemView.findViewById(R.id.pagina);
         TextView subtitulo = (TextView) listItemView.findViewById(R.id.idioma);
 
-        //Obteniendo instancia de la Tarea en la posición actual
+        //Obteniendo instancia de la Tarea en la posicion actual
         SitiosWeb item = getItem(position);
 
         titulo.setText(item.getNombre());
