@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -41,8 +42,9 @@ public class AdaptadorHomeScreenAnimeFLV extends ArrayAdapter {
         informacion.setText(item.getInformacion());
 
         //agrega el preview al imageview via url
-        new Utilities.DownloadImageTask(preview).execute(item.getPreview());
 
+       // new Utilities.DownloadImageTask(preview).execute(item.getPreview());
+        Picasso.with(parent.getContext()).load(item.getPreview()).into(preview);
         return convertView;
     }
 
