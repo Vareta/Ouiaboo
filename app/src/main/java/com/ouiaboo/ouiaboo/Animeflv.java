@@ -1,11 +1,24 @@
 package com.ouiaboo.ouiaboo;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Vareta on 29-07-2015.
@@ -130,4 +143,95 @@ public class Animeflv {
         return preview;
     }
 
+    public String urlVideo(String paginaEpisodio){
+        String url = "";
+        String auxUrl = "";
+        List<String> paginaWeb = null;
+
+
+        Utilities.DownloadWebPageTask task = new Utilities.DownloadWebPageTask();
+        task.execute(new String[]{paginaEpisodio});
+        try {
+            paginaWeb = task.get();
+            int max = paginaWeb.size();
+
+            for (int i = 0; i < max; i++) {
+                if (paginaWeb.get(i).contains("var videos")) {
+                    Matcher localMatcher = Pattern.compile("hyperion.php\\?key=(.*?)&provider").matcher(paginaWeb.get(i));
+
+                    while (localMatcher.find()) {
+                        auxUrl = localMatcher.group(1);
+                        //System.out.println(aux);
+                    }
+
+                }
+            }
+            String[] aux = auxUrl.split("25"); //se quita el 25 de la url
+            for (int m = 0; m < aux.length; m++){
+                if (m == 0){
+                    auxUrl = aux[m];
+                } else {
+                    auxUrl = auxUrl + aux[m];
+                }
+            }
+            //Log.d("WEB", auxUrl);
+            url = "http://animeflv.net/video/hyperion.php?key=" + auxUrl;
+           // Log.d("WEB", url);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+
+        return url;
+    }
+
+  /*  public static class urlVideo extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            String urlVideo = "";
+            List<String> paginaWeb = null;
+            Log.d("HOLA", "inicio");
+            for (String url : urls) {
+                Utilities.DownloadWebPageTask task = new Utilities.DownloadWebPageTask();
+                task.execute(new String[]{url});
+                Log.d("HOLA", url);
+
+                try {
+                    paginaWeb = task.get();
+                    int max = paginaWeb.size();
+
+                    for (int i = 0; i < max; i++) {
+                        Log.d("HOLA", paginaWeb.get(i));
+                        if (paginaWeb.get(i).contains("var videos =")) {
+                            Log.d("WEB", paginaWeb.get(i));
+                            String[] aux = paginaWeb.get(i).split("hyperion.php\\?key=(.*?)&provider");
+                            for (int j = 0; j < aux.length; j++) {
+                                Log.d("PAGINA ", aux[j]);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return urlVideo;
+        }
+
+        /*@Override
+        protected void onPostExecute(List<String> result) {
+            textView.setText(result);
+        }
+    }*/
+
+
+
 }
+

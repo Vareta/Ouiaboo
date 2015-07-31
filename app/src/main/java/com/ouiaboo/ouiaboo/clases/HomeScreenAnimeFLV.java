@@ -1,9 +1,11 @@
 package com.ouiaboo.ouiaboo.clases;
 
+import java.io.Serializable;
+
 /**
  * Created by Vareta on 27-07-2015.
  */
-public class HomeScreenAnimeFLV {
+public class HomeScreenAnimeFLV implements Serializable{
 
     private String urlCapitulo;
     private String nombre;

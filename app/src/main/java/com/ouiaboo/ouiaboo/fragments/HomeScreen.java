@@ -1,6 +1,7 @@
 package com.ouiaboo.ouiaboo.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -8,15 +9,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.ouiaboo.ouiaboo.Animeflv;
+import com.ouiaboo.ouiaboo.Central;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
+import com.ouiaboo.ouiaboo.VideoPlayer;
 import com.ouiaboo.ouiaboo.adaptadores.AdaptadorHomeScreenAnimeFLV;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -31,6 +36,7 @@ public class HomeScreen extends Fragment {
     private final String animeFLV = "http://animeflv.net/";
     private OnFragmentInteractionListener mListener;
     ArrayAdapter adaptador;
+    ListView list;
 
     public HomeScreen() {
         // Required empty public constructor
@@ -41,9 +47,9 @@ public class HomeScreen extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView =  inflater.inflate(R.layout.fragment_home_screen, container, false);
-        ListView list = (ListView)convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
+        list = (ListView)convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
 
-        ArrayList<HomeScreenAnimeFLV> animesRecientes;
+        final ArrayList<HomeScreenAnimeFLV> animesRecientes;
         Animeflv animes = new Animeflv();
         Utilities.DownloadWebPageTask task = new Utilities.DownloadWebPageTask();
         task.execute(new String[]{animeFLV});
@@ -55,6 +61,7 @@ public class HomeScreen extends Fragment {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+
         animesRecientes = animes.homeScreenAnimeflv(codigoFuente);
        /* for (int i = 0; i < animesRecientes.size(); i++){
 
@@ -65,8 +72,20 @@ public class HomeScreen extends Fragment {
         }*/
         adaptador = new AdaptadorHomeScreenAnimeFLV(getActivity(), animesRecientes);
         list.setAdapter(adaptador);
+
+
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity().getBaseContext(), VideoPlayer.class);
+                intent.putExtra("episodio", (Serializable)animesRecientes.get(position));
+                startActivity(intent);
+            }
+        });
+
         return convertView;
     }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
