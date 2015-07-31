@@ -93,11 +93,11 @@ public class Central extends Activity implements HomeScreen.OnFragmentInteractio
             e.printStackTrace();
         }
         if (codigoFuente != null) {
-            Log.d("NULL", "no es nulo");
+            //Log.d("NULL", "no es nulo");
             Animeflv util = new Animeflv();
             util.homeScreenAnimeflv(codigoFuente);
         } else {
-            Log.d("NULL", "nulo");
+           // Log.d("NULL", "nulo");
         }
 
     }

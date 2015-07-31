@@ -56,13 +56,13 @@ public class HomeScreen extends Fragment {
             e.printStackTrace();
         }
         animesRecientes = animes.homeScreenAnimeflv(codigoFuente);
-        for (int i = 0; i < animesRecientes.size(); i++){
+       /* for (int i = 0; i < animesRecientes.size(); i++){
 
             Log.d("Url", animesRecientes.get(i).getUrlCapitulo());
             Log.d("Nombre", animesRecientes.get(i).getNombre());
             Log.d("Informacion", animesRecientes.get(i).getInformacion());
             Log.d("Preview", animesRecientes.get(i).getPreview());
-        }
+        }*/
         adaptador = new AdaptadorHomeScreenAnimeFLV(getActivity(), animesRecientes);
         list.setAdapter(adaptador);
         return convertView;

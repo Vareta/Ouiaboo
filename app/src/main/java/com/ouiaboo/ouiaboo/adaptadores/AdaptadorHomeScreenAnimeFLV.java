@@ -44,7 +44,7 @@ public class AdaptadorHomeScreenAnimeFLV extends ArrayAdapter {
         //agrega el preview al imageview via url
 
        // new Utilities.DownloadImageTask(preview).execute(item.getPreview());
-        Picasso.with(parent.getContext()).load(item.getPreview()).into(preview);
+        Picasso.with(parent.getContext()).load(item.getPreview()).resize(250, 150).into(preview);
         return convertView;
     }
 
