@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
-public class Central extends Activity implements HomeScreen.OnFragmentInteractionListener{
+public class Central extends AppCompatActivity implements HomeScreen.OnFragmentInteractionListener{
     private DrawerLayout drawerLayout;
     private ListView drawerList;
     LinearLayout linearLayout;
