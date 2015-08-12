@@ -158,7 +158,7 @@ public class Animeflv {
             for (int i = 0; i < max; i++) {
                 if (paginaWeb.get(i).contains("var videos")) {
                     Matcher localMatcher = Pattern.compile("hyperion.php\\?key=(.*?)&provider").matcher(paginaWeb.get(i));
-
+                    //Log.d("URL  ", paginaWeb.get(i));
                     while (localMatcher.find()) {
                         auxUrl = localMatcher.group(1);
                         //System.out.println(aux);
@@ -176,16 +176,13 @@ public class Animeflv {
             }
             //Log.d("WEB", auxUrl);
             url = "http://animeflv.net/video/hyperion.php?key=" + auxUrl;
+           // url = "http://animejoy.tv/video/sore-ga-seiyuu/005.mp4"; //para trabajar mientras animeflv esta caido
            // Log.d("WEB", url);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-
-
-
-
 
         return url;
     }

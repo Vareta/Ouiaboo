@@ -1,19 +1,20 @@
 package com.ouiaboo.ouiaboo;
 
-import android.app.Activity;
-import android.app.ExpandableListActivity;
-import android.database.DataSetObserver;
+
+import android.app.SearchManager;
+import android.content.Context;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
@@ -23,12 +24,11 @@ import com.ouiaboo.ouiaboo.adaptadores.AdapatadorDrawerExpList;
 import com.ouiaboo.ouiaboo.adaptadores.AdaptadorDrawerListUno;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.SitiosWeb;
-import com.ouiaboo.ouiaboo.fragments.HomeScreen;
+import com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 
 public class Central extends AppCompatActivity implements HomeScreen.OnFragmentInteractionListener{
@@ -39,19 +39,58 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
     ExpandableListView expListView;
     ArrayList<DrawerItemsListUno> listDataHeader; //objetos padre lista expandible
     HashMap<DrawerItemsListUno, List<SitiosWeb>> listDataChild; //objetos hijos de la lista expandible
+    ArrayList<DrawerItemsListUno> items;
+    private Toolbar toolbar;
+    String title;
+    String title2;
+  //  private ProgressBar bar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+       // requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_central);
 
-        HomeScreen homeScreen = (HomeScreen)getFragmentManager().findFragmentById(R.id.fragment_home_animeflv);
-
-        String[] drawerTitulos = getResources().getStringArray(R.array.drawer_list_uno); //arreglo de strings de la lista
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout); //el drawerLayout
         linearLayout = (LinearLayout)findViewById(R.id.left_drawer);
         drawerList = (ListView)findViewById(R.id.drawer_list); //el listView
         expListView = (ExpandableListView)findViewById(R.id.drawer_expandable_list); //lista expandible
+        toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_white);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(Gravity.LEFT);
+                Log.d("cek", "home selected");
+            }
+        });
+        poblarMenuLateral();
+
+        //relaciona el adaptador y el listener para la lista del drawer
+        drawerList.setAdapter(new AdaptadorDrawerListUno(this, items));
+        //se crea una instancia del adaptador, para luego setearlo
+        listAdapter = new AdapatadorDrawerExpList(this, listDataHeader, listDataChild);
+        expListView.setAdapter(listAdapter);
+        drawerLayout.closeDrawer(linearLayout);
+
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.contenedor, new HomeScreen());
+        ft.commit();
+        title = "Hola";
+        title2 = "hola 2";
+
+
+
+
+       // HomeScreen homeScreen = (HomeScreen)getFragmentManager().findFragmentById(R.id.fragment_home_animeflv);
+
+    }
+
+
+    private void poblarMenuLateral(){
+
+        String[] drawerTitulos = getResources().getStringArray(R.array.drawer_list_uno); //arreglo de strings de la lista
 
         //poblando la lista expandible
         String[] paginasWebNombre = getResources().getStringArray(R.array.paginas_anime);
@@ -70,36 +109,12 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         listDataChild.put(listDataHeader.get(0), webList);
 
         //poblando la lista 1 del drawer layout (menu de al lado)
-        ArrayList<DrawerItemsListUno> items = new ArrayList<DrawerItemsListUno>();
+        items = new ArrayList<DrawerItemsListUno>();
         items.add(new DrawerItemsListUno(drawerTitulos[0], R.drawable.ic_action_home));
         items.add(new DrawerItemsListUno(drawerTitulos[1], R.drawable.ic_action_heart));
         items.add(new DrawerItemsListUno(drawerTitulos[2], R.drawable.ic_action_help));
         items.add(new DrawerItemsListUno(drawerTitulos[3], R.drawable.ic_action_info));
 
-        //relaciona el adaptador y el listener para la lista del drawer
-        drawerList.setAdapter(new AdaptadorDrawerListUno(this, items));
-        //se crea una instancia del adaptador, para luego setearlo
-        listAdapter = new AdapatadorDrawerExpList(this, listDataHeader, listDataChild);
-        expListView.setAdapter(listAdapter);
-        drawerLayout.closeDrawer(linearLayout);
-
-        Utilities.DownloadWebPageTask task = new Utilities.DownloadWebPageTask();
-        task.execute(new String[]{"http://animeflv.net/"});
-        List<String> codigoFuente = null;
-        try {
-            codigoFuente = task.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        if (codigoFuente != null) {
-            //Log.d("NULL", "no es nulo");
-            Animeflv util = new Animeflv();
-            util.homeScreenAnimeflv(codigoFuente);
-        } else {
-           // Log.d("NULL", "nulo");
-        }
 
     }
 
@@ -107,6 +122,34 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_central, menu);
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView)menu.findItem(R.id.buscar).getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+       // searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+        searchView.setSubmitButtonEnabled(true); //submit button
+        searchView.setQueryRefinementEnabled(true); //query refinement for search sugestion
+
+        final SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // Do something
+                Log.d("TextChange", newText);
+                Log.d("TextChange", "cambie");
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Do something
+                Log.d("TextChange", query);
+                Log.d("TextSubmit", "busqué");
+                return true;
+            }
+        };
+
+        searchView.setOnQueryTextListener(queryTextListener);
         return true;
     }
 
@@ -118,7 +161,8 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.drawable.ic_menu_white) {
+            Log.d("Toolbar", "hola");
             return true;
         }
 

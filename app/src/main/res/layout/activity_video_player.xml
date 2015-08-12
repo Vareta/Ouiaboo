@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:background="#000000"
     android:orientation="horizontal"
-    tools:context="com.demo.demo.VideoPlayer2">
+    tools:context="com.demo.demo.VideoPlayer">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
@@ -15,8 +15,17 @@
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
+
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent"
         android:fitsSystemWindows="true">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"
+            android:visibility="gone"
+            android:layout_gravity="center" />
 
         <LinearLayout android:id="@+id/fullscreen_content_controls" style="?metaButtonBarStyle"
             android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -31,10 +40,10 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:id="@+id/tiempoActual"
-                android:layout_gravity="left|center" />
+                android:layout_gravity="start|center" />
 
             <SeekBar
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/seekBar"
                 android:layout_gravity="center"
@@ -57,10 +66,11 @@
                 android:background="@drawable/play_pause"
                 android:textOff=" "
                 android:textOn=" "
-                android:layout_gravity="center|right" />
-
+                android:layout_gravity="end|center" />
 
         </LinearLayout>
+
+
     </FrameLayout>
 
 </FrameLayout>

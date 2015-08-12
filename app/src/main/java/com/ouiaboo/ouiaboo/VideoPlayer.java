@@ -28,6 +28,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -55,6 +56,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
     private SeekBar barraProgreso;
     Handler mHideHandler = new Handler();
     private String urlEntrada;
+    private ProgressBar bar;
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -87,6 +89,11 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_video_player);
+
+        bar = (ProgressBar)findViewById(R.id.progressBar);
         HomeScreenAnimeFLV episodio = (HomeScreenAnimeFLV)getIntent().getSerializableExtra("episodio");
         urlEntrada = episodio.getUrlCapitulo();
         //Log.d("ENTRADA", urlEntrada);
@@ -97,11 +104,10 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
 
         //url = e.getString("url");
         //Quita el action bar del fullscreen
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_video_player);
+
 
         video = (VideoView)findViewById(R.id.videoView);
+
 
         final View controlsView = findViewById(R.id.fullscreen_content_controls);
         final View contentView = findViewById(R.id.videoView);
@@ -202,6 +208,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
     @Override
     protected void onResume(){
         super.onResume();
+        bar.setVisibility(View.VISIBLE);
         video.seekTo(posicionGuardada);
         Log.d(TAG, String.valueOf(posicionGuardada));
         if (posicionGuardada == 0){
@@ -246,34 +253,26 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
 
 
     public class BackgroundAsyncTask extends AsyncTask<String, Uri, Void> {
-      /*  Integer track = 0;
-        ProgressDialog dialog;
 
         protected void onPreExecute() {
-            dialog = new ProgressDialog(PlayVideo.this);
-            dialog.setMessage("Loading, Please Wait...");
-            dialog.setCancelable(true);
-            dialog.show();
-        }*/
+            bar.setVisibility(View.VISIBLE);
+        }
 
         protected void onProgressUpdate(final Uri... uri) {
-
             try {
 
                 video.setVideoURI(uri[0]);
                 video.requestFocus();
                 video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
 
-
                     public void onPrepared(MediaPlayer mp) {
                         //video.start();
+                        bar.setVisibility(View.GONE);
                         Log.d(TAG, "inicio");
                         // mPlayer = mp;
                         // mPlayer.start();
                     }
                 });
-
-
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             } catch (IllegalStateException e) {
@@ -282,7 +281,6 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-
         }
 
         @Override
@@ -299,7 +297,10 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
             return null;
         }
 
-
+        @Override
+        protected void onPostExecute(Void result) {
+           // bar.setVisibility(View.GONE);
+        }
     }
 
 

@@ -50,7 +50,9 @@
     <!-- **********************************************************        menu_central        *************************************************************************** -->
     <!--********************************************************************************************************************************************************************* -->
     <string name="buscar.menu_central.ES">Buscar</string>
-
+    <string name="drawer_open.menu_central.ES">Abrir navigation drawer</string>
+    <string name="drawer_close.menu_central.ES">Cerrar navigation drawer</string>
+    <string name="search_hint.menu_central.ES">Buscar animes</string>
 
 
 </resources>

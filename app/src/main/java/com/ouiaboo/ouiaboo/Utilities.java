@@ -94,6 +94,32 @@ public class Utilities {
         }*/
     }
 
+    public List<String> downloadWebPageTaskNoAsync (String url) {
 
+            List<String> lista = new ArrayList<String>();
+            HttpClient httpclient = new DefaultHttpClient(); // Create HTTP Client
+            HttpGet httpget = new HttpGet(url); // Set the action you want to do
+            try {
+                HttpResponse response = httpclient.execute(httpget); // Executeit
+                HttpEntity entity = response.getEntity();
+                InputStream is = entity.getContent(); // Create an InputStream with the response
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"), 8);
+                // StringBuilder sb = new StringBuilder();
+                String line = null;
+                while ((line = reader.readLine()) != null) { // Read line by line
+                    // sb.append(line);
+                    //Log.d("STRING", line);
+                    lista.add(line);
+                    //lista.add(line); // Result is here
+                    //  sb = null;
+                    // sb.delete(0,0);
+                }
+                is.close(); // Close the stream
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return lista;
+
+    }
 
 }

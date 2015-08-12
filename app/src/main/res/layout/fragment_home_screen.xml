@@ -1,13 +1,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="com.ouiaboo.ouiaboo.fragments.HomeScreen">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen">
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/home_screen_list_animeflv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:smoothScrollbar="true" />
+        android:choiceMode="singleChoice" />
 
 </FrameLayout>
