@@ -1,8 +1,12 @@
 package com.ouiaboo.ouiaboo;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 
 import org.apache.http.HttpEntity;
@@ -10,8 +14,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -19,12 +28,18 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.ouiaboo.ouiaboo.R.string;
 
 /**
  * Created by Vareta on 29-07-2015.
  */
-public class Animeflv {
+public class Animeflv{
+    Resources resources;
 
+
+    public Animeflv(Resources resources){
+        this.resources = resources;
+    }
     private String animeflv = "http://animeflv.net/"; //sitio web
 
 
@@ -93,7 +108,7 @@ public class Animeflv {
                                 if (apoyo.contains(condOva)) {//es OVA
                                     informacion = "OVA";
                                 } else {//es un episodio
-                                    informacion = "Episodio número " + div[div.length - 1];
+                                    informacion = resources.getString(R.string.numero_episodio_menu_central_ES) + " " + div[div.length - 1];
                                 }
                             }
                         } else {
@@ -187,47 +202,135 @@ public class Animeflv {
         return url;
     }
 
-  /*  public static class urlVideo extends AsyncTask<String, Void, String> {
 
-        @Override
-        protected String doInBackground(String... urls) {
+    public ArrayList<HomeScreenAnimeFLV> busquedaFLV(String url){
+        String pelicula = "tipo_2"; //pelicula
+        String ova = "tipo_1"; //OVA
+        String serie = "tipo_0"; //serie de anime
+        Document doc = null;
+        ArrayList<HomeScreenAnimeFLV> search = new ArrayList<HomeScreenAnimeFLV>();
+        String urlAnime;
+        String nombre;
+        String informacion;
+        String informacionAux;
+        String preview;
 
-            String urlVideo = "";
-            List<String> paginaWeb = null;
-            Log.d("HOLA", "inicio");
-            for (String url : urls) {
-                Utilities.DownloadWebPageTask task = new Utilities.DownloadWebPageTask();
-                task.execute(new String[]{url});
-                Log.d("HOLA", url);
+        try {
+            doc = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .referrer("http://www.google.com")
+                    .get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-                try {
-                    paginaWeb = task.get();
-                    int max = paginaWeb.size();
 
-                    for (int i = 0; i < max; i++) {
-                        Log.d("HOLA", paginaWeb.get(i));
-                        if (paginaWeb.get(i).contains("var videos =")) {
-                            Log.d("WEB", paginaWeb.get(i));
-                            String[] aux = paginaWeb.get(i).split("hyperion.php\\?key=(.*?)&provider");
-                            for (int j = 0; j < aux.length; j++) {
-                                Log.d("PAGINA ", aux[j]);
-                            }
+        Elements objetosEpi;
+        if (doc != null) {
+            objetosEpi = doc.getElementsByClass("aboxy_lista");
+            if (objetosEpi.isEmpty()){ // si no contiene la clase, es decir la busqueda no produjo resultados
+                search = null;
+                Log.d("Empty", "busqueda no produce resultados");
+            } else {
+                Element dirAnime; //primer elemento del objeto aboxy_lista(i) que contiene el nombre, link e imagen del anime
+                Element dirAnimeTipo; //elemento que contiene la informacion acerca si es pelicula, ova o serie
+                for (int i = 0; i < objetosEpi.size(); i++) {
+                    dirAnime = objetosEpi.get(i).select("a").first();
+                    urlAnime = "http://animeflv.net" + dirAnime.attr("href");
+                    nombre = dirAnime.attr("title");
+                    preview = dirAnime.select("img").attr("data-original"); //accede a img, ya que <a> contiene un <img> en su interior. Ej: <a <img /> </a>
+                    dirAnimeTipo = objetosEpi.get(i).select("span").first();
+                    informacionAux = dirAnimeTipo.attr("class");
+                    if (informacionAux.equals(pelicula)) { //es pelicula?
+                        informacion = "Pelicula";
+                    } else {
+                        if (informacionAux.equals(ova)) { //es OVA?
+                            informacion = "OVA";
+                        } else { // es serie
+                            informacion = "Serie de anime";
                         }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                   // System.out.println("url  : " + urlAnime);
+                   // System.out.println("Nombre  : " + nombre);
+                   // System.out.println("Imagen  : " + preview);
+                   // System.out.println("Tipo  : " + informacion);
+
+                    HomeScreenAnimeFLV item = new HomeScreenAnimeFLV(urlAnime, nombre, informacion, preview); //crea un item tipo homescreen y le añade los valores
+                    search.add(item); //agrega el item a la lista de items
                 }
             }
-
-            return urlVideo;
+        } else {
+            search = null;
+            Log.d("ERROR", "doc.getElementsByClass(\"aboxy_lista\"); es nulo");
         }
 
-        /*@Override
-        protected void onPostExecute(List<String> result) {
-            textView.setText(result);
-        }
-    }*/
+        return search;
+    }
 
+    public ArrayList<Episodios> getEpisodios(String url) {
+        String urlEp;
+        String numero;
+        String urlImagen = null;
+        String informacion = null;
+        ArrayList<Episodios> capitulos = new ArrayList<Episodios>();
+        Document doc = null;
+
+        try {
+            doc = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .referrer("http://www.google.com")
+                    .get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Elements objEpisodios;
+        if (doc != null) {
+            objEpisodios = doc.getElementsByClass("anime_episodios"); //clase que contiene los capitulos
+            if (objEpisodios.isEmpty()) {
+                Log.d("Error", "Episodios inexistentes (null)");
+            } else {
+                Elements epiIndividuales = objEpisodios.select("ul");
+                Elements episodiosFocus = epiIndividuales.get(0).select("a");
+                for (int i = 0; i < episodiosFocus.size(); i++) {
+                    Episodios epi;
+                    if (i == 0) {
+                        Element info = doc.getElementsByClass("sinopsis").first();
+                        informacion = info.text();
+                        Element img = doc.getElementsByClass("portada").first();
+                        urlImagen = img.attr("src");
+                        urlEp = "http://animeflv.net" + episodiosFocus.get(i).attr("href");
+                        numero = numeroEpisodio(episodiosFocus.get(i).text());
+                        epi = new Episodios(urlEp, numero, urlImagen, informacion);
+
+                    } else {
+                        urlEp = "http://animeflv.net" + episodiosFocus.get(i).attr("href");
+                        numero = numeroEpisodio(episodiosFocus.get(i).text());
+                        epi = new Episodios(urlEp, numero, null, null);
+                    }
+                    //System.out.println("url  " + urlEp);
+                    //System.out.println("numero  " + numero);
+                    //System.out.println("portada  " + urlImagen);
+                    //System.out.println("info   " + informacion);
+                    capitulos.add(epi);
+                }
+
+            }
+        }
+
+        return capitulos;
+    }
+
+    //entrega el valor: Episodio número "x"
+    private String numeroEpisodio(String episodio) {
+        String epi;
+
+        String[] aux = episodio.split(":");
+        String[] aux2 = aux[0].split(" ");
+        epi = resources.getString(R.string.numero_episodio_menu_central_ES) + " " + aux2[aux2.length - 1];
+
+        return epi;
+    }
 
 
 }

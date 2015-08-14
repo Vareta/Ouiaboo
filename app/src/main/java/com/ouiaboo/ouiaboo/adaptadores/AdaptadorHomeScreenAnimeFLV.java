@@ -75,7 +75,7 @@ public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorH
                 //System.out.println("posicion" + position);
                // System.out.println("i  " + i);
                 Intent intent = new Intent(context, VideoPlayer.class);
-                intent.putExtra("episodio", (Serializable) items.get(position));
+                intent.putExtra("url", items.get(position).getUrlCapitulo());
                 context.startActivity(intent);
             }
         });

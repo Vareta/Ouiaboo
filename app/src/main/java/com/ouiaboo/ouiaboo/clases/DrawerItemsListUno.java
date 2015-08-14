@@ -12,11 +12,11 @@ public class DrawerItemsListUno {
         this.iconId = iconId;
     }
 
-    public void setNombre() {
+    public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 
-    public void setIconId() {
+    public void setIconId(int iconId) {
         this.iconId = iconId;
     }
 

@@ -78,7 +78,7 @@ public class HomeScreen extends android.support.v4.app.Fragment {
         protected Void doInBackground(Void... params) {
 
             try {
-                animes = new Animeflv();
+                animes = new Animeflv(getResources());
                 util = new Utilities();
                 codigoFuente = util.downloadWebPageTaskNoAsync(animeFLV);
                 animesRecientes = animes.homeScreenAnimeflv(codigoFuente);
@@ -91,9 +91,7 @@ public class HomeScreen extends android.support.v4.app.Fragment {
                 }*/
 
                 adaptador = new AdaptadorHomeScreenAnimeFLV(getActivity(), animesRecientes);
-                if (adaptador == null){
-                    Log.d("Hola", "soy nulo");
-                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -112,10 +110,9 @@ public class HomeScreen extends android.support.v4.app.Fragment {
         protected void onPostExecute(Void result) {
             //Log.d("HOLA", "POSTEXECUTE33333");
             //getActivity().setProgressBarIndeterminateVisibility(false);
-
+            list.setLayoutManager(new LinearLayoutManager(getActivity()));
             list.setAdapter(adaptador);
             //list.setHasFixedSize(true);
-            list.setLayoutManager(new LinearLayoutManager(getActivity()));
             //getActivity().setProgressBarIndeterminateVisibility(false);
             bar.setVisibility(View.GONE);
             //

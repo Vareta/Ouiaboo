@@ -52,7 +52,13 @@
     <string name="buscar.menu_central.ES">Buscar</string>
     <string name="drawer_open.menu_central.ES">Abrir navigation drawer</string>
     <string name="drawer_close.menu_central.ES">Cerrar navigation drawer</string>
-    <string name="search_hint.menu_central.ES">Buscar animes</string>
+    <string name="search_hint.menu_central.ES">Buscar anime</string>
+    <string name="ins_caracteres.menu_central.ES">Debe ingresar al menos 4 caracteres</string>
+    <string name="numero_episodio.menu_central.ES">Episodio número</string>
 
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        fragment_busqueda_flv        *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
 
+    <string name="noResultado.busquedaFLV.ES">No se han encontrado resultados.</string>
 </resources>

@@ -19,19 +19,19 @@ public class HomeScreenAnimeFLV implements Serializable{
         this.preview = preview;
     }
 
-    public void setUrlCapitulo() {
+    public void setUrlCapitulo(String urlCapitulo) {
         this.urlCapitulo = urlCapitulo;
     }
 
-    public void setNombre() {
+    public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 
-    public void setInformacion() {
+    public void setInformacion(String informacion) {
         this.informacion = informacion;
     }
 
-    public void setPreview() {
+    public void setPreview(String preview) {
         this.preview = preview;
     }
 

@@ -94,11 +94,11 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         setContentView(R.layout.activity_video_player);
 
         bar = (ProgressBar)findViewById(R.id.progressBar);
-        HomeScreenAnimeFLV episodio = (HomeScreenAnimeFLV)getIntent().getSerializableExtra("episodio");
-        urlEntrada = episodio.getUrlCapitulo();
+        //HomeScreenAnimeFLV episodio = (HomeScreenAnimeFLV)getIntent().getSerializableExtra("episodio");
+        urlEntrada = getIntent().getStringExtra("url");
         //Log.d("ENTRADA", urlEntrada);
 
-        Animeflv anime = new Animeflv();
+        Animeflv anime = new Animeflv(getResources());
         url = anime.urlVideo(urlEntrada);
 
 
