@@ -25,7 +25,7 @@ import java.util.ArrayList;
  * {@link EpisodiosFlv.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class EpisodiosFlv extends android.support.v4.app.Fragment {
+public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdEpisodios.CustomRecyclerListener{
 
     private RecyclerView list;
     private ProgressBar bar;
@@ -47,17 +47,11 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment {
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         url = getArguments().getString("query");
 
-        new BackgroundTask().execute();
+        new BackgroundTask().execute(this);
 
         return convertView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -76,6 +70,11 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment {
         mListener = null;
     }
 
+    @Override
+    public void customRecyclerListener(View v, int position) {
+        mListener.onEpisodiosFlvInteraction(epi.get(position).getUrl());
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -88,18 +87,19 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        public void onEpisodiosFlvInteraction(String url);
     }
 
-    private class BackgroundTask extends AsyncTask<Void, Void, Void> {
+    private class BackgroundTask extends AsyncTask<AdEpisodios.CustomRecyclerListener, Void, Void> {
 
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(AdEpisodios.CustomRecyclerListener... params) {
             try {
                 Animeflv ani = new Animeflv(getResources());
                 epi = ani.getEpisodios(url);
                 adaptador = new AdEpisodios(getActivity(), epi);
+                adaptador.setClickListener(params[0]);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -3,6 +3,7 @@ package com.ouiaboo.ouiaboo;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -141,8 +142,8 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // Do something
-                Log.d("TextChange", query);
-                Log.d("TextSubmit", "busqué");
+                //Log.d("TextChange", query);
+                //Log.d("TextSubmit", "busqué");
                 if (query.length() < 4) {
                     //Log.d("TextSubmit", "menos o igual de 3");
                     Toast.makeText(Central.this, getString(R.string.ins_caracteres_menu_central_ES), Toast.LENGTH_SHORT).show();
@@ -201,6 +202,13 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         ft.replace(R.id.contenedor, capitulo);
         ft.addToBackStack(null); //para que se pueda devolver a un fragment anterior
         ft.commit();
+    }
+
+    @Override
+    public void onEpisodiosFlvInteraction(String url) {
+        Intent intent = new Intent(this, VideoPlayer.class);
+        intent.putExtra("url", url);
+        startActivity(intent);
     }
 
 

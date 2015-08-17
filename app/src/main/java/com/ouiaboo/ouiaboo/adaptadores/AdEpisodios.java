@@ -23,20 +23,20 @@ import java.util.List;
 public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolder>{
     public List<Episodios> items;
     public Context context;
+    public CustomRecyclerListener customRecyclerListener;
 
     public AdEpisodios (Context context, List<Episodios> items) {
         this.context = context;
         this.items = items;
     }
 
-    public static class EpisodiosHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class EpisodiosHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView capitulo;
 
-        public CustomRecyclerListener mListener;
 
-        public EpisodiosHolder(View itemLayoutView, CustomRecyclerListener listener) {
+
+        public EpisodiosHolder(View itemLayoutView) {
             super(itemLayoutView);
-            mListener = listener;
             capitulo = (TextView)itemLayoutView.findViewById(R.id.espisodios_flv);
             itemLayoutView.setOnClickListener(this);
         }
@@ -44,40 +44,32 @@ public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolde
         @Override
         public void onClick(View v) {
             //System.out.println("layou" + getLayoutPosition());
-            mListener.customRecyclerListener(v, getLayoutPosition());
+            customRecyclerListener.customRecyclerListener(v, getLayoutPosition());
         }
 
-        public static interface CustomRecyclerListener {
-            public void customRecyclerListener(View v, int position);
-        }
     }
 
+    public static interface CustomRecyclerListener {
+        public void customRecyclerListener(View v, int position);
+    }
 
+    public void setClickListener(CustomRecyclerListener customRecyclerListener){
+        this.customRecyclerListener = customRecyclerListener;
+    }
 
     @Override
     public EpisodiosHolder onCreateViewHolder(ViewGroup viewGroup, final int i) {
         //LayoutInflater inflater = (LayoutInflater)viewGroup.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.episodios_animeflv, viewGroup, false);
-        AdEpisodios.EpisodiosHolder vh = new EpisodiosHolder(v, new AdEpisodios.EpisodiosHolder.CustomRecyclerListener() {
-            @Override
-            public void customRecyclerListener(View v, int position) { //recibe la posicion de mListener
-
-                Intent intent = new Intent(context, VideoPlayer.class);
-                intent.putExtra("url", items.get(position).getUrl());
-                context.startActivity(intent);
-                /* HACER QUE APAREZCA EL OTRO FRAGMENT */
-            }
-        });
+        AdEpisodios.EpisodiosHolder vh = new EpisodiosHolder(v);
         return vh;
     }
 
     @Override
     public void onBindViewHolder(EpisodiosHolder episodiosHolder, int i) {
-
         episodiosHolder.capitulo.setText(Html.fromHtml(items.get(i).getNumero()));
 
         // new Utilities.DownloadImageTask(preview).execute(item.getPreview());
-
     }
 
     @Override
