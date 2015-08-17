@@ -29,7 +29,8 @@ import java.util.List;
 public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorHomeScreenAnimeFLV.AdHoScAnFLVHolder> {
     public List<HomeScreenAnimeFLV> items;
     public Context context;
-    public static int pos;
+    public CustomRecyclerListener customRecyclerListener;
+
     // HomeScreenAnimeFLV item = (HomeScreenAnimeFLV)getItem(position);
 
     public AdaptadorHomeScreenAnimeFLV (Context context, List<HomeScreenAnimeFLV> items) {
@@ -37,15 +38,14 @@ public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorH
         this.items = items;
     }
 
-    public static class AdHoScAnFLVHolder extends RecyclerView.ViewHolder implements OnClickListener{
+    public class AdHoScAnFLVHolder extends RecyclerView.ViewHolder implements OnClickListener{
         public TextView nombre;
         public TextView informacion;
         public ImageView preview;
-        public CustomRecyclerListener mListener;
 
-        public AdHoScAnFLVHolder(View itemLayoutView, CustomRecyclerListener listener) {
+
+        public AdHoScAnFLVHolder(View itemLayoutView) {
             super(itemLayoutView);
-            mListener = listener;
             nombre = (TextView)itemLayoutView.findViewById(R.id.nombre_flv);
             informacion = (TextView)itemLayoutView.findViewById(R.id.informacion_flv);
             preview = (ImageView)itemLayoutView.findViewById(R.id.preview_flv);
@@ -55,30 +55,27 @@ public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorH
         @Override
         public void onClick(View v) {
             //System.out.println("layou" + getLayoutPosition());
-            mListener.customRecyclerListener(v, getLayoutPosition());
+            if (customRecyclerListener != null) {
+                customRecyclerListener.customClickListener(v, getLayoutPosition());
+            }
         }
 
-        public static interface CustomRecyclerListener {
-            public void customRecyclerListener(View v, int position);
-        }
+
+    }
+    public static interface CustomRecyclerListener {
+        public void customClickListener(View v, int position);
     }
 
-
+    public void setClickListener(CustomRecyclerListener customRecyclerListener){
+        this.customRecyclerListener = customRecyclerListener;
+    }
 
     @Override
     public AdHoScAnFLVHolder onCreateViewHolder(ViewGroup viewGroup, final int i) {
         //LayoutInflater inflater = (LayoutInflater)viewGroup.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.home_screen_animeflv, viewGroup, false);
-        AdaptadorHomeScreenAnimeFLV.AdHoScAnFLVHolder vh = new AdHoScAnFLVHolder(v, new AdaptadorHomeScreenAnimeFLV.AdHoScAnFLVHolder.CustomRecyclerListener() {
-            @Override
-            public void customRecyclerListener(View v, int position) { //recibe la posicion de mListener
-                //System.out.println("posicion" + position);
-               // System.out.println("i  " + i);
-                Intent intent = new Intent(context, VideoPlayer.class);
-                intent.putExtra("url", items.get(position).getUrlCapitulo());
-                context.startActivity(intent);
-            }
-        });
+        AdaptadorHomeScreenAnimeFLV.AdHoScAnFLVHolder vh = new AdHoScAnFLVHolder(v);
+
         return vh;
     }
 
@@ -100,27 +97,5 @@ public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorH
         return items.size();
     }
 
-   /* @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater)parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.home_screen_animeflv, null);
-        }
-
-        TextView nombre = (TextView)convertView.findViewById(R.id.nombre_flv);
-        TextView informacion = (TextView)convertView.findViewById(R.id.informacion_flv);
-        ImageView preview = (ImageView)convertView.findViewById(R.id.preview_flv);
-
-        HomeScreenAnimeFLV item = (HomeScreenAnimeFLV)getItem(position);
-        nombre.setText(Html.fromHtml(item.getNombre()));
-        informacion.setText(item.getInformacion());
-
-        //agrega el preview al imageview via url
-
-       // new Utilities.DownloadImageTask(preview).execute(item.getPreview());
-        Picasso.with(parent.getContext()).load(item.getPreview()).resize(250, 150).into(preview);
-        return convertView;
-    }*/
 
 }

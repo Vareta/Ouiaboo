@@ -2,6 +2,7 @@ package com.ouiaboo.ouiaboo.fragmentsFLV;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.widget.ProgressBar;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
+import com.ouiaboo.ouiaboo.VideoPlayer;
 import com.ouiaboo.ouiaboo.adaptadores.AdaptadorHomeScreenAnimeFLV;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 
@@ -28,7 +30,7 @@ import java.util.List;
  * {@link HomeScreen.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class HomeScreen extends android.support.v4.app.Fragment {
+public class HomeScreen extends android.support.v4.app.Fragment implements AdaptadorHomeScreenAnimeFLV.CustomRecyclerListener{
     FragmentActivity mActivity;
     private final String animeFLV = "http://animeflv.net/";
     private OnFragmentInteractionListener mListener;
@@ -54,29 +56,22 @@ public class HomeScreen extends android.support.v4.app.Fragment {
         list = (RecyclerView)convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
 
-
-
-        new BackgroundTask().execute();
-
-        /*list.OnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity().getBaseContext(), VideoPlayer.class);
-                intent.putExtra("episodio", (Serializable)animesRecientes.get(position));
-                startActivity(intent);
-            }
-        });*/
-
+        new BackgroundTask().execute(this);
 
         return convertView;
     }
 
-    private class BackgroundTask extends AsyncTask<Void, Void, Void> {
+    @Override
+    public void customClickListener(View v, int position) {
+        Intent intent = new Intent(getActivity(), VideoPlayer.class);
+        intent.putExtra("url", animesRecientes.get(position).getUrlCapitulo());
+        startActivity(intent);
+    }
 
+    private class BackgroundTask extends AsyncTask<AdaptadorHomeScreenAnimeFLV.CustomRecyclerListener, Void, Void> {
 
         @Override
-        protected Void doInBackground(Void... params) {
-
+        protected Void doInBackground(AdaptadorHomeScreenAnimeFLV.CustomRecyclerListener... params) {
             try {
                 animes = new Animeflv(getResources());
                 util = new Utilities();
@@ -91,6 +86,7 @@ public class HomeScreen extends android.support.v4.app.Fragment {
                 }*/
 
                 adaptador = new AdaptadorHomeScreenAnimeFLV(getActivity(), animesRecientes);
+                adaptador.setClickListener(params[0]);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -100,8 +96,6 @@ public class HomeScreen extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPreExecute() {
-            //getActivity().setProgressBarIndeterminateVisibility(true);
-            //getActivity().setProgressBarIndeterminateVisibility(true);
             bar.setVisibility(View.VISIBLE);
            // Log.d("HOLA", "PREEXECUTE 333");
         }
