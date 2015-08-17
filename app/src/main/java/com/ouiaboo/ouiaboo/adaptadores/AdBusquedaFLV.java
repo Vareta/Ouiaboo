@@ -30,21 +30,20 @@ import java.util.List;
 public class AdBusquedaFLV extends RecyclerView.Adapter<AdBusquedaFLV.BusquedaHolder>{
     public List<HomeScreenAnimeFLV> items;
     public Context context;
+    public CustomRecyclerListener customRecyclerListener;
 
     public AdBusquedaFLV (Context context, List<HomeScreenAnimeFLV> items) {
         this.context = context;
         this.items = items;
     }
 
-    public static class BusquedaHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class BusquedaHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView nombre;
         public TextView informacion;
         public ImageView preview;
-        public CustomRecyclerListener miListener;
 
-        public BusquedaHolder(View itemLayoutView, CustomRecyclerListener listener) {
+        public BusquedaHolder(View itemLayoutView) {
             super(itemLayoutView);
-            miListener = listener;
             nombre = (TextView)itemLayoutView.findViewById(R.id.nombre_flv);
             informacion = (TextView)itemLayoutView.findViewById(R.id.informacion_flv);
             preview = (ImageView)itemLayoutView.findViewById(R.id.preview_flv);
@@ -54,12 +53,19 @@ public class AdBusquedaFLV extends RecyclerView.Adapter<AdBusquedaFLV.BusquedaHo
         @Override
         public void onClick(View v) {
             //System.out.println("layou" + getLayoutPosition());
-            miListener.customRecyclerListener(v, getLayoutPosition());
+            if (customRecyclerListener != null) {
+                customRecyclerListener.customClickListener(v, getLayoutPosition());
+            }
         }
 
-        public static interface CustomRecyclerListener {
-            public void customRecyclerListener(View v, int position);
-        }
+    }
+
+    public static interface CustomRecyclerListener {
+        public void customClickListener(View v, int position);
+    }
+
+    public void setClickListener(CustomRecyclerListener customRecyclerListener){
+        this.customRecyclerListener = customRecyclerListener;
     }
 
 
@@ -68,23 +74,8 @@ public class AdBusquedaFLV extends RecyclerView.Adapter<AdBusquedaFLV.BusquedaHo
     public BusquedaHolder onCreateViewHolder(ViewGroup viewGroup, final int i) {
         //LayoutInflater inflater = (LayoutInflater)viewGroup.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.busqueda_items_flv, viewGroup, false);
-        AdBusquedaFLV.BusquedaHolder vh = new BusquedaHolder(v, new AdBusquedaFLV.BusquedaHolder.CustomRecyclerListener() {
-            @Override
-            public void customRecyclerListener(View v, int position) { //recibe la posicion de mListener
+        AdBusquedaFLV.BusquedaHolder vh = new BusquedaHolder(v);
 
-                Bundle bundle = new Bundle();
-                bundle.putString("query", items.get(position).getUrlCapitulo());
-                EpisodiosFlv capitulo = new EpisodiosFlv();
-                capitulo.setArguments(bundle);
-
-                //Inicia el fragmente que contiene los resultados de la busqueda
-                FragmentTransaction ft = ((FragmentActivity)context).getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.contenedor, capitulo);
-                ft.addToBackStack(null); //para que se pueda devolver a un fragment anterior
-                ft.commit();
-                /* HACER QUE APAREZCA EL OTRO FRAGMENT */
-            }
-        });
         return vh;
     }
 

@@ -191,7 +191,16 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
     @Override
     public void onBusquedaInteraction(String url) {
-        System.out.println("HOLA");
+        Bundle bundle = new Bundle();
+        bundle.putString("query", url);
+        EpisodiosFlv capitulo = new EpisodiosFlv();
+        capitulo.setArguments(bundle);
+
+        //Inicia el fragmente que contiene los resultados de la busqueda
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.contenedor, capitulo);
+        ft.addToBackStack(null); //para que se pueda devolver a un fragment anterior
+        ft.commit();
     }
 
 

@@ -27,7 +27,7 @@ import java.util.ArrayList;
  * {@link Busqueda.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class Busqueda extends android.support.v4.app.Fragment {
+public class Busqueda extends android.support.v4.app.Fragment implements AdBusquedaFLV.CustomRecyclerListener{
 
     public OnFragmentInteractionListener mListener;
     private RecyclerView list;
@@ -57,7 +57,7 @@ public class Busqueda extends android.support.v4.app.Fragment {
         searchQuery = preparaQuery(getArguments().getString("query")); //prepara la query de busqueda
         //Log.d("queryLista", searchQuery);
 
-        new BackgroundTask().execute(); //ejecuta la busqueda via asynctask
+        new BackgroundTask().execute(this); //ejecuta la busqueda via asynctask
 
 
         return convertView;
@@ -85,6 +85,12 @@ public class Busqueda extends android.support.v4.app.Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void customClickListener(View v, int position) {
+        mListener.onBusquedaInteraction(animesBuscados.get(position).getUrlCapitulo());
+       // Log.d("HOLA", "listener");
     }
 
     /**
@@ -121,22 +127,22 @@ public class Busqueda extends android.support.v4.app.Fragment {
     }
 
 
-    private class BackgroundTask extends AsyncTask<Void, Void, Void> {
-
+    private class BackgroundTask extends AsyncTask<AdBusquedaFLV.CustomRecyclerListener, Void, Void> {
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(AdBusquedaFLV.CustomRecyclerListener... params) {
             Animeflv anime = new Animeflv(getResources());
             try {
                 animesBuscados = anime.busquedaFLV(searchQuery);
                 if (animesBuscados.isEmpty()) {
                     produceResultados = false;
                 } else {
-                  //  System.out.println("tamaño  " + animesBuscados.size());
+                    //  System.out.println("tamaño  " + animesBuscados.size());
                     produceResultados = true;
                     adaptador = new AdBusquedaFLV(getActivity(), animesBuscados);
+                    adaptador.setClickListener(params[0]);
                 }
-                //Log.d("HOLA", "pase despues");
+               // Log.d("HOLA", "pase despues");
             } catch (Exception e) {
                 e.printStackTrace();
             }

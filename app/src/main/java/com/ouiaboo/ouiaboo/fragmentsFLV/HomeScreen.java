@@ -31,7 +31,6 @@ import java.util.List;
  * to handle interaction events.
  */
 public class HomeScreen extends android.support.v4.app.Fragment implements AdaptadorHomeScreenAnimeFLV.CustomRecyclerListener{
-    FragmentActivity mActivity;
     private final String animeFLV = "http://animeflv.net/";
     private OnFragmentInteractionListener mListener;
     private AdaptadorHomeScreenAnimeFLV adaptador;
