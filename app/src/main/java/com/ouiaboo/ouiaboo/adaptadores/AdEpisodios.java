@@ -33,8 +33,6 @@ public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolde
     public class EpisodiosHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView capitulo;
 
-
-
         public EpisodiosHolder(View itemLayoutView) {
             super(itemLayoutView);
             capitulo = (TextView)itemLayoutView.findViewById(R.id.espisodios_flv);
@@ -46,7 +44,6 @@ public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolde
             //System.out.println("layou" + getLayoutPosition());
             customRecyclerListener.customRecyclerListener(v, getLayoutPosition());
         }
-
     }
 
     public static interface CustomRecyclerListener {
@@ -68,7 +65,6 @@ public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolde
     @Override
     public void onBindViewHolder(EpisodiosHolder episodiosHolder, int i) {
         episodiosHolder.capitulo.setText(Html.fromHtml(items.get(i).getNumero()));
-
         // new Utilities.DownloadImageTask(preview).execute(item.getPreview());
     }
 

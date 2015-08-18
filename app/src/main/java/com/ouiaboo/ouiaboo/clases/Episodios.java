@@ -10,12 +10,23 @@ public class Episodios implements Serializable {
     private String numero;
     private String urlImagen;
     private String informacion;
+    private String tipo;
+    private String estado;
+    private String generos;
+    private String fechaInicio;
 
-    public Episodios(String url, String numero, String urlImagen, String informacion){
+
+    public Episodios(String url, String numero, String urlImagen, String informacion,
+                     String tipo, String estado, String generos, String fechaInicio){
         this.url = url;
         this.numero = numero;
         this.urlImagen = urlImagen;
         this.informacion = informacion;
+        this.tipo = tipo;
+        this.estado = estado;
+        this.generos = generos;
+        this.fechaInicio = fechaInicio;
+
     }
 
     public void setUrl(String url) {
@@ -30,6 +41,18 @@ public class Episodios implements Serializable {
     public void setInformacion(String informacion) {
         this.informacion = informacion;
     }
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+    public void setGeneros(String generos) {
+        this.generos = generos;
+    }
+    public void setFechaInicio(String fechaInicio) {
+        this.fechaInicio = fechaInicio;
+    }
     public String getUrl(){
         return url;
     }
@@ -41,6 +64,18 @@ public class Episodios implements Serializable {
     }
     public String getInformacion(){
         return informacion;
+    }
+    public String getTipo() {
+        return tipo;
+    }
+    public String getEstado() {
+        return estado;
+    }
+    public String getGeneros() {
+        return generos;
+    }
+    public String getFechaInicio() {
+        return fechaInicio;
     }
 
 }

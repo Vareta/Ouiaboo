@@ -272,6 +272,10 @@ public class Animeflv{
         String numero;
         String urlImagen = null;
         String informacion = null;
+        String tipo = "";
+        String estado = "";
+        String generos = "";
+        String fechaInicio = "";
         ArrayList<Episodios> capitulos = new ArrayList<Episodios>();
         Document doc = null;
 
@@ -290,28 +294,68 @@ public class Animeflv{
             if (objEpisodios.isEmpty()) {
                 Log.d("Error", "Episodios inexistentes (null)");
             } else {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                /********      SLECCION DE EPISODIOS  **************/
                 Elements epiIndividuales = objEpisodios.select("ul");
                 Elements episodiosFocus = epiIndividuales.get(0).select("a");
                 for (int i = 0; i < episodiosFocus.size(); i++) {
                     Episodios epi;
                     if (i == 0) {
-                        Element info = doc.getElementsByClass("sinopsis").first();
-                        informacion = info.text();
+                        Element sinopsis = doc.getElementsByClass("sinopsis").first();
+                        informacion = sinopsis.text();
                         Element img = doc.getElementsByClass("portada").first();
                         urlImagen = img.attr("src");
+                        Element info = doc.getElementsByClass("ainfo").first();
+                        Elements infoDetallada = info.select("li");
+                        // se hace de esta manera, debido a que existen casos en que ciertos argumentos (que son 4) no aparecen por lo que se genera un error
+                        for (int j = 0; j < infoDetallada.size(); j++) {
+                           // System.out.println("Hola   " + infoDetallada.get(j).select("b").first().toString());
+                            if (infoDetallada.get(j).select("b").first().toString().equals("<b>Tipo:</b>")) {
+                                tipo = infoDetallada.get(j).text();
+                            }
+                            if (infoDetallada.get(j).select("b").first().toString().equals("<b>Estado:</b>")) {
+                                estado = infoDetallada.get(j).text();
+                            }
+                            if (infoDetallada.get(j).select("b").first().toString().equals("<b>Generos:</b>")) {
+                                generos = infoDetallada.get(j).text();
+                            }
+                            if (infoDetallada.get(j).select("b").first().toString().equals("<b>Fecha de Inicio:</b>")) {
+                                fechaInicio = infoDetallada.get(j).text();
+                            }
+                        }
+
                         urlEp = "http://animeflv.net" + episodiosFocus.get(i).attr("href");
                         numero = numeroEpisodio(episodiosFocus.get(i).text());
-                        epi = new Episodios(urlEp, numero, urlImagen, informacion);
+                        epi = new Episodios(urlEp, numero, urlImagen, informacion, tipo, estado, generos, fechaInicio);
 
                     } else {
                         urlEp = "http://animeflv.net" + episodiosFocus.get(i).attr("href");
                         numero = numeroEpisodio(episodiosFocus.get(i).text());
-                        epi = new Episodios(urlEp, numero, null, null);
+                        epi = new Episodios(urlEp, numero, null, null, null, null, null, null);
                     }
-                    //System.out.println("url  " + urlEp);
-                    //System.out.println("numero  " + numero);
-                    //System.out.println("portada  " + urlImagen);
-                    //System.out.println("info   " + informacion);
+                    /*System.out.println("url  " + urlEp);
+                    System.out.println("numero  " + numero);
+                    System.out.println("portada  " + urlImagen);
+                    System.out.println("info   " + informacion);
+                    System.out.println("tipo    " + tipo);
+                    System.out.println("Estado   " + estado);
+                    System.out.println("generos  " + generos);
+                    System.out.println("fechaInicio   " + fechaInicio);*/
                     capitulos.add(epi);
                 }
 
