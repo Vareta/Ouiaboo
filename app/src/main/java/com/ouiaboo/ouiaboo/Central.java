@@ -114,7 +114,6 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         items.add(new DrawerItemsListUno(drawerTitulos[2], R.drawable.ic_action_help));
         items.add(new DrawerItemsListUno(drawerTitulos[3], R.drawable.ic_action_info));
 
-
     }
 
     @Override

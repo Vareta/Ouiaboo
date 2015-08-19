@@ -1,19 +1,25 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.ouiaboo.ouiaboo.fragmentsFLV.EpisodiosFlv">
+    android:layout_height="match_parent">
 
-
-    <ExpandableListView
-        android:id="@+id/info_expandible"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:context="com.ouiaboo.ouiaboo.fragmentsFLV.EpisodiosFlv">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/episodios"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:choiceMode="singleChoice" />
+        <ExpandableListView
+            android:id="@+id/info_expandible"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-</RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/episodios"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:choiceMode="singleChoice" />
+
+    </LinearLayout>
+</ScrollView>
