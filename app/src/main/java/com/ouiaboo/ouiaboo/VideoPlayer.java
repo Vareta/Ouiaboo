@@ -1,33 +1,20 @@
 package com.ouiaboo.ouiaboo;
 
-import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 import com.ouiaboo.ouiaboo.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.graphics.SurfaceTexture;
-import android.media.AudioManager;
-import android.media.Image;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.TextureView;
 import android.view.View;
-import android.view.ViewDebug;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -191,7 +178,8 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.playPauseButton).setOnTouchListener(mDelayHideTouchListener);
-        new BackgroundAsyncTask().execute(url);
+        //new BackgroundAsyncTask().execute(url);
+        reproducir(url);
         updateProgressBar();
         Log.d(TAG, "create");
     }
@@ -205,17 +193,46 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         Log.d(TAG, "pause2");
     }*/
 
+    public void reproducir(String url) {
+        bar.setVisibility(View.VISIBLE);
+        Uri aux = Uri.parse(url);
+        video.setVideoURI(aux); //setVideoURI llama internamente a prepareAsync(); de mediaplayer
+        video.requestFocus();
+        video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                video.start();
+                bar.setVisibility(View.GONE);
+            }
+        });
+    }
+
     @Override
     protected void onResume(){
         super.onResume();
-        bar.setVisibility(View.VISIBLE);
-        video.seekTo(posicionGuardada);
-        Log.d(TAG, String.valueOf(posicionGuardada));
+        //Log.d(TAG, String.valueOf(posicionGuardada));
         if (posicionGuardada == 0){
-            video.start();
+            //video.start();
+            reproducir(url);
             Log.d(TAG, "resume de 0");
         } else {
-            video.resume();
+            bar.setVisibility(View.VISIBLE);
+            video.seekTo(posicionGuardada);
+            video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    Log.d("RESUME", "Onprepare");
+                    mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                        @Override
+                        public void onSeekComplete(MediaPlayer mp) {
+                            Log.d("RESUME", "OnSEEK");
+                            video.pause();
+                            bar.setVisibility(View.GONE);
+                        }
+                    });
+
+                }
+            });
             Log.d(TAG, "resume");
         }
 
@@ -226,7 +243,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
     protected void onPause(){
         super.onPause();
         posicionGuardada = video.getCurrentPosition();
-        Log.d(TAG, "guardo "+String.valueOf(posicionGuardada));
+        Log.d(TAG, "guardo " + String.valueOf(posicionGuardada));
         video.pause();
         Log.d(TAG, "pause1");
     }
@@ -252,7 +269,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
 
 
 
-    public class BackgroundAsyncTask extends AsyncTask<String, Uri, Void> {
+  /*  public class BackgroundAsyncTask extends AsyncTask<String, Uri, Void> {
 
         protected void onPreExecute() {
             bar.setVisibility(View.VISIBLE);
@@ -266,7 +283,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
                 video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
 
                     public void onPrepared(MediaPlayer mp) {
-                        //video.start();
+                        video.start();
                         bar.setVisibility(View.GONE);
                         Log.d(TAG, "inicio");
                         // mPlayer = mp;
@@ -287,7 +304,6 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         protected Void doInBackground(String... params) {
             try {
                 Uri uri = Uri.parse(params[0]);
-
                 publishProgress(uri);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -301,7 +317,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         protected void onPostExecute(Void result) {
            // bar.setVisibility(View.GONE);
         }
-    }
+    }*/
 
 
     @Override

@@ -3,6 +3,7 @@ package com.ouiaboo.ouiaboo.adaptadores;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
@@ -39,6 +40,7 @@ public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorH
     }
 
     public class AdHoScAnFLVHolder extends RecyclerView.ViewHolder implements OnClickListener{
+        public CardView cardView;
         public TextView nombre;
         public TextView informacion;
         public ImageView preview;
@@ -46,6 +48,7 @@ public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorH
 
         public AdHoScAnFLVHolder(View itemLayoutView) {
             super(itemLayoutView);
+            cardView = (CardView)itemLayoutView.findViewById(R.id.card_view);
             nombre = (TextView)itemLayoutView.findViewById(R.id.nombre_flv);
             informacion = (TextView)itemLayoutView.findViewById(R.id.informacion_flv);
             preview = (ImageView)itemLayoutView.findViewById(R.id.preview_flv);

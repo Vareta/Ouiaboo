@@ -21,6 +21,8 @@ import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.VideoPlayer;
 import com.ouiaboo.ouiaboo.adaptadores.AdaptadorHomeScreenAnimeFLV;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
+import com.ouiaboo.ouiaboo.itemDecoration.DividerItemDeco;
+import com.ouiaboo.ouiaboo.itemDecoration.VerticalItemDeco;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements Adapt
     private Animeflv animes;
     private Utilities util;
     private List<String> codigoFuente;
+    private static final int VERTICAL_ITEM_SPACE = 48;
 
 
     public HomeScreen() {
@@ -104,6 +107,8 @@ public class HomeScreen extends android.support.v4.app.Fragment implements Adapt
             //Log.d("HOLA", "POSTEXECUTE33333");
             //getActivity().setProgressBarIndeterminateVisibility(false);
             list.setLayoutManager(new LinearLayoutManager(getActivity()));
+            //list.addItemDecoration(new DividerItemDeco(getActivity(), R.drawable.dvider_recycler_view));
+            //list.addItemDecoration(new VerticalItemDeco(VERTICAL_ITEM_SPACE));
             list.setAdapter(adaptador);
             //list.setHasFixedSize(true);
             //getActivity().setProgressBarIndeterminateVisibility(false);
