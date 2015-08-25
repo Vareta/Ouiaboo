@@ -1,17 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view"
     android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
     android:clickable="true"
-    android:background="?android:attr/selectableItemBackground"
-    android:focusable="true"
-    android:layout_height="match_parent">
+    android:elevation="5dp"
+    android:layout_marginBottom="6dp"
+    card_view:cardCornerRadius="4dp"
+    tools:context="com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen">
 
-    <TextView
-        android:id="@+id/espisodios_flv"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        android:layout_gravity="center"
-        android:gravity="center" />
+        android:layout_height="match_parent"
+        android:background="?android:attr/selectableItemBackground"
+        android:focusable="true">
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/espisodios_flv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="25sp"
+            android:layout_gravity="center"
+            android:gravity="center" />
+
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

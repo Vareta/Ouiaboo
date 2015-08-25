@@ -6,42 +6,53 @@
     <ImageView
         android:id="@+id/img_portada"
         android:layout_width="166dp"
-        android:layout_height="250dp" />
+        android:layout_height="250dp"
+        android:layout_centerHorizontal="true"
+        android:elevation="5dp"
+        android:paddingTop="8dp"/>
 
-    <TextView
-        android:id="@+id/tipo"
-        android:text="hola"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/sub_info"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/estado"
-        android:layout_toRightOf="@+id/img_portada"
-        android:layout_toEndOf="@+id/img_portada" />
+        android:paddingTop="10dp"
+        android:layout_below="@+id/img_portada">
 
-    <TextView
-        android:id="@+id/estado"
-        android:text="hola"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/fecha_inicio"
-        android:layout_toRightOf="@+id/img_portada"
-        android:layout_toEndOf="@+id/img_portada" />
+        <TextView
+            android:id="@+id/tipo"
+            android:text="hola"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
-    <TextView
-        android:id="@+id/fecha_inicio"
-        android:text="hola"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/img_portada"
-        android:layout_toRightOf="@+id/img_portada"
-        android:layout_toEndOf="@+id/img_portada" />
+        <TextView
+            android:id="@+id/estado"
+            android:text="hola"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tipo" />
+
+        <TextView
+            android:id="@+id/fecha_inicio"
+            android:gravity="center"
+            android:text="hola"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/estado"/>
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/sinopsis"
         android:text="hola"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/img_portada"
+        android:layout_below="@+id/sub_info"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:paddingTop="10dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"/>
 
 </RelativeLayout>

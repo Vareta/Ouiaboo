@@ -1,51 +1,59 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_centerVertical="true"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
     android:clickable="true"
-    android:background="?android:attr/selectableItemBackground"
-    android:focusable="true"
-    tools:context="com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen">
-
-    <ImageView
-        android:layout_marginLeft="6dp"
-        android:layout_marginRight="6dp"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        android:layout_width="95dp"
-        android:layout_height="120dp"
-        android:id="@+id/preview_flv"
-        android:background="@drawable/untitled" />
+    android:elevation="5dp"
+    android:layout_marginBottom="6dp"
+    card_view:cardCornerRadius="4dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/preview_flv"
-        android:layout_toEndOf="@+id/preview_flv"
-        android:layout_marginRight="6dp">
+        android:layout_height="match_parent"
+        android:background="?android:attr/selectableItemBackground"
+        android:focusable="true">
 
+        <ImageView
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:layout_width="95dp"
+            android:layout_height="120dp"
+            android:id="@+id/preview_flv"
+            android:background="@drawable/untitled" />
 
-        <TextView
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="New Text"
-            android:id="@+id/nombre_flv"
-            android:gravity="center"
-            android:textSize="18dp" />
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/preview_flv"
+            android:layout_toEndOf="@+id/preview_flv"
+            android:layout_marginRight="6dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="New Text"
-            android:layout_below="@id/nombre_flv"
-            android:id="@+id/informacion_flv"
-            android:gravity="center"
-            android:textSize="13dp" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="New Text"
+                android:id="@+id/nombre_flv"
+                android:gravity="center"
+                android:textSize="16dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="New Text"
+                android:layout_below="@id/nombre_flv"
+                android:id="@+id/informacion_flv"
+                android:gravity="center"
+                android:textSize="12dp" />
+
+        </RelativeLayout>
     </RelativeLayout>
 
 
-
-</RelativeLayout>
+</android.support.v7.widget.CardView>

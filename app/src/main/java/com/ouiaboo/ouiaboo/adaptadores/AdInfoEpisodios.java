@@ -99,7 +99,7 @@ public class AdInfoEpisodios extends BaseExpandableListAdapter{
 
         Episodios episodios = (Episodios)getChild(groupPosition, childPosition);
 
-        Picasso.with(context).load(episodios.getUrlImagen()).resize(250, 150).into(portada);
+        Picasso.with(context).load(episodios.getUrlImagen()).resize(250, 400).into(portada);
         tipo.setText(episodios.getTipo());
         estado.setText(episodios.getEstado());
         fechaInicio.setText(episodios.getFechaInicio());

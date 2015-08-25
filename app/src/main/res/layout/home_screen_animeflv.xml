@@ -6,8 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:clickable="true"
-    android:elevation="10dp"
-    android:layout_marginBottom="10dp"
+    android:elevation="5dp"
+    android:layout_marginBottom="6dp"
     card_view:cardCornerRadius="4dp"
     tools:context="com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen">
 
@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="New Text"
-                android:textSize="18dp" />
+                android:textSize="16dp" />
 
             <TextView
                 android:id="@+id/informacion_flv"
@@ -52,7 +52,7 @@
                 android:layout_below="@id/nombre_flv"
                 android:gravity="center"
                 android:text="New Text"
-                android:textSize="13dp" />
+                android:textSize="12dp" />
 
         </RelativeLayout>
     </RelativeLayout>

@@ -127,10 +127,10 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
                /* if (listAdapter.isEmpty()) {
                     Log.d("NULO", "adaptador expandible nulo");
                 }*/
-                System.out.println("HOLA " + listPadre.get(0).getIconId() + "  " + listPadre.get(0).getNombre());
+                /*System.out.println("HOLA " + listPadre.get(0).getIconId() + "  " + listPadre.get(0).getNombre());
                 System.out.println("222  "+ " "+  epi.get(0).getUrl()+ " "+ epi.get(0).getNumero()+ " "+  epi.get(0).getUrlImagen()+ " "+
                                 epi.get(0).getInformacion()+ " "+  epi.get(0).getTipo()+ " "+  epi.get(0).getEstado()+ " "+  epi.get(0).getGeneros()+ " "+
-                                        epi.get(0).getFechaInicio());
+                                        epi.get(0).getFechaInicio());*/
                 //lista de episodios
                 adaptador = new AdEpisodios(getActivity(), epi);
                 adaptador.setClickListener(params[0]);
