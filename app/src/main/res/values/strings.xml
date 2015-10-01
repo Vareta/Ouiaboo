@@ -29,7 +29,10 @@
     </string-array>
     <string-array name="drawer_list_uno">
         <item>Inicio</item>
+        <item>Ver mas tarde</item>
         <item>Favoritos</item>
+        <item>Descargadas</item>
+        <item>Historial</item>
         <item>FAQ</item>
         <item>Aviso Legal</item>
     </string-array>

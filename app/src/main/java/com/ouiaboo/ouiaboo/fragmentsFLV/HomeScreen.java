@@ -2,24 +2,38 @@ package com.ouiaboo.ouiaboo.fragmentsFLV;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.VideoPlayer;
+import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
 import com.ouiaboo.ouiaboo.adaptadores.AdaptadorHomeScreenAnimeFLV;
+import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 import com.ouiaboo.ouiaboo.itemDecoration.DividerItemDeco;
 import com.ouiaboo.ouiaboo.itemDecoration.VerticalItemDeco;
@@ -42,6 +56,8 @@ public class HomeScreen extends android.support.v4.app.Fragment implements Adapt
     private Animeflv animes;
     private Utilities util;
     private List<String> codigoFuente;
+    private ImageView icono;
+    private TextView nombre;
     private static final int VERTICAL_ITEM_SPACE = 48;
 
 
@@ -68,6 +84,58 @@ public class HomeScreen extends android.support.v4.app.Fragment implements Adapt
         Intent intent = new Intent(getActivity(), VideoPlayer.class);
         intent.putExtra("url", animesRecientes.get(position).getUrlCapitulo());
         startActivity(intent);
+    }
+
+    @Override
+    public void customLongClickListener(View v, int position) {
+
+       // LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+       // View popUpView = inflater.inflate(R.layout.context_menu, null);
+        List<DrawerItemsListUno> items = new ArrayList<>();
+        items.add( new DrawerItemsListUno( "Favorito", R.drawable.ic_action_globe ) );
+        items.add( new DrawerItemsListUno( "Favorito2", R.drawable.ic_action_globe ) );
+        items.add(new DrawerItemsListUno("Favorito3", R.drawable.ic_action_globe));
+        items.add(new DrawerItemsListUno("Favorito4", R.drawable.ic_action_globe));
+
+        AdContMenuCentral adapter = new AdContMenuCentral(getActivity(), items);
+
+        ListPopupWindow listPopupWindow = new ListPopupWindow(getActivity());
+        listPopupWindow.setAdapter(adapter);
+
+        listPopupWindow.setAnchorView(v);
+        int width = measureContentWidth(adapter);
+        listPopupWindow.setWidth(width);
+        listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //Toast.makeText(mContext, getAdapterPosition() + " : " + position, Toast.LENGTH_SHORT).show();
+
+                    /*Intent intent = new Intent(mContext, CarActivity.class);
+                    intent.putExtra("car", mList.get( getAdapterPosition() ));
+                    mContext.startActivity(intent);*/
+
+                if (position == 3) {
+                    Log.d("CONTEXT", "hola");
+                }
+            }
+        });
+        listPopupWindow.setModal(true);
+        listPopupWindow.setHorizontalOffset(0);
+        listPopupWindow.show();
+    }
+
+    public int measureContentWidth(ListAdapter adapter) {
+        int maxWidth = 0;
+        int count = adapter.getCount();
+        final int widthMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+        final int heightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+        View itemView = null;
+        for (int i = 0; i < count; i++) {
+            itemView = adapter.getView(i, itemView, ((ViewGroup)getView().getParent()));
+            itemView.measure(widthMeasureSpec, heightMeasureSpec);
+            maxWidth = Math.max(maxWidth, itemView.getMeasuredWidth());
+        }
+        return maxWidth;
     }
 
     private class BackgroundTask extends AsyncTask<AdaptadorHomeScreenAnimeFLV.CustomRecyclerListener, Void, Void> {

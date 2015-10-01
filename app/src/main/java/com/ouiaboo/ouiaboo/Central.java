@@ -109,11 +109,13 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
         //poblando la lista 1 del drawer layout (menu de al lado)
         items = new ArrayList<DrawerItemsListUno>();
-        items.add(new DrawerItemsListUno(drawerTitulos[0], R.drawable.ic_action_home));
-        items.add(new DrawerItemsListUno(drawerTitulos[1], R.drawable.ic_action_heart));
-        items.add(new DrawerItemsListUno(drawerTitulos[2], R.drawable.ic_action_help));
-        items.add(new DrawerItemsListUno(drawerTitulos[3], R.drawable.ic_action_info));
-
+        items.add(new DrawerItemsListUno(drawerTitulos[0], R.drawable.ic_action_home)); //home
+        items.add(new DrawerItemsListUno(drawerTitulos[1], R.drawable.ic_action_heart)); //ver mas tarde
+        items.add(new DrawerItemsListUno(drawerTitulos[2], R.drawable.ic_action_heart)); //favoritos
+        items.add(new DrawerItemsListUno(drawerTitulos[3], R.drawable.ic_action_help)); //descargadas
+        items.add(new DrawerItemsListUno(drawerTitulos[4], R.drawable.ic_action_info)); //historial
+        items.add(new DrawerItemsListUno(drawerTitulos[5], R.drawable.ic_action_help)); //FAQ
+        items.add(new DrawerItemsListUno(drawerTitulos[6], R.drawable.ic_action_info)); //aviso legal
     }
 
     @Override

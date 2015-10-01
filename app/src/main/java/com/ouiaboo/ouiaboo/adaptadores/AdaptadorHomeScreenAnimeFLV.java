@@ -14,6 +14,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
+import android.widget.Toast;
 
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
@@ -39,7 +41,7 @@ public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorH
         this.items = items;
     }
 
-    public class AdHoScAnFLVHolder extends RecyclerView.ViewHolder implements OnClickListener{
+    public class AdHoScAnFLVHolder extends RecyclerView.ViewHolder implements OnClickListener, OnLongClickListener{
         public CardView cardView;
         public TextView nombre;
         public TextView informacion;
@@ -53,6 +55,7 @@ public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorH
             informacion = (TextView)itemLayoutView.findViewById(R.id.informacion_flv);
             preview = (ImageView)itemLayoutView.findViewById(R.id.preview_flv);
             itemLayoutView.setOnClickListener(this);
+            itemLayoutView.setOnLongClickListener(this);
         }
 
         @Override
@@ -64,14 +67,24 @@ public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorH
         }
 
 
+        @Override
+        public boolean onLongClick(View v) {
+            if (customRecyclerListener != null) {
+                customRecyclerListener.customLongClickListener(v, getLayoutPosition());
+            }
+
+            return true;
+        }
     }
     public static interface CustomRecyclerListener {
         public void customClickListener(View v, int position);
+        public void customLongClickListener(View v, int position);
     }
 
     public void setClickListener(CustomRecyclerListener customRecyclerListener){
         this.customRecyclerListener = customRecyclerListener;
     }
+
 
     @Override
     public AdHoScAnFLVHolder onCreateViewHolder(ViewGroup viewGroup, final int i) {
