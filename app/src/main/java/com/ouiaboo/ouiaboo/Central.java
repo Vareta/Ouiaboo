@@ -7,7 +7,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -29,9 +32,17 @@ import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 import com.ouiaboo.ouiaboo.clases.SitiosWeb;
+import com.ouiaboo.ouiaboo.fragmentsFLV.AvisoLegal;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Busqueda;
+import com.ouiaboo.ouiaboo.fragmentsFLV.Descargadas;
+import com.ouiaboo.ouiaboo.fragmentsFLV.Faq;
+import com.ouiaboo.ouiaboo.fragmentsFLV.Favoritos;
+import com.ouiaboo.ouiaboo.fragmentsFLV.Generos;
+import com.ouiaboo.ouiaboo.fragmentsFLV.Historial;
 import com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen;
 import com.ouiaboo.ouiaboo.fragmentsFLV.EpisodiosFlv;
+import com.ouiaboo.ouiaboo.fragmentsFLV.PaginasAnime;
+import com.ouiaboo.ouiaboo.fragmentsFLV.VerMasTarde;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,9 +50,15 @@ import java.util.List;
 
 
 public class Central extends AppCompatActivity implements HomeScreen.OnFragmentInteractionListener, Busqueda.OnFragmentInteractionListener,
-                                                        EpisodiosFlv.OnFragmentInteractionListener{
+                                                        EpisodiosFlv.OnFragmentInteractionListener, VerMasTarde.OnFragmentInteractionListener,
+                                                        Favoritos.OnFragmentInteractionListener, Descargadas.OnFragmentInteractionListener,
+                                                        Historial.OnFragmentInteractionListener, Generos.OnFragmentInteractionListener,
+                                                        PaginasAnime.OnFragmentInteractionListener, Faq.OnFragmentInteractionListener,
+                                                        AvisoLegal.OnFragmentInteractionListener{
     private DrawerLayout drawerLayout;
+    private String drawerTitle;
     private ListView drawerList;
+    private NavigationView navigationView;
     LinearLayout linearLayout;
     ExpandableListAdapter listAdapter;
     ExpandableListView expListView;
@@ -58,27 +75,66 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         setContentView(R.layout.activity_central);
 
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout); //el drawerLayout
-        linearLayout = (LinearLayout)findViewById(R.id.left_drawer);
-        drawerList = (ListView)findViewById(R.id.drawer_list); //el listView
-        expListView = (ExpandableListView)findViewById(R.id.drawer_expandable_list); //lista expandible
-        toolbar = (Toolbar)findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_menu_white);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        navigationView = (NavigationView)findViewById(R.id.nav_view);
+
+        setUpToolbar(); //setea la toolbar
+        setUpNavDrawer(); //setea el navigation drawer
+
+        //listener del navigationview
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(Gravity.LEFT);
-                Log.d("cek", "home selected");
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                menuItem.setChecked(true);
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+                switch (menuItem.getItemId()) {
+
+                    case R.id.nav_inicio: //inicia fragmento inicio Inicio
+                        ft.replace(R.id.contenedor, new HomeScreen());
+                        break;
+
+                    case R.id.nav_mas_tarde:
+                        ft.replace(R.id.contenedor, new VerMasTarde());
+                        break;
+
+                    case R.id.nav_favoritos:
+                        ft.replace(R.id.contenedor, new Favoritos());
+                        break;
+
+                    case R.id.nav_descargadas:
+                        ft.replace(R.id.contenedor, new Descargadas());
+                        break;
+
+                    case R.id.nav_historial:
+                        ft.replace(R.id.contenedor, new Historial());
+                        break;
+
+                    case R.id.nav_generos:
+                        ft.replace(R.id.contenedor, new Generos());
+                        break;
+
+                    case R.id.nav_paginas:
+                        ft.replace(R.id.contenedor, new PaginasAnime());
+                        break;
+
+                    case R.id.nav_faq:
+                        ft.replace(R.id.contenedor, new Faq());
+                        break;
+
+                    case R.id.nav_aviso_legal:
+                        ft.replace(R.id.contenedor, new AvisoLegal());
+                        break;
+
+                    default:
+                            return true;
+                }
+
+                ft.addToBackStack(null); //para que se pueda devolver a un fragment anterior
+                ft.commit();
+                drawerLayout.closeDrawers();
+                return true;
             }
         });
-        poblarMenuLateral();
-
-        //relaciona el adaptador y el listener para la lista del drawer
-        drawerList.setAdapter(new AdaptadorDrawerListUno(this, items));
-        //se crea una instancia del adaptador, para luego setearlo
-        listAdapter = new AdapatadorDrawerExpList(this, listDataHeader, listDataChild);
-        expListView.setAdapter(listAdapter);
-        drawerLayout.closeDrawer(linearLayout);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.contenedor, new HomeScreen());
@@ -86,6 +142,32 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
     }
 
+    private void setUpToolbar() {
+        toolbar = (Toolbar)findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
+    }
+
+    private void setUpNavDrawer() {
+        if (toolbar != null) {
+            assert getSupportActionBar() != null; //agregado ya que getSupportAction puede producir Method invocation may produce java.lang.NullPointerException
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            toolbar.setNavigationIcon(R.drawable.ic_menu_white);
+            setTitle(R.string.inicio_drawer_layout);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    drawerLayout.openDrawer(GravityCompat.START);
+                }
+            });
+        }
+    }
+
+
+
+    /*
+        AHora esto se realiza mediante la libreria (borrar proximamente)
 
     private void poblarMenuLateral(){
 
@@ -117,7 +199,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         items.add(new DrawerItemsListUno(drawerTitulos[5], R.drawable.ic_action_help)); //FAQ
         items.add(new DrawerItemsListUno(drawerTitulos[6], R.drawable.ic_action_info)); //aviso legal
     }
-
+*/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

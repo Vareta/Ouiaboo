@@ -16,7 +16,7 @@ import com.ouiaboo.ouiaboo.R;
  * {@link Generos.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class Generos extends Fragment {
+public class Generos extends android.support.v4.app.Fragment {
 
     private OnFragmentInteractionListener mListener;
 
@@ -29,7 +29,9 @@ public class Generos extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_generos, container, false);
+        View convertView = inflater.inflate(R.layout.fragment_generos, container, false);
+        getActivity().setTitle(R.string.generos_drawer_layout);
+        return convertView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

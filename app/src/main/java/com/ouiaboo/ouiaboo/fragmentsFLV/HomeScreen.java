@@ -70,7 +70,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements Adapt
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView =  inflater.inflate(R.layout.fragment_home_screen, container, false);
-
+        getActivity().setTitle(R.string.inicio_drawer_layout);
         list = (RecyclerView)convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
 
@@ -186,17 +186,11 @@ public class HomeScreen extends android.support.v4.app.Fragment implements Adapt
     }
 
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
+            getActivity().setTitle(R.string.inicio_drawer_layout);
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()

@@ -20,8 +20,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Central"
-            android:label="@string/title_activity_central">
+            android:name=".Central">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>

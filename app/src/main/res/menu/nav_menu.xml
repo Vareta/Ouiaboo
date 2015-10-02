@@ -1,0 +1,55 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.ouiaboo.ouiaboo.Central">
+
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_inicio"
+            android:checked="true"
+            android:icon="@drawable/ic_action_home"
+            android:title="@string/inicio_drawer_layout"/>
+
+        <item
+            android:id="@+id/nav_mas_tarde"
+            android:icon="@drawable/ic_action_home"
+            android:title="@string/mas_tarde_drawer_layout"/>
+
+        <item
+            android:id="@+id/nav_favoritos"
+            android:icon="@drawable/ic_action_home"
+            android:title="@string/favoritos_drawer_layout"/>
+
+        <item
+            android:id="@+id/nav_descargadas"
+            android:icon="@drawable/ic_action_home"
+            android:title="@string/descargadas_drawer_layout"/>
+
+        <item
+            android:id="@+id/nav_historial"
+            android:icon="@drawable/ic_action_home"
+            android:title="@string/historial_drawer_layout"/>
+
+        <item
+            android:id="@+id/nav_generos"
+            android:icon="@drawable/ic_action_home"
+            android:title="@string/generos_drawer_layout"/>
+
+        <item
+            android:id="@+id/nav_paginas"
+            android:icon="@drawable/ic_action_home"
+            android:title="@string/paginas_drawer_layout"/>
+
+        <item
+            android:id="@+id/nav_faq"
+            android:icon="@drawable/ic_action_home"
+            android:title="@string/faq_drawer_layout"/>
+
+        <item
+            android:id="@+id/nav_aviso_legal"
+            android:icon="@drawable/ic_action_home"
+            android:title="@string/aviso_legal_drawer_layout"/>
+
+    </group>
+</menu>

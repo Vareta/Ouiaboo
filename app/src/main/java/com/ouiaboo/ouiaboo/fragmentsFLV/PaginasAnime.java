@@ -13,14 +13,14 @@ import com.ouiaboo.ouiaboo.R;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link Favoritos.OnFragmentInteractionListener} interface
+ * {@link PaginasAnime.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class Favoritos extends android.support.v4.app.Fragment {
+public class PaginasAnime extends android.support.v4.app.Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public Favoritos() {
+    public PaginasAnime() {
         // Required empty public constructor
     }
 
@@ -29,8 +29,8 @@ public class Favoritos extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View convertView = inflater.inflate(R.layout.fragment_favoritos, container, false);
-        getActivity().setTitle(R.string.favoritos_drawer_layout);
+        View convertView = inflater.inflate(R.layout.fragment_paginas_anime, container, false);
+        getActivity().setTitle(R.string.paginas_drawer_layout);
 
         return convertView;
     }

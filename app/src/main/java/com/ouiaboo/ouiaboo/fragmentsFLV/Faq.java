@@ -16,7 +16,7 @@ import com.ouiaboo.ouiaboo.R;
  * {@link Faq.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class Faq extends Fragment {
+public class Faq extends android.support.v4.app.Fragment {
 
     private OnFragmentInteractionListener mListener;
 
@@ -29,7 +29,10 @@ public class Faq extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_faq, container, false);
+        View convertView = inflater.inflate(R.layout.fragment_faq, container, false);
+        getActivity().setTitle(R.string.faq_drawer_layout);
+
+        return convertView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

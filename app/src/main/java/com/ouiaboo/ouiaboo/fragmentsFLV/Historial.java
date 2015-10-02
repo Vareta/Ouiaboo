@@ -16,7 +16,7 @@ import com.ouiaboo.ouiaboo.R;
  * {@link Historial.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class Historial extends Fragment {
+public class Historial extends android.support.v4.app.Fragment {
 
     private OnFragmentInteractionListener mListener;
 
@@ -29,7 +29,10 @@ public class Historial extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_historial, container, false);
+        View convertView = inflater.inflate(R.layout.fragment_historial, container, false);
+        getActivity().setTitle(R.string.historial_drawer_layout);
+
+        return convertView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

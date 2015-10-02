@@ -16,7 +16,7 @@ import com.ouiaboo.ouiaboo.R;
  * {@link VerMasTarde.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class VerMasTarde extends Fragment {
+public class VerMasTarde extends android.support.v4.app.Fragment {
 
     private OnFragmentInteractionListener mListener;
 
@@ -29,7 +29,10 @@ public class VerMasTarde extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_ver_mas_tarde, container, false);
+        View convertView = inflater.inflate(R.layout.fragment_ver_mas_tarde, container, false);
+        getActivity().setTitle(R.string.mas_tarde_drawer_layout);
+
+        return convertView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

@@ -10,26 +10,29 @@ import android.view.ViewGroup;
 
 import com.ouiaboo.ouiaboo.R;
 
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
  * {@link AvisoLegal.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class AvisoLegal extends Fragment {
+public class AvisoLegal extends android.support.v4.app.Fragment {
 
     private OnFragmentInteractionListener mListener;
-
     public AvisoLegal() {
         // Required empty public constructor
     }
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_aviso_legal, container, false);
+        View convertView = inflater.inflate(R.layout.fragment_aviso_legal, container, false);
+        getActivity().setTitle(R.string.aviso_legal_drawer_layout);
+
+        return convertView;
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -44,6 +47,7 @@ public class AvisoLegal extends Fragment {
         super.onAttach(activity);
         try {
             mListener = (OnFragmentInteractionListener) activity;
+
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");

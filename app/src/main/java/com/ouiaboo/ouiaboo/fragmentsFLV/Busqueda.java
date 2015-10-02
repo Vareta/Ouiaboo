@@ -48,6 +48,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_busqueda, container, false);
+        getActivity().setTitle(getArguments().getString("query"));
 
         list = (RecyclerView) convertView.findViewById(R.id.busqueda_list_animeflv); //utiliza la misma que home screen
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
@@ -90,6 +91,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
     @Override
     public void customClickListener(View v, int position) {
         mListener.onBusquedaInteraction(animesBuscados.get(position).getUrlCapitulo());
+        getActivity().setTitle(animesBuscados.get(position).getNombre());
        // Log.d("HOLA", "listener");
     }
 

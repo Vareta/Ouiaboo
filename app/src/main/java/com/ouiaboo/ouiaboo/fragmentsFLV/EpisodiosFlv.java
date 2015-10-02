@@ -43,6 +43,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     private ArrayList<Episodios> episodioInfo;
     private OnFragmentInteractionListener mListener;
     private String url;
+    private String titulo;
     private ExpandableListView expListView;
     private ArrayList<DrawerItemsListUno> listPadre;
     private ExpandableListAdapter listAdapter;
@@ -57,6 +58,8 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_episodios, container, false);
+        asignaTitulo();
+
         list = (RecyclerView)convertView.findViewById(R.id.episodios);
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         expListView = (ExpandableListView)convertView.findViewById(R.id.info_expandible);
@@ -68,6 +71,21 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
         return convertView;
     }
 
+    /*
+        Esta función tiene por objetivo solucionar el acto de presentar un titulo (toolbar) incorrecto cuando se ejecuta la siguiente accion:
+        buscar serie, ej one piece --> titulo: one piece
+        aparecen todas las series asociasdas y seleccionar one piece pelicula --> titulo: one piece pelicula
+        buscar otra serie, ej supercampeones --> titulo: supercampeones
+        volver atras mediante cualquier opcion --> titulo: one piece.
+        lo cual es incorrecto, ya que el titulo debiese ser one piece pelicula
+     */
+    private void asignaTitulo() {
+        if (titulo == null) {
+            titulo = (String) getActivity().getTitle(); //obtiene el titulo que se le da cuando se le hace click a la serie que es buscada
+        }
+       // Log.d("TITULO", titulo);
+        getActivity().setTitle(titulo); //setea el titulo de acuerdo a la serie que se seleccionó.
+    }
 
     @Override
     public void onAttach(Activity activity) {
