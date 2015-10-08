@@ -2,19 +2,13 @@ package com.ouiaboo.ouiaboo.fragmentsFLV;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.Intent;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,15 +22,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ouiaboo.ouiaboo.Animeflv;
+import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.VideoPlayer;
 import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
-import com.ouiaboo.ouiaboo.adaptadores.AdaptadorHomeScreenAnimeFLV;
+import com.ouiaboo.ouiaboo.adaptadores.AdHomeScreen;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
-import com.ouiaboo.ouiaboo.itemDecoration.DividerItemDeco;
-import com.ouiaboo.ouiaboo.itemDecoration.VerticalItemDeco;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +39,10 @@ import java.util.List;
  * {@link HomeScreen.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class HomeScreen extends android.support.v4.app.Fragment implements AdaptadorHomeScreenAnimeFLV.CustomRecyclerListener{
+public class HomeScreen extends android.support.v4.app.Fragment implements AdHomeScreen.CustomRecyclerListener{
     private final String animeFLV = "http://animeflv.net/";
     private OnFragmentInteractionListener mListener;
-    private AdaptadorHomeScreenAnimeFLV adaptador;
+    private AdHomeScreen adaptador;
     private RecyclerView list;
     private ProgressBar bar;
     private ArrayList<HomeScreenAnimeFLV> animesRecientes;
@@ -89,6 +82,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements Adapt
     @Override
     public void customLongClickListener(View v, int position) {
 
+        final int posAnime = position; //para diferenciar el onclick del listpopup
        // LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
        // View popUpView = inflater.inflate(R.layout.context_menu, null);
         List<DrawerItemsListUno> items = new ArrayList<>();
@@ -99,7 +93,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements Adapt
 
         AdContMenuCentral adapter = new AdContMenuCentral(getActivity(), items);
 
-        ListPopupWindow listPopupWindow = new ListPopupWindow(getActivity());
+        final ListPopupWindow listPopupWindow = new ListPopupWindow(getActivity());
         listPopupWindow.setAdapter(adapter);
 
         listPopupWindow.setAnchorView(v);
@@ -115,7 +109,15 @@ public class HomeScreen extends android.support.v4.app.Fragment implements Adapt
                     mContext.startActivity(intent);*/
 
                 if (position == 3) {
+                    Funciones fun = new Funciones();
+                    if (!fun.verMasTardeHome(animesRecientes.get(posAnime))) { //no se pudo
+                        Toast.makeText(getActivity(), getString(R.string.noti_vermastarde_no), Toast.LENGTH_SHORT).show();
+
+                    } else {
+                        Toast.makeText(getActivity(), getString(R.string.noti_vermastarde_si), Toast.LENGTH_SHORT).show();
+                    }
                     Log.d("CONTEXT", "hola");
+                    listPopupWindow.dismiss();
                 }
             }
         });
@@ -138,10 +140,10 @@ public class HomeScreen extends android.support.v4.app.Fragment implements Adapt
         return maxWidth;
     }
 
-    private class BackgroundTask extends AsyncTask<AdaptadorHomeScreenAnimeFLV.CustomRecyclerListener, Void, Void> {
+    private class BackgroundTask extends AsyncTask<AdHomeScreen.CustomRecyclerListener, Void, Void> {
 
         @Override
-        protected Void doInBackground(AdaptadorHomeScreenAnimeFLV.CustomRecyclerListener... params) {
+        protected Void doInBackground(AdHomeScreen.CustomRecyclerListener... params) {
             try {
                 animes = new Animeflv(getResources());
                 util = new Utilities();
@@ -155,7 +157,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements Adapt
                     Log.d("Preview", animesRecientes.get(i).getPreview());
                 }*/
 
-                adaptador = new AdaptadorHomeScreenAnimeFLV(getActivity(), animesRecientes);
+                adaptador = new AdHomeScreen(getActivity(), animesRecientes);
                 adaptador.setClickListener(params[0]);
 
             } catch (Exception e) {

@@ -22,14 +22,14 @@ import java.util.Map;
 /**
  * Created by Vareta on 26-07-2015.
  */
-public class AdapatadorDrawerExpList extends BaseExpandableListAdapter {
+public class AdDrawerExpList extends BaseExpandableListAdapter {
 
     private Context _context;
     private HashMap<DrawerItemsListUno, List<SitiosWeb>> paginasWeb;
     private List<DrawerItemsListUno> tituloPadre;
 
 
-    public AdapatadorDrawerExpList(Context context, List<DrawerItemsListUno> objects, HashMap<DrawerItemsListUno, List<SitiosWeb>> pagWebDesplegable) {
+    public AdDrawerExpList(Context context, List<DrawerItemsListUno> objects, HashMap<DrawerItemsListUno, List<SitiosWeb>> pagWebDesplegable) {
         this._context = context;
         this.tituloPadre = objects;
         this.paginasWeb = pagWebDesplegable;

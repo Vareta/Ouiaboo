@@ -15,9 +15,9 @@ import com.ouiaboo.ouiaboo.clases.SitiosWeb;
 
 import java.util.List;
 
-public class AdaptadorSitiosWeb extends ArrayAdapter<SitiosWeb> {
+public class AdSitiosWeb extends ArrayAdapter<SitiosWeb> {
 
-    public AdaptadorSitiosWeb(Context context, List<SitiosWeb> objects) {
+    public AdSitiosWeb(Context context, List<SitiosWeb> objects) {
         super(context, 0, objects);
     }
 

@@ -4,11 +4,11 @@ package com.ouiaboo.ouiaboo;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,11 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.ouiaboo.ouiaboo.adaptadores.AdapatadorDrawerExpList;
-import com.ouiaboo.ouiaboo.adaptadores.AdaptadorDrawerListUno;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
-import com.ouiaboo.ouiaboo.clases.Episodios;
-import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 import com.ouiaboo.ouiaboo.clases.SitiosWeb;
 import com.ouiaboo.ouiaboo.fragmentsFLV.AvisoLegal;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Busqueda;
@@ -43,6 +38,8 @@ import com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen;
 import com.ouiaboo.ouiaboo.fragmentsFLV.EpisodiosFlv;
 import com.ouiaboo.ouiaboo.fragmentsFLV.PaginasAnime;
 import com.ouiaboo.ouiaboo.fragmentsFLV.VerMasTarde;
+
+import org.litepal.tablemanager.Connector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,11 +71,13 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_central);
 
+
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout); //el drawerLayout
         navigationView = (NavigationView)findViewById(R.id.nav_view);
 
         setUpToolbar(); //setea la toolbar
         setUpNavDrawer(); //setea el navigation drawer
+        SQLiteDatabase db = Connector.getDatabase(); //crea las tablas, si estas no existen
 
         //listener del navigationview
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -126,7 +125,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
                         break;
 
                     default:
-                            return true;
+                        return true;
                 }
 
                 ft.addToBackStack(null); //para que se pueda devolver a un fragment anterior
@@ -289,6 +288,13 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
     @Override
     public void onEpisodiosFlvInteraction(String url) {
+        Intent intent = new Intent(this, VideoPlayer.class);
+        intent.putExtra("url", url);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onVerMasTardeInteraction(String url) {
         Intent intent = new Intent(this, VideoPlayer.class);
         intent.putExtra("url", url);
         startActivity(intent);

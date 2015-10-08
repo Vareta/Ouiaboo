@@ -1,13 +1,11 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +17,8 @@ import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.adaptadores.AdEpisodios;
 import com.ouiaboo.ouiaboo.adaptadores.AdInfoEpisodios;
-import com.ouiaboo.ouiaboo.adaptadores.AdapatadorDrawerExpList;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.Episodios;
-import com.ouiaboo.ouiaboo.clases.SitiosWeb;
 
 import java.util.ArrayList;
 import java.util.HashMap;

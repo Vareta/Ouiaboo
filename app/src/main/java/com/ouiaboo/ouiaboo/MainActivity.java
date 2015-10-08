@@ -10,7 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.ouiaboo.ouiaboo.adaptadores.AdaptadorSitiosWeb;
+import com.ouiaboo.ouiaboo.adaptadores.AdSitiosWeb;
 import com.ouiaboo.ouiaboo.clases.SitiosWeb;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         paginasAnime = (ListView)findViewById(R.id.listView);
 
         //Inicializar el adaptador con la fuente de datos
-        adaptador = new AdaptadorSitiosWeb(this, webList);
+        adaptador = new AdSitiosWeb(this, webList);
 
         //Relacionando la lista con el adaptador
         paginasAnime.setAdapter(adaptador);

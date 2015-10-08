@@ -9,12 +9,10 @@ import android.util.Log;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.jsoup.Connection;
+import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
+import org.jsoup.helper.HttpConnection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -24,7 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -202,6 +202,28 @@ public class Animeflv{
         return url;
     }
 
+  /*  private void crawl(String url) throws IOException {
+
+        Response response = Jsoup.connect(url).followRedirects(false).execute();
+
+        System.out.println("hola   " + response.statusCode() + " : " + url);
+
+        if (response.hasHeader("location")) {
+            String redirectUrl = response.header("location");
+            crawl(redirectUrl);
+        }
+
+    }
+
+    public void repeat(){
+        String url2 = "http://www.animeid.moe/";
+        try {
+            crawl(url2);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }*/
+
 
     public ArrayList<HomeScreenAnimeFLV> busquedaFLV(String url){
         String pelicula = "tipo_2"; //pelicula
@@ -214,11 +236,16 @@ public class Animeflv{
         String informacion;
         String informacionAux;
         String preview;
+        Map<String, String> cookyes = new HashMap<String, String>();
 
+
+       // repeat();
         try {
+
             doc = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                     .referrer("http://www.google.com")
+                    .followRedirects(true)
                     .get();
         } catch (IOException e) {
             e.printStackTrace();
@@ -294,20 +321,6 @@ public class Animeflv{
             if (objEpisodios.isEmpty()) {
                 Log.d("Error", "Episodios inexistentes (null)");
             } else {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
                 /********      SLECCION DE EPISODIOS  **************/

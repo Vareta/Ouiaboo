@@ -1,42 +1,34 @@
 package com.ouiaboo.ouiaboo.adaptadores;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.widget.Toast;
 
 import com.ouiaboo.ouiaboo.R;
-import com.ouiaboo.ouiaboo.Utilities;
-import com.ouiaboo.ouiaboo.VideoPlayer;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 import com.squareup.picasso.Picasso;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Vareta on 27-07-2015.
  */
-public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorHomeScreenAnimeFLV.AdHoScAnFLVHolder> {
+public class AdHomeScreen extends RecyclerView.Adapter<AdHomeScreen.AdHoScAnFLVHolder> {
     public List<HomeScreenAnimeFLV> items;
     public Context context;
     public CustomRecyclerListener customRecyclerListener;
 
     // HomeScreenAnimeFLV item = (HomeScreenAnimeFLV)getItem(position);
 
-    public AdaptadorHomeScreenAnimeFLV (Context context, List<HomeScreenAnimeFLV> items) {
+    public AdHomeScreen(Context context, List<HomeScreenAnimeFLV> items) {
         this.context = context;
         this.items = items;
     }
@@ -90,7 +82,7 @@ public class AdaptadorHomeScreenAnimeFLV extends RecyclerView.Adapter<AdaptadorH
     public AdHoScAnFLVHolder onCreateViewHolder(ViewGroup viewGroup, final int i) {
         //LayoutInflater inflater = (LayoutInflater)viewGroup.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.home_screen_animeflv, viewGroup, false);
-        AdaptadorHomeScreenAnimeFLV.AdHoScAnFLVHolder vh = new AdHoScAnFLVHolder(v);
+        AdHomeScreen.AdHoScAnFLVHolder vh = new AdHoScAnFLVHolder(v);
 
         return vh;
     }

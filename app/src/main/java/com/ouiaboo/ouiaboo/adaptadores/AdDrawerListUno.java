@@ -17,9 +17,9 @@ import java.util.List;
 /**
  * Created by Vareta on 24-07-2015.
  */
-public class AdaptadorDrawerListUno extends ArrayAdapter {
+public class AdDrawerListUno extends ArrayAdapter {
 
-    public AdaptadorDrawerListUno(Context context, List objects) {
+    public AdDrawerListUno(Context context, List objects) {
         super(context, 0, objects);
     }
 

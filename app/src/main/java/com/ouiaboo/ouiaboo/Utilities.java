@@ -6,15 +6,12 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,16 +54,18 @@ public class Utilities {
         protected List doInBackground(String... urls) {
 
             List<String> lista = new ArrayList<String>();
+            URL urlPagina;
             for (String url : urls) {
-                HttpClient httpclient = new DefaultHttpClient(); // Create HTTP Client
-                HttpGet httpget = new HttpGet(url); // Set the action you want to do
 
                 try {
-                    HttpResponse response = httpclient.execute(httpget); // Executeit
-                    HttpEntity entity = response.getEntity();
-                    InputStream is = entity.getContent(); // Create an InputStream with the response
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"), 8);
-                   // StringBuilder sb = new StringBuilder();
+                    urlPagina = new URL(url);
+                    HttpURLConnection connection = (HttpURLConnection)urlPagina.openConnection();
+                    connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.6) Gecko/20100625 Firefox/3.6.6");
+                    connection.setRequestMethod("GET");
+                    connection.connect();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "ISO-8859-1"));
+
+                    // StringBuilder sb = new StringBuilder();
                     String line = null;
                     while ((line = reader.readLine()) != null) { // Read line by line
                        // sb.append(line);
@@ -76,10 +75,7 @@ public class Utilities {
                       //  sb = null;
                        // sb.delete(0,0);
                     }
-
-
-
-                    is.close(); // Close the stream
+                    reader.close(); // Close the stream
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -87,38 +83,40 @@ public class Utilities {
 
             return lista;
         }
+    }
 
         /*@Override
         protected void onPostExecute(List<String> result) {
             textView.setText(result);
         }*/
-    }
+
 
     public List<String> downloadWebPageTaskNoAsync (String url) {
 
-            List<String> lista = new ArrayList<String>();
-            HttpClient httpclient = new DefaultHttpClient(); // Create HTTP Client
-            HttpGet httpget = new HttpGet(url); // Set the action you want to do
-            try {
-                HttpResponse response = httpclient.execute(httpget); // Executeit
-                HttpEntity entity = response.getEntity();
-                InputStream is = entity.getContent(); // Create an InputStream with the response
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"), 8);
-                // StringBuilder sb = new StringBuilder();
-                String line = null;
-                while ((line = reader.readLine()) != null) { // Read line by line
-                    // sb.append(line);
-                    //Log.d("STRING", line);
-                    lista.add(line);
-                    //lista.add(line); // Result is here
-                    //  sb = null;
-                    // sb.delete(0,0);
-                }
-                is.close(); // Close the stream
-            } catch (Exception e) {
-                e.printStackTrace();
+        List<String> lista = new ArrayList<String>();
+        URL urlPagina;
+        try {
+            urlPagina = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection)urlPagina.openConnection();
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.6) Gecko/20100625 Firefox/3.6.6");
+            connection.setRequestMethod("GET");
+            connection.connect();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "ISO-8859-1"));
+            // StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) { // Read line by line
+                // sb.append(line);
+               // Log.d("STRING", line);
+                lista.add(line);
+                //lista.add(line); // Result is here
+                //  sb = null;
+                // sb.delete(0,0);
             }
-            return lista;
+            reader.close(); // Close the stream
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
 
     }
 
