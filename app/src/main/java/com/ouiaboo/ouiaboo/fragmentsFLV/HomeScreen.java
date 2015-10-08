@@ -2,10 +2,14 @@ package com.ouiaboo.ouiaboo.fragmentsFLV;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
@@ -52,6 +56,8 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     private ImageView icono;
     private TextView nombre;
     private static final int VERTICAL_ITEM_SPACE = 48;
+    private CoordinatorLayout coordLayout;
+    private Snackbar snackbar;
 
 
     public HomeScreen() {
@@ -63,6 +69,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView =  inflater.inflate(R.layout.fragment_home_screen, container, false);
+        coordLayout = (CoordinatorLayout)convertView.findViewById(R.id.coord_layout);
         getActivity().setTitle(R.string.inicio_drawer_layout);
         list = (RecyclerView)convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
@@ -102,21 +109,39 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Funciones fun = new Funciones();
                 //Toast.makeText(mContext, getAdapterPosition() + " : " + position, Toast.LENGTH_SHORT).show();
 
                     /*Intent intent = new Intent(mContext, CarActivity.class);
                     intent.putExtra("car", mList.get( getAdapterPosition() ));
                     mContext.startActivity(intent);*/
+                if (position == 2) {
+                    if (!fun.esPosibleFavoritosHome(animesRecientes.get(posAnime))) { //no se pudo
+                        snackbar = Snackbar.make(coordLayout, getString(R.string.noti_favoritos_no), Snackbar.LENGTH_LONG);
+                        View sbView = snackbar.getView();
+                        TextView textView = (TextView)sbView.findViewById(android.support.design.R.id.snackbar_text);
+                        textView.setTextColor(Color.YELLOW);
+                        snackbar.show();
+                    } else {
+                        snackbar = Snackbar.make(coordLayout, getString(R.string.noti_favoritos_si), Snackbar.LENGTH_LONG);
+                        snackbar.show();
+                    }
+                    listPopupWindow.dismiss();
+                }
 
                 if (position == 3) {
-                    Funciones fun = new Funciones();
-                    if (!fun.verMasTardeHome(animesRecientes.get(posAnime))) { //no se pudo
-                        Toast.makeText(getActivity(), getString(R.string.noti_vermastarde_no), Toast.LENGTH_SHORT).show();
+
+                    if (!fun.esPosibleverMasTardeHome(animesRecientes.get(posAnime))) { //no se pudo
+                        snackbar = Snackbar.make(coordLayout, getString(R.string.noti_vermastarde_no), Snackbar.LENGTH_LONG);
+                        View sbView = snackbar.getView();
+                        TextView textView = (TextView)sbView.findViewById(android.support.design.R.id.snackbar_text);
+                        textView.setTextColor(Color.YELLOW);
+                        snackbar.show();
 
                     } else {
-                        Toast.makeText(getActivity(), getString(R.string.noti_vermastarde_si), Toast.LENGTH_SHORT).show();
+                        snackbar = Snackbar.make(coordLayout, getString(R.string.noti_vermastarde_si), Snackbar.LENGTH_LONG);
+                        snackbar.show();
                     }
-                    Log.d("CONTEXT", "hola");
                     listPopupWindow.dismiss();
                 }
             }
@@ -189,13 +214,13 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
             getActivity().setTitle(R.string.inicio_drawer_layout);
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnFragmentInteractionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }

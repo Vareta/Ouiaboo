@@ -1,6 +1,7 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -51,7 +53,6 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     private boolean existeAnimeMastarde;
     private CoordinatorLayout coordinatorLayout;
     private TextView sinResultados;
-    private ItemTouchHelper itemTouchHelper;
 
     private OnFragmentInteractionListener mListener;
 
@@ -76,6 +77,8 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
 
         return convertView;
     }
+
+
     /*opcion deslizante para eliminar un item*/
     ItemTouchHelper.SimpleCallback simpleItemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
@@ -95,7 +98,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                     .setAction(getResources().getString(R.string.deshacer_verMasTarde), new View.OnClickListener() { //setea la accion de restaurar
                         @Override
                         public void onClick(View v) { //en caso de restaurar
-                            masTardeAnime.add(position , aux); //añade el elemnto que se sacó y lo coloca en la misma posicion de antes
+                            masTardeAnime.add(position, aux); //añade el elemnto que se sacó y lo coloca en la misma posicion de antes
                             adaptador.notifyItemInserted(position); //notifica al adaptador que se añadio un item
                         }
                     }).setCallback(new Snackbar.Callback() {
@@ -103,7 +106,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                         public void onDismissed(Snackbar snackbar, int event) { //para cuando la snackbar desapara, se toman todos los casos en donde esto puede ocurrir
                             super.onDismissed(snackbar, event);
                             if (event != DISMISS_EVENT_ACTION) { //excluye la accion ya que choca con onclick, haciendo que al clickear undo se ejecutara esta accion
-                                DataSupport.deleteAll(VerMasTardeTable.class, "nombre =? and tipo =?", aux.getNombre(), aux.getInformacion());
+                                DataSupport.deleteAll(VerMasTardeTable.class, "nombre=? and tipo=?", aux.getNombre(), aux.getInformacion());
                             }
                         }
                     });
@@ -121,7 +124,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                 Bitmap bitmap;
 
                 if (dX > 0) { // swiping right
-                    paint.setColor(getResources().getColor(R.color.black_overlay));
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.black_overlay));
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.ic_launcher);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
 
@@ -129,7 +132,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                     c.drawBitmap(bitmap, 96f, (float) itemView.getTop() + height, null);
 
                 } else { // swiping left
-                    paint.setColor(getResources().getColor(R.color.ColorPrimary));
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimary));
 
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.ic_launcher);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
@@ -153,12 +156,12 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
 
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnFragmentInteractionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -194,7 +197,6 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                     }
 
                     adaptador = new AdVerMasTarde(getActivity(), masTardeAnime);
-                    Log.d("CONTADOR", String.valueOf(adaptador.getItemCount()));
                     adaptador.setClickListener(params[0]);
                 }
 
@@ -221,7 +223,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                 lista.setLayoutManager(new LinearLayoutManager(getActivity()));
                 lista.setAdapter(adaptador);
 
-                itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack); //inicializa la escucha para deslizar item
+                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
                 itemTouchHelper.attachToRecyclerView(lista); //añade la lista a la escucha
 
 

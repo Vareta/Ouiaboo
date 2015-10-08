@@ -389,6 +389,10 @@ public class Animeflv{
         return epi;
     }
 
+    public String urlCapituloToUrlAnime(String url) {
+        return url;
+    }
+
 
 }
 

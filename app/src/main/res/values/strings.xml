@@ -66,6 +66,8 @@
 
     <string name="noti_vermastarde_si">Añadido correctamente para ver mas tarde</string>
     <string name="noti_vermastarde_no">Este capitulo ya se encuentra en ver mas tarde</string>
+    <string name="noti_favoritos_si">Añadido correctamente a favoritos</string>
+    <string name="noti_favoritos_no">Este anime ya se encuentra en favoritos</string>
 
     <!--********************************************************************************************************************************************************************* -->
     <!-- **********************************************************        fragment_ver_mas_tarde       *************************************************************************** -->
@@ -73,4 +75,12 @@
     <string name="noExisteAnime.verMasTarde">No existe anime para ver mas tarde</string>
     <string name="animeBorrado.verMasTarde">Eliminado</string>
     <string name="deshacer.verMasTarde">Deshacer</string>
+
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        fragment_favoritos       *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+    <string name="noExisten.Favoritos">No hay anime en Favoritos</string>
+
+
+
 </resources>
