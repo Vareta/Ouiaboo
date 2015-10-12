@@ -1,16 +1,20 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.ouiaboo.ouiaboo.Animeflv;
@@ -33,17 +37,8 @@ import java.util.List;
 public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdEpisodios.CustomRecyclerListener{
 
     private RecyclerView list;
-    private ProgressBar bar;
-    private AdEpisodios adaptador;
     private ArrayList<Episodios> epi;
-    private ArrayList<Episodios> episodioInfo;
     private OnFragmentInteractionListener mListener;
-    private String url;
-    private String titulo;
-    private ExpandableListView expListView;
-    private ArrayList<DrawerItemsListUno> listPadre;
-    private ExpandableListAdapter listAdapter;
-    private HashMap<DrawerItemsListUno, List<Episodios>> listChild;
 
     public EpisodiosFlv() {
         // Required empty public constructor
@@ -54,120 +49,54 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_episodios, container, false);
-        asignaTitulo();
-
         list = (RecyclerView)convertView.findViewById(R.id.episodios);
-        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
-        expListView = (ExpandableListView)convertView.findViewById(R.id.info_expandible);
-        url = getArguments().getString("query");
-
-        new BackgroundTask().execute(this);
-
+        getData();
+        setAdaptador();
 
         return convertView;
     }
 
-    /*
-        Esta función tiene por objetivo solucionar el acto de presentar un titulo (toolbar) incorrecto cuando se ejecuta la siguiente accion:
-        buscar serie, ej one piece --> titulo: one piece
-        aparecen todas las series asociasdas y seleccionar one piece pelicula --> titulo: one piece pelicula
-        buscar otra serie, ej supercampeones --> titulo: supercampeones
-        volver atras mediante cualquier opcion --> titulo: one piece.
-        lo cual es incorrecto, ya que el titulo debiese ser one piece pelicula
-     */
-    private void asignaTitulo() {
-        if (titulo == null) {
-            titulo = (String) getActivity().getTitle(); //obtiene el titulo que se le da cuando se le hace click a la serie que es buscada
-        }
-       // Log.d("TITULO", titulo);
-        getActivity().setTitle(titulo); //setea el titulo de acuerdo a la serie que se seleccionó.
+    @SuppressWarnings("unchecked")
+    private void getData() {
+        epi = (ArrayList<Episodios>)getArguments().getSerializable("episodios");
+    }
+
+    private void setAdaptador() {
+        AdEpisodios adaptador = new AdEpisodios(getContext(), epi);
+        adaptador.setClickListener(this);
+        list.setLayoutManager(new LinearLayoutManager(getActivity()));
+        list.setAdapter(adaptador);
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnFragmentInteractionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    public void customClickListener(View v, int position) {
+        System.out.println("click fragment");
+        mListener.onEpisodiosFlvInteraction(epi.get(position).getUrlEpisodio());
+
     }
 
     @Override
-    public void customRecyclerListener(View v, int position) {
-        mListener.onEpisodiosFlvInteraction(epi.get(position).getUrl());
+    public void customLongClickListener(View v, int position) {
+
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onEpisodiosFlvInteraction(String url);
     }
 
-    private class BackgroundTask extends AsyncTask<AdEpisodios.CustomRecyclerListener, Void, Void> {
 
 
-        @Override
-        protected Void doInBackground(AdEpisodios.CustomRecyclerListener... params) {
-            try {
-                Animeflv ani = new Animeflv(getResources());
-                epi = ani.getEpisodios(url);
-                //lista expandible
-                listPadre = new ArrayList<DrawerItemsListUno>();
-                listPadre.add(new DrawerItemsListUno("informacion", R.drawable.ic_action_globe)); //bloque informacion
-                episodioInfo = new ArrayList<Episodios>();
-                episodioInfo.add(new Episodios(epi.get(0).getUrl(), epi.get(0).getNumero(), epi.get(0).getUrlImagen(),
-                        epi.get(0).getInformacion(), epi.get(0).getTipo(), epi.get(0).getEstado(), epi.get(0).getGeneros(),
-                        epi.get(0).getFechaInicio())); //agrega el primero elemento que contiene la informacion del espisodio
-                listChild = new HashMap<DrawerItemsListUno, List<Episodios>>();
-                listChild.put(listPadre.get(0), episodioInfo); //lista de elementos que se muestran al expandir
-                listAdapter = new AdInfoEpisodios(getActivity(), listPadre, listChild); //crea el adaptador de la lista expandible
-               /* if (listAdapter.isEmpty()) {
-                    Log.d("NULO", "adaptador expandible nulo");
-                }*/
-                /*System.out.println("HOLA " + listPadre.get(0).getIconId() + "  " + listPadre.get(0).getNombre());
-                System.out.println("222  "+ " "+  epi.get(0).getUrl()+ " "+ epi.get(0).getNumero()+ " "+  epi.get(0).getUrlImagen()+ " "+
-                                epi.get(0).getInformacion()+ " "+  epi.get(0).getTipo()+ " "+  epi.get(0).getEstado()+ " "+  epi.get(0).getGeneros()+ " "+
-                                        epi.get(0).getFechaInicio());*/
-                //lista de episodios
-                adaptador = new AdEpisodios(getActivity(), epi);
-                adaptador.setClickListener(params[0]);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            bar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            list.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-            list.setAdapter(adaptador);
-
-            expListView.setAdapter(listAdapter); //setea el adaptador de la lista expandible
-            bar.setVisibility(View.GONE);
-        }
-    }
 
 }

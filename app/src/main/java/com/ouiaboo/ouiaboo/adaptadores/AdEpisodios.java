@@ -4,17 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.R;
-import com.ouiaboo.ouiaboo.VideoPlayer;
 import com.ouiaboo.ouiaboo.clases.Episodios;
-import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
-
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -30,24 +29,35 @@ public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolde
         this.items = items;
     }
 
-    public class EpisodiosHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class EpisodiosHolder extends RecyclerView.ViewHolder implements OnClickListener, OnLongClickListener {
         public TextView capitulo;
 
         public EpisodiosHolder(View itemLayoutView) {
             super(itemLayoutView);
             capitulo = (TextView)itemLayoutView.findViewById(R.id.espisodios_flv);
             itemLayoutView.setOnClickListener(this);
+            itemLayoutView.setOnLongClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            //System.out.println("layou" + getLayoutPosition());
-            customRecyclerListener.customRecyclerListener(v, getLayoutPosition());
+            if (customRecyclerListener != null) {
+                customRecyclerListener.customClickListener(v, getLayoutPosition());
+            }
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            if (customRecyclerListener != null) {
+                customRecyclerListener.customLongClickListener(v, getLayoutPosition());
+            }
+            return true;
         }
     }
 
     public static interface CustomRecyclerListener {
-        public void customRecyclerListener(View v, int position);
+        public void customClickListener(View v, int position);
+        public void customLongClickListener(View v, int position);
     }
 
     public void setClickListener(CustomRecyclerListener customRecyclerListener){

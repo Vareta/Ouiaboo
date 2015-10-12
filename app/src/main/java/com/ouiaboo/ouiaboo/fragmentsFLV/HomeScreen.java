@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ouiaboo.ouiaboo.Animeflv;
+import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
@@ -53,9 +55,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     private Animeflv animes;
     private Utilities util;
     private List<String> codigoFuente;
-    private ImageView icono;
-    private TextView nombre;
-    private static final int VERTICAL_ITEM_SPACE = 48;
     private CoordinatorLayout coordLayout;
     private Snackbar snackbar;
 
@@ -95,15 +94,15 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         List<DrawerItemsListUno> items = new ArrayList<>();
         items.add( new DrawerItemsListUno( "Favorito", R.drawable.ic_action_globe ) );
         items.add( new DrawerItemsListUno( "Favorito2", R.drawable.ic_action_globe ) );
-        items.add(new DrawerItemsListUno("Favorito3", R.drawable.ic_action_globe));
-        items.add(new DrawerItemsListUno("Favorito4", R.drawable.ic_action_globe));
+        items.add(new DrawerItemsListUno("Ir a anime", R.drawable.ic_action_globe));
+        items.add(new DrawerItemsListUno("Ver mas tardessssssssss", R.drawable.ic_action_globe));
 
         AdContMenuCentral adapter = new AdContMenuCentral(getActivity(), items);
 
         final ListPopupWindow listPopupWindow = new ListPopupWindow(getActivity());
         listPopupWindow.setAdapter(adapter);
 
-        listPopupWindow.setAnchorView(v);
+        listPopupWindow.setAnchorView(v.findViewById(R.id.nombre_flv));
         int width = measureContentWidth(adapter);
         listPopupWindow.setWidth(width);
         listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -116,7 +115,10 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                     intent.putExtra("car", mList.get( getAdapterPosition() ));
                     mContext.startActivity(intent);*/
                 if (position == 2) {
-                    if (!fun.esPosibleFavoritosHome(animesRecientes.get(posAnime))) { //no se pudo
+
+                    new EpiUrlToAnimeUlr().execute(animesRecientes.get(posAnime).getUrlCapitulo());
+
+                   /* if (!fun.esPosibleFavoritosHome(animesRecientes.get(posAnime))) { //no se pudo
                         snackbar = Snackbar.make(coordLayout, getString(R.string.noti_favoritos_no), Snackbar.LENGTH_LONG);
                         View sbView = snackbar.getView();
                         TextView textView = (TextView)sbView.findViewById(android.support.design.R.id.snackbar_text);
@@ -125,7 +127,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                     } else {
                         snackbar = Snackbar.make(coordLayout, getString(R.string.noti_favoritos_si), Snackbar.LENGTH_LONG);
                         snackbar.show();
-                    }
+                    }*/
                     listPopupWindow.dismiss();
                 }
 
@@ -199,16 +201,35 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
         @Override
         protected void onPostExecute(Void result) {
-            //Log.d("HOLA", "POSTEXECUTE33333");
-            //getActivity().setProgressBarIndeterminateVisibility(false);
             list.setLayoutManager(new LinearLayoutManager(getActivity()));
-            //list.addItemDecoration(new DividerItemDeco(getActivity(), R.drawable.dvider_recycler_view));
-            //list.addItemDecoration(new VerticalItemDeco(VERTICAL_ITEM_SPACE));
             list.setAdapter(adaptador);
-            //list.setHasFixedSize(true);
-            //getActivity().setProgressBarIndeterminateVisibility(false);
             bar.setVisibility(View.GONE);
             //
+        }
+    }
+
+    /*Obtiene la url de un anime mediante el url del capitulo de manera asincrona*/
+    public class EpiUrlToAnimeUlr extends AsyncTask<String, Void, Void> {
+        private String url;
+        @Override
+        protected Void doInBackground(String... params) {
+            url = animes.urlCapituloToUrlAnime(params[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            list.setVisibility(View.GONE);
+            bar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            list.setVisibility(View.VISIBLE);
+            bar.setVisibility(View.GONE);
+            Intent intent = new Intent(getActivity(), EpisodiosPlusInfo.class);
+            intent.putExtra("url", url);
+            startActivity(intent);
         }
     }
 

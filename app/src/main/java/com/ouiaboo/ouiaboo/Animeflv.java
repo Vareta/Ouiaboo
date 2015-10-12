@@ -295,6 +295,8 @@ public class Animeflv{
     }
 
     public ArrayList<Episodios> getEpisodios(String url) {
+        String nombreAnime;
+        String urlAnime;
         String urlEp;
         String numero;
         String urlImagen = null;
@@ -329,6 +331,7 @@ public class Animeflv{
                 for (int i = 0; i < episodiosFocus.size(); i++) {
                     Episodios epi;
                     if (i == 0) {
+                        nombreAnime = doc.select("h1").first().text();
                         Element sinopsis = doc.getElementsByClass("sinopsis").first();
                         informacion = sinopsis.text();
                         Element img = doc.getElementsByClass("portada").first();
@@ -339,27 +342,27 @@ public class Animeflv{
                         for (int j = 0; j < infoDetallada.size(); j++) {
                            // System.out.println("Hola   " + infoDetallada.get(j).select("b").first().toString());
                             if (infoDetallada.get(j).select("b").first().toString().equals("<b>Tipo:</b>")) {
-                                tipo = infoDetallada.get(j).text();
+                                tipo = adaptaInfoTipoEstadoGenerosFecha(infoDetallada.get(j).text());
                             }
                             if (infoDetallada.get(j).select("b").first().toString().equals("<b>Estado:</b>")) {
-                                estado = infoDetallada.get(j).text();
+                                estado = adaptaInfoTipoEstadoGenerosFecha(infoDetallada.get(j).text());
                             }
                             if (infoDetallada.get(j).select("b").first().toString().equals("<b>Generos:</b>")) {
-                                generos = infoDetallada.get(j).text();
+                                generos = adaptaInfoTipoEstadoGenerosFecha(infoDetallada.get(j).text());
                             }
                             if (infoDetallada.get(j).select("b").first().toString().equals("<b>Fecha de Inicio:</b>")) {
-                                fechaInicio = infoDetallada.get(j).text();
+                                fechaInicio = adaptaInfoTipoEstadoGenerosFecha(infoDetallada.get(j).text());
                             }
                         }
-
+                        urlAnime = url;
                         urlEp = "http://animeflv.net" + episodiosFocus.get(i).attr("href");
-                        numero = numeroEpisodio(episodiosFocus.get(i).text());
-                        epi = new Episodios(urlEp, numero, urlImagen, informacion, tipo, estado, generos, fechaInicio);
+                        numero = episodiosFocus.get(i).text();
+                        epi = new Episodios(nombreAnime, urlAnime, urlEp, numero, urlImagen, informacion, tipo, estado, generos, fechaInicio);
 
                     } else {
                         urlEp = "http://animeflv.net" + episodiosFocus.get(i).attr("href");
-                        numero = numeroEpisodio(episodiosFocus.get(i).text());
-                        epi = new Episodios(urlEp, numero, null, null, null, null, null, null);
+                        numero = episodiosFocus.get(i).text();
+                        epi = new Episodios(null, null, urlEp, numero, null, null, null, null, null, null);
                     }
                     /*System.out.println("url  " + urlEp);
                     System.out.println("numero  " + numero);
@@ -379,6 +382,7 @@ public class Animeflv{
     }
 
     //entrega el valor: Episodio número "x"
+    /****************Deprecado*************************/
     private String numeroEpisodio(String episodio) {
         String epi;
 
@@ -389,8 +393,41 @@ public class Animeflv{
         return epi;
     }
 
+    private String adaptaInfoTipoEstadoGenerosFecha(String info) {
+        String data;
+
+        String[] aux = info.split(": ");
+        data = aux[aux.length - 1];
+
+        return data;
+    }
+
+
     public String urlCapituloToUrlAnime(String url) {
-        return url;
+        Document doc = null;
+        String urlAnime = null;
+        try {
+            doc = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .referrer("http://www.google.com")
+                    .get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Elements objEpisodios;
+        if (doc != null) {
+            objEpisodios = doc.getElementsByClass("episodio_head");
+            if (objEpisodios.isEmpty()) {
+                Log.d("Error", "No se puedo encontrar la url del anime");
+            } else {
+                Element titulo = objEpisodios.select("a").first();
+                urlAnime = "http://animeflv.net" + titulo.attr("href");
+               // Log.d("URL", urlAnime);
+            }
+        }
+
+        return urlAnime;
     }
 
 

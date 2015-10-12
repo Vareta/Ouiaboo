@@ -2,6 +2,7 @@ package com.ouiaboo.ouiaboo;
 
 import com.ouiaboo.ouiaboo.Tables.FavoritosTable;
 import com.ouiaboo.ouiaboo.Tables.VerMasTardeTable;
+import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 
 import org.litepal.crud.DataSupport;
@@ -27,14 +28,14 @@ public class Funciones {
         }
     }
 
-    public boolean esPosibleFavoritosHome(HomeScreenAnimeFLV home) {
+    public boolean esPosibleFavoritos(Episodios home) {
 
-        List<FavoritosTable> lista = DataSupport.where("nombre=?", home.getNombre()).find(FavoritosTable.class);
+        List<FavoritosTable> lista = DataSupport.where("nombre=?", home.getNombreAnime()).find(FavoritosTable.class);
         if (!lista.isEmpty()) { //si la lista de favoritos contiene el anime que se quiere añadir
             System.out.println(DataSupport.count(FavoritosTable.class));
             return false;
         } else { //caso contrario, lo añade
-            FavoritosTable favoritos = new FavoritosTable(home.getNombre(), home.getInformacion(), home.getPreview(), home.getUrlCapitulo());
+            FavoritosTable favoritos = new FavoritosTable(home.getNombreAnime(), home.getTipo(), home.getUrlImagen(), home.getUrlAnime());
             favoritos.save();
             return true;
         }

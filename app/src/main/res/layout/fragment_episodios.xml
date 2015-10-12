@@ -1,22 +1,18 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.ouiaboo.ouiaboo.fragmentsFLV.EpisodiosFlv">
 
-    <ExpandableListView
-        android:id="@+id/info_expandible"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="10dp"/>
-
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/episodios"
+        android:paddingEnd="9dp"
+        android:paddingRight="9dp"
+        android:paddingLeft="9dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:choiceMode="singleChoice" />
 
-</LinearLayout>
-
+</FrameLayout>

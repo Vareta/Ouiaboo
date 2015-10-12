@@ -8,38 +8,55 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.clases.Episodios;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link Generos.OnFragmentInteractionListener} interface
+ * {@link AnimeInfo.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class Generos extends android.support.v4.app.Fragment {
+public class AnimeInfo extends  android.support.v4.app.Fragment {
 
     private OnFragmentInteractionListener mListener;
+    private ArrayList<Episodios> informacion;
 
-    public Generos() {
+    public AnimeInfo() {
         // Required empty public constructor
     }
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View convertView = inflater.inflate(R.layout.fragment_generos, container, false);
-        getActivity().setTitle(R.string.generos_drawer_layout);
+        View convertView = inflater.inflate(R.layout.fragment_anime_info, container, false);
+        adquiereInfo();
+        asignaInfo(convertView);
+
         return convertView;
     }
+    @SuppressWarnings("unchecked")
+    private void adquiereInfo() {
+        informacion = (ArrayList<Episodios>)getArguments().getSerializable("informacion");
+    }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    private void asignaInfo(View view) {
+        TextView tipoData = (TextView)view.findViewById(R.id.tipo_data);
+        TextView estadoData = (TextView)view.findViewById(R.id.estado_data);
+        TextView generosData = (TextView)view.findViewById(R.id.generos_data);
+        TextView fechaData = (TextView)view.findViewById(R.id.fecha_inicio_data);
+        TextView sinopsisData = (TextView)view.findViewById(R.id.sinopsis_data);
+
+        tipoData.setText(informacion.get(0).getTipo());
+        estadoData.setText(informacion.get(0).getEstado());
+        generosData.setText(informacion.get(0).getGeneros());
+        fechaData.setText(informacion.get(0).getFechaInicio());
+        sinopsisData.setText(informacion.get(0).getInformacion());
     }
 
     @Override

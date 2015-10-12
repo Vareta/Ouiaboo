@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.FavoritosTable;
 import com.ouiaboo.ouiaboo.Tables.VerMasTardeTable;
+import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
 import com.ouiaboo.ouiaboo.adaptadores.AdVerMasTarde;
 import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 
@@ -41,7 +42,7 @@ import java.util.List;
  * {@link Favoritos.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class Favoritos extends android.support.v4.app.Fragment implements AdVerMasTarde.CustomRecyclerListener{
+public class Favoritos extends android.support.v4.app.Fragment implements AdBusquedaFLV.CustomRecyclerListener{
 
     private OnFragmentInteractionListener mListener;
     private RecyclerView lista;
@@ -49,7 +50,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdVerM
     private ArrayList<HomeScreenAnimeFLV> animeFavoritos;
     private TextView noFavoritos;
     private boolean existenFavoritos;
-    private AdVerMasTarde adaptador;
+    private AdBusquedaFLV adaptador;
     private CoordinatorLayout coordinatorLayout;
 
 
@@ -59,8 +60,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdVerM
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_favoritos, container, false);
         coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
@@ -95,7 +95,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdVerM
 
     @Override
     public void customClickListener(View v, int position) {
-
+        mListener.onFavoritoInteraction(animeFavoritos.get(position).getUrlCapitulo());  //En este caso urlCapitulo, contiene la url del anime
     }
 
     /**
@@ -109,14 +109,13 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdVerM
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        public void onFavoritoInteraction(String url);
     }
 
-    private class BackgroundTask extends AsyncTask<AdVerMasTarde.CustomRecyclerListener, Void, Void> {
+    private class BackgroundTask extends AsyncTask<AdBusquedaFLV.CustomRecyclerListener, Void, Void> {
 
         @Override
-        protected Void doInBackground(AdVerMasTarde.CustomRecyclerListener... params) {
+        protected Void doInBackground(AdBusquedaFLV.CustomRecyclerListener... params) {
             try {
                 List<FavoritosTable> datos = DataSupport.findAll(FavoritosTable.class);
                 if (datos.isEmpty()) {
@@ -127,7 +126,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdVerM
                         animeFavoritos.add(new HomeScreenAnimeFLV(datos.get(i).getUrlAnime(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
                     }
 
-                    adaptador = new AdVerMasTarde(getActivity(), animeFavoritos);
+                    adaptador = new AdBusquedaFLV(getActivity(), animeFavoritos);
                     adaptador.setClickListener(params[0]);
                 }
 

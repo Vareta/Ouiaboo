@@ -5,11 +5,30 @@
     android:layout_height="match_parent"
     android:id="@+id/coord_layout"
     tools:context="com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen">
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/home_screen_list_animeflv"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:choiceMode="singleChoice" />
+        android:layout_height="match_parent">
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:visibility="gone" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/home_screen_list_animeflv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:choiceMode="singleChoice" />
+
+    </LinearLayout>
+    </RelativeLayout>
+
 
 </android.support.design.widget.CoordinatorLayout>

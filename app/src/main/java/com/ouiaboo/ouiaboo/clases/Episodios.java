@@ -5,8 +5,10 @@ import java.io.Serializable;
 /**
  * Created by Vareta on 14-08-2015.
  */
-public class Episodios implements Serializable {
-    private String url;
+public class Episodios implements Serializable  {
+    private String nombreAnime;
+    private String urlAnime;
+    private String urlEpisodio;
     private String numero;
     private String urlImagen;
     private String informacion;
@@ -16,9 +18,11 @@ public class Episodios implements Serializable {
     private String fechaInicio;
 
 
-    public Episodios(String url, String numero, String urlImagen, String informacion,
+    public Episodios(String nombreAnime, String urlAnime, String urlEpisodio, String numero, String urlImagen, String informacion,
                      String tipo, String estado, String generos, String fechaInicio){
-        this.url = url;
+        this.nombreAnime = nombreAnime;
+        this.urlAnime =urlAnime;
+        this.urlEpisodio = urlEpisodio;
         this.numero = numero;
         this.urlImagen = urlImagen;
         this.informacion = informacion;
@@ -29,8 +33,14 @@ public class Episodios implements Serializable {
 
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setNombreAnime(String nombreAnime) {
+        this.nombreAnime = nombreAnime;
+    }
+    public void setUrlAnime(String urlAnime) {
+        this.urlAnime = urlAnime;
+    }
+    public void setUrlEpisodio(String urlEpisodio) {
+        this.urlEpisodio = urlEpisodio;
     }
     public void setNumero(String numero) {
         this.numero = numero;
@@ -53,8 +63,14 @@ public class Episodios implements Serializable {
     public void setFechaInicio(String fechaInicio) {
         this.fechaInicio = fechaInicio;
     }
-    public String getUrl(){
-        return url;
+    public String getNombreAnime() {
+        return nombreAnime;
+    }
+    public String getUrlAnime() {
+        return urlAnime;
+    }
+    public String getUrlEpisodio(){
+        return urlEpisodio;
     }
     public String getNumero(){
         return numero;

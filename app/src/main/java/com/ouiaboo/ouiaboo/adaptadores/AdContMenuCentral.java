@@ -22,7 +22,6 @@ public class AdContMenuCentral extends BaseAdapter{
     private Context context;
     private List<DrawerItemsListUno> listaMenu;
     private LayoutInflater inflater;
-    private int extraPadding;
 
     public AdContMenuCentral (Context context, List<DrawerItemsListUno> listaMenu) {
         this.context = context;
@@ -30,7 +29,6 @@ public class AdContMenuCentral extends BaseAdapter{
         inflater = LayoutInflater.from(context);
 
         float scale = context.getResources().getDisplayMetrics().density;
-        extraPadding = (int)(8 * scale + 0.5f);
     }
 
 

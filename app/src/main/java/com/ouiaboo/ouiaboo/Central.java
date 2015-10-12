@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -21,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -47,11 +49,11 @@ import java.util.List;
 
 
 public class Central extends AppCompatActivity implements HomeScreen.OnFragmentInteractionListener, Busqueda.OnFragmentInteractionListener,
-                                                        EpisodiosFlv.OnFragmentInteractionListener, VerMasTarde.OnFragmentInteractionListener,
+                                                        VerMasTarde.OnFragmentInteractionListener, AvisoLegal.OnFragmentInteractionListener,
                                                         Favoritos.OnFragmentInteractionListener, Descargadas.OnFragmentInteractionListener,
                                                         Historial.OnFragmentInteractionListener, Generos.OnFragmentInteractionListener,
-                                                        PaginasAnime.OnFragmentInteractionListener, Faq.OnFragmentInteractionListener,
-                                                        AvisoLegal.OnFragmentInteractionListener{
+                                                        PaginasAnime.OnFragmentInteractionListener, Faq.OnFragmentInteractionListener {
+
     private DrawerLayout drawerLayout;
     private String drawerTitle;
     private ListView drawerList;
@@ -79,6 +81,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         setUpNavDrawer(); //setea el navigation drawer
         SQLiteDatabase db = Connector.getDatabase(); //crea las tablas, si estas no existen
 
+
         //listener del navigationview
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -97,6 +100,8 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
                         break;
 
                     case R.id.nav_favoritos:
+                       /* Intent intent = new Intent(getBaseContext(), EpisodiosPlusInfo.class);
+                        startActivity(intent);*/
                         ft.replace(R.id.contenedor, new Favoritos());
                         break;
 
@@ -274,28 +279,22 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
     @Override
     public void onBusquedaInteraction(String url) {
-        Bundle bundle = new Bundle();
-        bundle.putString("query", url);
-        EpisodiosFlv capitulo = new EpisodiosFlv();
-        capitulo.setArguments(bundle);
-
-        //Inicia el fragmente que contiene los resultados de la busqueda
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.contenedor, capitulo);
-        ft.addToBackStack(null); //para que se pueda devolver a un fragment anterior
-        ft.commit();
+        Intent intent = new Intent(getBaseContext(), EpisodiosPlusInfo.class);
+        intent.putExtra("url", url);
+        startActivity(intent);
     }
 
+
     @Override
-    public void onEpisodiosFlvInteraction(String url) {
+    public void onVerMasTardeInteraction(String url) {
         Intent intent = new Intent(this, VideoPlayer.class);
         intent.putExtra("url", url);
         startActivity(intent);
     }
 
     @Override
-    public void onVerMasTardeInteraction(String url) {
-        Intent intent = new Intent(this, VideoPlayer.class);
+    public void onFavoritoInteraction(String url) {
+        Intent intent = new Intent(getBaseContext(), EpisodiosPlusInfo.class);
         intent.putExtra("url", url);
         startActivity(intent);
     }
