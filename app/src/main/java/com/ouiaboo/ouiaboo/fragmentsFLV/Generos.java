@@ -2,14 +2,22 @@ package com.ouiaboo.ouiaboo.fragmentsFLV;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.ouiaboo.ouiaboo.R;
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +40,14 @@ public class Generos extends android.support.v4.app.Fragment {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_generos, container, false);
         getActivity().setTitle(R.string.generos_drawer_layout);
+        ImageView img = (ImageView)convertView.findViewById(R.id.imageView);
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Ouiaboo/Thumbnails/" + "hola.jpg";
+        Uri uri = Uri.parse(path);
+        File file = new File(path);
+        Log.d("PATH", path);
+        Bitmap myBitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+       // img.setImageBitmap(myBitmap);
+        Picasso.with(getActivity()).load(file).resize(200, 250).into(img);
         return convertView;
     }
 

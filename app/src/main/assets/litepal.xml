@@ -35,5 +35,6 @@
         <mapping class="com.ouiaboo.ouiaboo.Tables.FavoritosTable"></mapping>
         <mapping class="com.ouiaboo.ouiaboo.Tables.HistorialTable"></mapping>
         <mapping class="com.ouiaboo.ouiaboo.Tables.VerMasTardeTable"></mapping>
+        <mapping class="com.ouiaboo.ouiaboo.Tables.DescargadosTable"></mapping>
     </list>
 </litepal>

@@ -65,6 +65,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
     HashMap<DrawerItemsListUno, List<SitiosWeb>> listDataChild; //objetos hijos de la lista expandible
     ArrayList<DrawerItemsListUno> items;
     private Toolbar toolbar;
+
   //  private ProgressBar bar;
 
     @Override

@@ -1,14 +1,11 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
-import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +15,6 @@ import android.widget.TextView;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
-import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 
 import java.util.ArrayList;
 
@@ -35,7 +31,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
     private ProgressBar bar;
     private String searchQuery;
     private String queryTemplate = "http://animeflv.net/animes/?buscar=";
-    private ArrayList<HomeScreenAnimeFLV> animesBuscados;
+    private ArrayList<com.ouiaboo.ouiaboo.clases.HomeScreen> animesBuscados;
     private AdBusquedaFLV adaptador;
     private boolean produceResultados;
     private TextView sinResultados;
@@ -136,7 +132,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
         protected Void doInBackground(AdBusquedaFLV.CustomRecyclerListener... params) {
             Animeflv anime = new Animeflv(getResources());
             try {
-                animesBuscados = anime.busquedaFLV(searchQuery);
+                animesBuscados = anime.busquedaFLV(searchQuery, getActivity());
                 if (animesBuscados.isEmpty()) {
                     produceResultados = false;
                 } else {

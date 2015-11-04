@@ -10,42 +10,45 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.clases.HomeScreen;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.List;
 
 /**
  * Created by Vareta on 27-07-2015.
  */
-public class AdVerMasTarde extends RecyclerView.Adapter<AdVerMasTarde.AdVerMasTardeHolder> {
+public class AdDescargadas extends RecyclerView.Adapter<AdDescargadas.AdDescargadasHolder> {
     public List<HomeScreen> items;
     public Context context;
     public CustomRecyclerListener customRecyclerListener;
 
     // HomeScreen item = (HomeScreen)getItem(position);
 
-    public AdVerMasTarde(Context context, List<HomeScreen> items) {
+    public AdDescargadas(Context context, List<HomeScreen> items) {
         this.context = context;
         this.items = items;
     }
 
-    public class AdVerMasTardeHolder extends RecyclerView.ViewHolder implements OnClickListener {
+    public class AdDescargadasHolder extends RecyclerView.ViewHolder implements OnClickListener, OnLongClickListener{
         public CardView cardView;
         public TextView nombre;
         public TextView informacion;
         public ImageView preview;
 
 
-        public AdVerMasTardeHolder(View itemLayoutView) {
+        public AdDescargadasHolder(View itemLayoutView) {
             super(itemLayoutView);
             cardView = (CardView)itemLayoutView.findViewById(R.id.card_view);
             nombre = (TextView)itemLayoutView.findViewById(R.id.nombre_flv);
             informacion = (TextView)itemLayoutView.findViewById(R.id.informacion_flv);
             preview = (ImageView)itemLayoutView.findViewById(R.id.preview_flv);
             itemLayoutView.setOnClickListener(this);
+            itemLayoutView.setOnLongClickListener(this);
         }
 
         @Override
@@ -55,9 +58,20 @@ public class AdVerMasTarde extends RecyclerView.Adapter<AdVerMasTarde.AdVerMasTa
                 customRecyclerListener.customClickListener(v, getLayoutPosition());
             }
         }
+
+
+        @Override
+        public boolean onLongClick(View v) {
+            if (customRecyclerListener != null) {
+                customRecyclerListener.customLongClickListener(v, getLayoutPosition());
+            }
+
+            return true;
+        }
     }
     public static interface CustomRecyclerListener {
         public void customClickListener(View v, int position);
+        public void customLongClickListener(View v, int position);
     }
 
     public void setClickListener(CustomRecyclerListener customRecyclerListener){
@@ -66,25 +80,20 @@ public class AdVerMasTarde extends RecyclerView.Adapter<AdVerMasTarde.AdVerMasTa
 
 
     @Override
-    public AdVerMasTardeHolder onCreateViewHolder(ViewGroup viewGroup, final int viewType) {
+    public AdDescargadasHolder onCreateViewHolder(ViewGroup viewGroup, final int i) {
         //LayoutInflater inflater = (LayoutInflater)viewGroup.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.home_screen_animeflv, viewGroup, false);
-        AdVerMasTarde.AdVerMasTardeHolder vh = new AdVerMasTardeHolder(v);
+        AdDescargadas.AdDescargadasHolder vh = new AdDescargadasHolder(v);
 
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(AdVerMasTardeHolder holder, int i) {
+    public void onBindViewHolder(AdDescargadasHolder adHoScAnFLVHolder, int i) {
 
-        holder.nombre.setText(Html.fromHtml(items.get(i).getNombre()));
-        holder.informacion.setText(Html.fromHtml(items.get(i).getInformacion()));
-        Picasso.with(context).load(items.get(i).getPreview()).resize(250, 150).into(holder.preview);
-        //Log.d("Nombre", items.get(i).getNombre());
-        //agrega el preview al imageview via url
-
-        // new Utilities.DownloadImageTask(preview).execute(item.getPreview());
-
+        adHoScAnFLVHolder.nombre.setText(Html.fromHtml(items.get(i).getNombre()));
+        adHoScAnFLVHolder.informacion.setText(Html.fromHtml(items.get(i).getInformacion()));
+        Picasso.with(context).load(new File(items.get(i).getPreview())).resize(250, 150).into(adHoScAnFLVHolder.preview); //para imagenes guardadas dentro de la sd
     }
 
     @Override

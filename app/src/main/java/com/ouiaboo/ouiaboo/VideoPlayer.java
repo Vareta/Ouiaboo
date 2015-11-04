@@ -4,6 +4,8 @@ import com.ouiaboo.ouiaboo.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -22,6 +24,12 @@ import android.widget.ToggleButton;
 import android.widget.VideoView;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -81,7 +89,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         setContentView(R.layout.activity_video_player);
 
         bar = (ProgressBar)findViewById(R.id.progressBar);
-        //HomeScreenAnimeFLV episodio = (HomeScreenAnimeFLV)getIntent().getSerializableExtra("episodio");
+        //HomeScreen episodio = (HomeScreen)getIntent().getSerializableExtra("episodio");
         urlEntrada = getIntent().getStringExtra("url");
         //Log.d("ENTRADA", urlEntrada);
 
@@ -194,9 +202,27 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
     }*/
 
     public void reproducir(String url) {
+        Utilities util = new Utilities();
+        SharedPreferences sharedPref = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         bar.setVisibility(View.VISIBLE);
-        Uri aux = Uri.parse(url);
-        video.setVideoURI(aux); //setVideoURI llama internamente a prepareAsync(); de mediaplayer
+
+        Uri aux = Uri.parse("http://animeflv.net/video/hyperion.php?key=ra7qudupvbPtjK2%2F1tzi17WspdOy06y0kQ%3D%3D");
+        //video.setVideoURI(aux); //setVideoURI llama internamente a prepareAsync(); de mediaplayer
+        Method setVideoURIMethod = null;
+        try {
+            Log.d("HOLA", "HOLA");
+            setVideoURIMethod = video.getClass().getMethod("setVideoURI", Uri.class, Map.class);
+            Map<String, String> params = new HashMap<String, String>();
+            params = util.cookieToHashmap(sharedPref.getString("cookies", null));
+            setVideoURIMethod.invoke(video, aux, params);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
         video.requestFocus();
         video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override

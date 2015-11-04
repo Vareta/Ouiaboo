@@ -5,19 +5,20 @@ import java.io.Serializable;
 /**
  * Created by Vareta on 27-07-2015.
  */
-public class HomeScreenAnimeFLV implements Serializable{
+public class HomeScreen implements Serializable{
 
     private String urlCapitulo;
     private String nombre;
     private String informacion;
     private String preview;
 
-    public HomeScreenAnimeFLV(String urlCapitulo, String nombre, String informacion, String preview) {
+    public HomeScreen(String urlCapitulo, String nombre, String informacion, String preview) {
         this.urlCapitulo = urlCapitulo;
         this.nombre = nombre;
         this.informacion = informacion;
         this.preview = preview;
     }
+
 
     public void setUrlCapitulo(String urlCapitulo) {
         this.urlCapitulo = urlCapitulo;

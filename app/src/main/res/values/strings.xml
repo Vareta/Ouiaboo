@@ -13,7 +13,7 @@
                                                 momento mediante las opciones de la aplicacion.</string>
     <string-array name="paginas_anime">
         <item>AnimeFLV</item>
-        <item>KissAnime</item>
+        <item>AnimeJoy</item>
     </string-array>
     <string-array name="idioma_paginas_anime">
         <item>Español</item>
@@ -68,6 +68,8 @@
     <string name="noti_vermastarde_no">Este capitulo ya se encuentra en ver mas tarde</string>
     <string name="noti_favoritos_si">Añadido correctamente a favoritos</string>
     <string name="noti_favoritos_no">Este anime ya se encuentra en favoritos</string>
+    <string name="noti_descargado_actualmente">Este capitulo se esta descargando actualmente</string>
+    <string name="noti_descargado_existe">Este capitulo ya se encuentra descargado</string>
 
     <!--********************************************************************************************************************************************************************* -->
     <!-- **********************************************************        fragment_ver_mas_tarde       *************************************************************************** -->
@@ -80,7 +82,6 @@
     <!-- **********************************************************        fragment_favoritos       *************************************************************************** -->
     <!--********************************************************************************************************************************************************************* -->
     <string name="noExisten.Favoritos">No hay anime en Favoritos</string>
-    <string name="title_activity_episodios_plus_info">EpisodiosPlusInfo</string>
 
     <!--********************************************************************************************************************************************************************* -->
     <!-- **********************************************************        fragment_anime_info      *************************************************************************** -->
@@ -96,5 +97,9 @@
     <!--********************************************************************************************************************************************************************* -->
     <string name="episodios.EpisodiosPlusInfo">Episodios</string>
     <string name="informacion.EpisodiosPlusInfo">Información</string>
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        fragment_descargados     *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+    <string name="noExisten.Descargados">No hay anime descargado</string>
 
 </resources>

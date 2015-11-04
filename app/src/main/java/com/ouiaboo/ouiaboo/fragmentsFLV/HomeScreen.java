@@ -1,13 +1,21 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
-import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,25 +26,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Tables.DescargadosTable;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.VideoPlayer;
 import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
 import com.ouiaboo.ouiaboo.adaptadores.AdHomeScreen;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
-import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
 
+import org.litepal.crud.DataSupport;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -47,17 +58,21 @@ import java.util.List;
  */
 public class HomeScreen extends android.support.v4.app.Fragment implements AdHomeScreen.CustomRecyclerListener{
     private final String animeFLV = "http://animeflv.net/";
+    private final String animeJoy = "http://www.animejoy.tv/";
     private OnFragmentInteractionListener mListener;
     private AdHomeScreen adaptador;
     private RecyclerView list;
     private ProgressBar bar;
-    private ArrayList<HomeScreenAnimeFLV> animesRecientes;
+    private ArrayList<com.ouiaboo.ouiaboo.clases.HomeScreen> animesRecientes;
     private Animeflv animes;
     private Utilities util;
     private List<String> codigoFuente;
     private CoordinatorLayout coordLayout;
     private Snackbar snackbar;
-
+    private int posicionAnime;
+    private WebView webView;
+    public static final String PREFERENCIAS = "preferencias";
+    private AdHomeScreen.CustomRecyclerListener listener;
 
     public HomeScreen() {
         // Required empty public constructor
@@ -72,10 +87,33 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         getActivity().setTitle(R.string.inicio_drawer_layout);
         list = (RecyclerView)convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
+        webView = (WebView)getActivity().findViewById(R.id.web_view);
+        listener = this;
+        setWebView();
 
-        new BackgroundTask().execute(this);
-
+        getActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         return convertView;
+    }
+
+
+    public void setWebView() {
+        //CookieManager.getInstance().setAcceptCookie(true);
+        String agent = "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6";
+        webView.getSettings().setUserAgentString(agent);
+        webView.loadUrl(animeFLV);
+        webView.setWebViewClient(new WebViewClient() {
+            public void onPageFinished(WebView view, String url) {
+                String cookies = CookieManager.getInstance().getCookie(url); //carga las cookies
+
+                SharedPreferences sharedPref = getActivity().getSharedPreferences(PREFERENCIAS, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("cookies", cookies); //guarda las cookies en preferencias
+                editor.commit();
+
+                new BackgroundTask().execute(listener);
+                Log.d("Null", "Cargue");
+            }
+        });
     }
 
     @Override
@@ -93,9 +131,9 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
        // View popUpView = inflater.inflate(R.layout.context_menu, null);
         List<DrawerItemsListUno> items = new ArrayList<>();
         items.add( new DrawerItemsListUno( "Favorito", R.drawable.ic_action_globe ) );
-        items.add( new DrawerItemsListUno( "Favorito2", R.drawable.ic_action_globe ) );
+        items.add( new DrawerItemsListUno( "Descargar", R.drawable.ic_action_globe ) );
         items.add(new DrawerItemsListUno("Ir a anime", R.drawable.ic_action_globe));
-        items.add(new DrawerItemsListUno("Ver mas tardessssssssss", R.drawable.ic_action_globe));
+        items.add(new DrawerItemsListUno("Ver mas tarde", R.drawable.ic_action_globe));
 
         AdContMenuCentral adapter = new AdContMenuCentral(getActivity(), items);
 
@@ -114,6 +152,52 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                     /*Intent intent = new Intent(mContext, CarActivity.class);
                     intent.putExtra("car", mList.get( getAdapterPosition() ));
                     mContext.startActivity(intent);*/
+                if (position == 0) {
+                    String path2 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Ouiaboo";
+                    String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Ouiaboo/Kowabon -Episodio número 3.mp4";
+                    File file = new File(path2);
+
+                    if (file.list() == null) {
+                        Log.d("Null", "PATH null");
+                    } else {
+                        for (int i = 0; i < file.list().length; i++) {
+                            Log.d("List", file.list()[i]);
+                        }
+                    }
+                    Bitmap preview = ThumbnailUtils.createVideoThumbnail(path, MediaStore.Images.Thumbnails.MINI_KIND);
+
+                    if (preview == null) {
+                        Log.d("Null", "preview null");
+                        Log.d("PATH", path);
+                    }
+                    Log.d("PATH", Environment.DIRECTORY_MOVIES);
+
+
+                }
+
+                if (position == 1) {
+
+                    posicionAnime = posAnime; //almacena la posicion para asi utilizarla en otros contextos
+                    List<DescargadosTable> lista = DataSupport.where("urlCapitulo=?", animesRecientes.get(posAnime).getUrlCapitulo()).find(DescargadosTable.class);
+                    if (!lista.isEmpty()) { //ya tiene el capitulo
+                        Log.d("TAMAÑO", String.valueOf(lista.size()));
+                        if (!lista.get(0).isComplete()){ //cuando la descarga se esta efectuando en estos momentos
+                            snackbar = Snackbar.make(coordLayout, getString(R.string.noti_descargado_actualmente), Snackbar.LENGTH_LONG);
+                        } else {
+                            snackbar = Snackbar.make(coordLayout, getString(R.string.noti_descargado_existe), Snackbar.LENGTH_LONG);
+                        }
+                        View sbView = snackbar.getView();
+                        TextView textView = (TextView)sbView.findViewById(android.support.design.R.id.snackbar_text);
+                        textView.setTextColor(Color.YELLOW);
+                        snackbar.show();
+                    } else { //no tiene el capitulo, por lo tanto lo descarga
+                        new DownloadAnime().execute();
+                    }
+
+                    listPopupWindow.dismiss();
+                }
+
+
                 if (position == 2) {
 
                     new EpiUrlToAnimeUlr().execute(animesRecientes.get(posAnime).getUrlCapitulo());
@@ -167,6 +251,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         return maxWidth;
     }
 
+
     private class BackgroundTask extends AsyncTask<AdHomeScreen.CustomRecyclerListener, Void, Void> {
 
         @Override
@@ -206,6 +291,8 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
             bar.setVisibility(View.GONE);
             //
         }
+
+
     }
 
     /*Obtiene la url de un anime mediante el url del capitulo de manera asincrona*/
@@ -233,6 +320,45 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         }
     }
 
+    /*Obtiene la url de un anime mediante el url del capitulo de manera asincrona*/
+    public class DownloadAnime extends AsyncTask<Void, Void, Void> {
+        String nombreVideo = animesRecientes.get(posicionAnime).getNombre() + "-" + animesRecientes.get(posicionAnime).getInformacion() + ".mp4";
+        @Override
+        protected Void doInBackground(Void... params) {
+            Animeflv animeflv = new Animeflv(getResources());
+            String url = animeflv.urlVideoNoAsync(animesRecientes.get(posicionAnime).getUrlCapitulo()); //consigue la url del video a descargar
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+            request.setDescription(animesRecientes.get(posicionAnime).getInformacion()); //descripcion de la notificacion
+            request.setTitle(animesRecientes.get(posicionAnime).getNombre()); //titulo de la notificacion
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); //setea las notificaciones
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES + "/Ouiaboo", nombreVideo);
+
+            request.setMimeType("video/x-msvideo");
+
+            DownloadManager manager = (DownloadManager)getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+            long id = manager.enqueue(request);
+
+            //almacena los capitulos guardados en la tabla, sin importar si estos estan completamente descargados
+            DescargadosTable descargas = new DescargadosTable(id, animesRecientes.get(posicionAnime).getNombre(),
+                    animesRecientes.get(posicionAnime).getInformacion(),
+                    null,//preview, null por defecto
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Ouiaboo/" + nombreVideo,
+                    animesRecientes.get(posicionAnime).getUrlCapitulo(),
+                    false); //estado de la descarga, falso por defecto
+            descargas.save();
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            Log.d("TERMINE", "termine");
+        }
+    }
+
 
     @Override
     public void onAttach(Context context) {
@@ -249,6 +375,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     @Override
     public void onDetach() {
         super.onDetach();
+        getActivity().unregisterReceiver(onComplete);
         mListener = null;
     }
 
@@ -266,5 +393,29 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
+
+    BroadcastReceiver onComplete = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            List<DescargadosTable> list = DataSupport.where("complete=?", String.valueOf(0)).find(DescargadosTable.class); //obtiene todas las descargas no completadas
+
+            if (!list.isEmpty()) {
+                for (int i = 0; i < list.size(); i++) {
+                    DownloadManager dw = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                    Cursor c = dw.query(new DownloadManager.Query().setFilterById(list.get(i).getIdDescarga()));
+                    if (!c.moveToFirst()) {
+                        Log.e("vacio", "Empty row");
+                        return;
+                    }
+                    int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                    if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                        DescargadosTable descargadosTable = new DescargadosTable();
+                        descargadosTable.setComplete(true);
+                        descargadosTable.updateAll("urlCapitulo=?", list.get(i).getUrlCapitulo());
+                        break;
+                    }
+                }
+            }
+        }
+    };
 
 }

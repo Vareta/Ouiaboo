@@ -1,15 +1,10 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Xfermode;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -19,23 +14,19 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.R;
-import com.ouiaboo.ouiaboo.adaptadores.AdHomeScreen;
 import com.ouiaboo.ouiaboo.Tables.VerMasTardeTable;
 import com.ouiaboo.ouiaboo.adaptadores.AdVerMasTarde;
-import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
+import com.ouiaboo.ouiaboo.clases.HomeScreen;
 
 import org.litepal.crud.DataSupport;
 
-import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +39,7 @@ import java.util.List;
 public class VerMasTarde extends android.support.v4.app.Fragment implements AdVerMasTarde.CustomRecyclerListener{
     private RecyclerView lista;
     private ProgressBar bar;
-    private ArrayList<HomeScreenAnimeFLV> masTardeAnime;
+    private ArrayList<com.ouiaboo.ouiaboo.clases.HomeScreen> masTardeAnime;
     private AdVerMasTarde adaptador;
     private boolean existeAnimeMastarde;
     private CoordinatorLayout coordinatorLayout;
@@ -71,7 +62,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
         lista = (RecyclerView)convertView.findViewById(R.id.ver_mas_tarde_recyclerview);
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         sinResultados = (TextView)convertView.findViewById(R.id.noResultados);
-        masTardeAnime = new ArrayList<HomeScreenAnimeFLV>();
+        masTardeAnime = new ArrayList<HomeScreen>();
         new BackgroundTask().execute(this);
 
 
@@ -91,7 +82,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
         public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
 
             final int position = viewHolder.getAdapterPosition(); //obtiene la posicion
-            final HomeScreenAnimeFLV aux = masTardeAnime.get(position); //guarda el elemento al cual se le hizo swipe
+            final HomeScreen aux = masTardeAnime.get(position); //guarda el elemento al cual se le hizo swipe
             masTardeAnime.remove(position); //remueve de la lista de capitulos en memoria
             adaptador.notifyItemRemoved(position); //notifica al adaptador que un item fue removido
             Snackbar snackbar = Snackbar.make(coordinatorLayout, getResources().getString(R.string.animeBorrado_verMasTarde), Snackbar.LENGTH_LONG) //muestra la snackbar para informar al usuario
@@ -193,7 +184,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                 } else {
                     existeAnimeMastarde = true;
                     for (int i = 0; i < datos.size(); i++) {
-                        masTardeAnime.add(new HomeScreenAnimeFLV(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(),datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
+                        masTardeAnime.add(new HomeScreen(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(),datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
                     }
 
                     adaptador = new AdVerMasTarde(getActivity(), masTardeAnime);

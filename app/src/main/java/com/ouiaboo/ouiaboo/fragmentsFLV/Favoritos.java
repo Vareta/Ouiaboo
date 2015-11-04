@@ -1,12 +1,10 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -16,7 +14,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,14 +22,11 @@ import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.FavoritosTable;
-import com.ouiaboo.ouiaboo.Tables.VerMasTardeTable;
 import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
-import com.ouiaboo.ouiaboo.adaptadores.AdVerMasTarde;
-import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
+import com.ouiaboo.ouiaboo.clases.HomeScreen;
 
 import org.litepal.crud.DataSupport;
 
-import java.awt.font.TextAttribute;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +41,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
     private OnFragmentInteractionListener mListener;
     private RecyclerView lista;
     private ProgressBar bar;
-    private ArrayList<HomeScreenAnimeFLV> animeFavoritos;
+    private ArrayList<HomeScreen> animeFavoritos;
     private TextView noFavoritos;
     private boolean existenFavoritos;
     private AdBusquedaFLV adaptador;
@@ -69,7 +63,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
         lista = (RecyclerView)convertView.findViewById(R.id.favoritos_recyclerview);
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         noFavoritos = (TextView)convertView.findViewById(R.id.noFavoritos);
-        animeFavoritos = new ArrayList<HomeScreenAnimeFLV>();
+        animeFavoritos = new ArrayList<HomeScreen>();
         new BackgroundTask().execute(this);
 
         return convertView;
@@ -123,7 +117,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
                 } else {
                     existenFavoritos = true;
                     for (int i = 0; i < datos.size(); i++) {
-                        animeFavoritos.add(new HomeScreenAnimeFLV(datos.get(i).getUrlAnime(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
+                        animeFavoritos.add(new HomeScreen(datos.get(i).getUrlAnime(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
                     }
 
                     adaptador = new AdBusquedaFLV(getActivity(), animeFavoritos);
@@ -175,7 +169,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
         public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
 
             final int position = viewHolder.getAdapterPosition(); //obtiene la posicion
-            final HomeScreenAnimeFLV aux = animeFavoritos.get(position); //guarda el elemento al cual se le hizo swipe
+            final HomeScreen aux = animeFavoritos.get(position); //guarda el elemento al cual se le hizo swipe
             animeFavoritos.remove(position); //remueve de la lista de capitulos en memoria
             adaptador.notifyItemRemoved(position); //notifica al adaptador que un item fue removido
             Snackbar snackbar = Snackbar.make(coordinatorLayout, getResources().getString(R.string.animeBorrado_verMasTarde), Snackbar.LENGTH_LONG) //muestra la snackbar para informar al usuario

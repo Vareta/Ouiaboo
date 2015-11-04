@@ -1,11 +1,6 @@
 package com.ouiaboo.ouiaboo.adaptadores;
 
-import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -15,24 +10,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.R;
-import com.ouiaboo.ouiaboo.VideoPlayer;
-import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
-import com.ouiaboo.ouiaboo.fragmentsFLV.Busqueda;
-import com.ouiaboo.ouiaboo.fragmentsFLV.EpisodiosFlv;
+import com.ouiaboo.ouiaboo.clases.HomeScreen;
 import com.squareup.picasso.Picasso;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Vareta on 13-08-2015.
  */
 public class AdBusquedaFLV extends RecyclerView.Adapter<AdBusquedaFLV.BusquedaHolder>{
-    public List<HomeScreenAnimeFLV> items;
+    public List<HomeScreen> items;
     public Context context;
     public CustomRecyclerListener customRecyclerListener;
 
-    public AdBusquedaFLV (Context context, List<HomeScreenAnimeFLV> items) {
+    public AdBusquedaFLV (Context context, List<HomeScreen> items) {
         this.context = context;
         this.items = items;
     }

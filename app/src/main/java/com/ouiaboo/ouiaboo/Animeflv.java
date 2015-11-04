@@ -1,26 +1,20 @@
 package com.ouiaboo.ouiaboo;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.util.Log;
+import android.webkit.CookieManager;
 
 import com.ouiaboo.ouiaboo.clases.Episodios;
-import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
+import com.ouiaboo.ouiaboo.clases.HomeScreen;
 
-import org.jsoup.Connection;
-import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
-import org.jsoup.helper.HttpConnection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +22,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.ouiaboo.ouiaboo.R.string;
 
 /**
  * Created by Vareta on 29-07-2015.
@@ -43,7 +36,7 @@ public class Animeflv{
     private String animeflv = "http://animeflv.net/"; //sitio web
 
 
-    public ArrayList<HomeScreenAnimeFLV> homeScreenAnimeflv(List<String> codigoFuente){
+    public ArrayList<HomeScreen> homeScreenAnimeflv(List<String> codigoFuente){
 
         int max = codigoFuente.size();
         //String que contiene el indicador que en lo que resta del codigo fuente se encuentran los animes recientes
@@ -67,7 +60,7 @@ public class Animeflv{
         String informacion = null;
         String preview = null;
 
-        ArrayList<HomeScreenAnimeFLV> home = new ArrayList<HomeScreenAnimeFLV>();
+        ArrayList<HomeScreen> home = new ArrayList<HomeScreen>();
 
         for (int i = 0; i < max && !ultimo; i++) {
             if (codigoFuente.get(i).contains(condUltimosCap)){//seccion de ultimos capitulos
@@ -75,7 +68,7 @@ public class Animeflv{
                 for (int j = i + 1; j < max; j++) {
 
                     if ((urlCapitulo != null) && (nombre != null) && (informacion != null) && (preview != null)){ //para no agregar capitulos repetidos
-                        HomeScreenAnimeFLV item = new HomeScreenAnimeFLV(urlCapitulo, nombre, informacion, preview);
+                        HomeScreen item = new HomeScreen(urlCapitulo, nombre, informacion, preview);
                         /*Log.d("URL11  ", urlCapitulo);
                         Log.d("Nombre11  ", nombre);
                         Log.d("Informacion11  ", informacion);
@@ -202,6 +195,44 @@ public class Animeflv{
         return url;
     }
 
+    public String urlVideoNoAsync(String paginaEpisodio){
+        String url = "";
+        String auxUrl = "";
+        List<String> paginaWeb;
+
+        Utilities util = new Utilities();
+
+        paginaWeb = util.downloadWebPageTaskNoAsync(paginaEpisodio);
+
+        int max = paginaWeb.size();
+
+        for (int i = 0; i < max; i++) {
+            if (paginaWeb.get(i).contains("var videos")) {
+                Matcher localMatcher = Pattern.compile("hyperion.php\\?key=(.*?)&provider").matcher(paginaWeb.get(i));
+                //Log.d("URL  ", paginaWeb.get(i));
+                while (localMatcher.find()) {
+                    auxUrl = localMatcher.group(1);
+                    //System.out.println(aux);
+                }
+            }
+        }
+        String[] aux = auxUrl.split("25"); //se quita el 25 de la url
+        for (int m = 0; m < aux.length; m++){
+            if (m == 0){
+                auxUrl = aux[m];
+            } else {
+                auxUrl = auxUrl + aux[m];
+            }
+        }
+        //Log.d("WEB", auxUrl);
+        url = "http://animeflv.net/video/hyperion.php?key=" + auxUrl;
+        // url = "http://animejoy.tv/video/sore-ga-seiyuu/005.mp4"; //para trabajar mientras animeflv esta caido
+        // Log.d("WEB", url);
+
+
+        return url;
+    }
+
   /*  private void crawl(String url) throws IOException {
 
         Response response = Jsoup.connect(url).followRedirects(false).execute();
@@ -225,20 +256,23 @@ public class Animeflv{
     }*/
 
 
-    public ArrayList<HomeScreenAnimeFLV> busquedaFLV(String url){
+    public ArrayList<HomeScreen> busquedaFLV(String url, Context context){
+        Utilities util = new Utilities();
         String pelicula = "tipo_2"; //pelicula
         String ova = "tipo_1"; //OVA
         String serie = "tipo_0"; //serie de anime
         Document doc = null;
-        ArrayList<HomeScreenAnimeFLV> search = new ArrayList<HomeScreenAnimeFLV>();
+        ArrayList<HomeScreen> search = new ArrayList<HomeScreen>();
         String urlAnime;
         String nombre;
         String informacion;
         String informacionAux;
         String preview;
         Map<String, String> cookyes = new HashMap<String, String>();
-
-
+        SharedPreferences sharedPref = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
+        String cookies = CookieManager.getInstance().getCookie("http://animeflv.net/");
+        Log.d("cookies", sharedPref.getString("cookies", null));
+        //cookieToHashmap(sharedPref.getString("cookies", null));
        // repeat();
         try {
 
@@ -246,6 +280,7 @@ public class Animeflv{
                     .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                     .referrer("http://www.google.com")
                     .followRedirects(true)
+                    .cookies(util.cookieToHashmap(sharedPref.getString("cookies", null)))
                     .get();
         } catch (IOException e) {
             e.printStackTrace();
@@ -282,7 +317,7 @@ public class Animeflv{
                    // System.out.println("Imagen  : " + preview);
                    // System.out.println("Tipo  : " + informacion);
 
-                    HomeScreenAnimeFLV item = new HomeScreenAnimeFLV(urlAnime, nombre, informacion, preview); //crea un item tipo homescreen y le añade los valores
+                    HomeScreen item = new HomeScreen(urlAnime, nombre, informacion, preview); //crea un item tipo homescreen y le añade los valores
                     search.add(item); //agrega el item a la lista de items
                 }
             }
@@ -293,6 +328,9 @@ public class Animeflv{
 
         return search;
     }
+
+
+
 
     public ArrayList<Episodios> getEpisodios(String url) {
         String nombreAnime;

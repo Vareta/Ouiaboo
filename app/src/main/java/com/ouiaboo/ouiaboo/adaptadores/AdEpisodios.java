@@ -34,7 +34,7 @@ public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolde
 
         public EpisodiosHolder(View itemLayoutView) {
             super(itemLayoutView);
-            capitulo = (TextView)itemLayoutView.findViewById(R.id.espisodios_flv);
+            capitulo = (TextView)itemLayoutView.findViewById(R.id.episodios_flv);
             itemLayoutView.setOnClickListener(this);
             itemLayoutView.setOnLongClickListener(this);
         }

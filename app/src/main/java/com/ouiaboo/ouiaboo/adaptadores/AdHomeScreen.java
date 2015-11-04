@@ -13,7 +13,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 
 import com.ouiaboo.ouiaboo.R;
-import com.ouiaboo.ouiaboo.clases.HomeScreenAnimeFLV;
+import com.ouiaboo.ouiaboo.clases.HomeScreen;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -22,13 +22,13 @@ import java.util.List;
  * Created by Vareta on 27-07-2015.
  */
 public class AdHomeScreen extends RecyclerView.Adapter<AdHomeScreen.AdHoScAnFLVHolder> {
-    public List<HomeScreenAnimeFLV> items;
+    public List<HomeScreen> items;
     public Context context;
     public CustomRecyclerListener customRecyclerListener;
 
-    // HomeScreenAnimeFLV item = (HomeScreenAnimeFLV)getItem(position);
+    // HomeScreen item = (HomeScreen)getItem(position);
 
-    public AdHomeScreen(Context context, List<HomeScreenAnimeFLV> items) {
+    public AdHomeScreen(Context context, List<HomeScreen> items) {
         this.context = context;
         this.items = items;
     }

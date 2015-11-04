@@ -32,7 +32,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         if (!sharedPreferences.contains("animeflv")){//si no tiene el string, quiere decir que es primera vez que se crean las preferencias
             SharedPreferences.Editor editor = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE).edit();
             editor.putBoolean("animeflv", false);
-            editor.putBoolean("kissanime", false);
+            editor.putBoolean("animejoy", false);
             editor.apply();
         } else {
             Intent intent = new Intent(getBaseContext(), Central.class);
@@ -44,7 +44,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         //se setean las preferencias sobre los sitios web de anime
         SharedPreferences.Editor editor = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE).edit();
         editor.putBoolean("animeflv", false);
-        editor.putBoolean("kissanime", false);
+        editor.putBoolean("animejoy", false);
         editor.apply();
 
         String[] paginasWebNombre = getResources().getStringArray(R.array.paginas_anime);
@@ -80,18 +80,18 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
             if (position == 0){ //AnimeFLV
                 editor.putBoolean("animeflv", true);
-                editor.putBoolean("kissanime", false);
+                editor.putBoolean("animejoy", false);
             }else{
                 if (position == 1){ //KissAnime
                     editor.putBoolean("animeflv", false);
-                    editor.putBoolean("kissanime", true);
+                    editor.putBoolean("animejoy", true);
                 }
             }
         editor.apply();
 
         SharedPreferences prefs = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE);
 
-        Log.d(TAG,  "AnimeFLV  "+prefs.getBoolean("animeflv", false) + "  KissAnime" + prefs.getBoolean("kissanime", false));
+        Log.d(TAG,  "AnimeFLV  "+prefs.getBoolean("animeflv", false) + "  Animejoy" + prefs.getBoolean("animejoy", false));
 
         Intent intent = new Intent(getBaseContext(), Central.class);
         startActivity(intent);
