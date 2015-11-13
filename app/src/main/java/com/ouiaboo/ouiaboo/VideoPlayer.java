@@ -1,5 +1,6 @@
 package com.ouiaboo.ouiaboo;
 
+import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
 import com.ouiaboo.ouiaboo.util.SystemUiHider;
 
 import android.annotation.TargetApi;
@@ -12,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,12 +25,15 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 import android.widget.VideoView;
 
+import org.jsoup.nodes.Document;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -89,18 +94,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         setContentView(R.layout.activity_video_player);
 
         bar = (ProgressBar)findViewById(R.id.progressBar);
-        //HomeScreen episodio = (HomeScreen)getIntent().getSerializableExtra("episodio");
         urlEntrada = getIntent().getStringExtra("url");
-        //Log.d("ENTRADA", urlEntrada);
-
-        Animeflv anime = new Animeflv(getResources());
-        url = anime.urlVideo(urlEntrada);
-
-
-        //url = e.getString("url");
-        //Quita el action bar del fullscreen
-
-
         video = (VideoView)findViewById(R.id.videoView);
 
 
@@ -114,7 +108,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         tiempo_actual = (TextView)findViewById(R.id.tiempoActual);
         tiempo_total = (TextView)findViewById(R.id.tiempoTotal);
         barraProgreso = (SeekBar)findViewById(R.id.seekBar);
-        barraProgreso.setOnSeekBarChangeListener((SeekBar.OnSeekBarChangeListener) this);
+        barraProgreso.setOnSeekBarChangeListener(this);
 
 
         // Set up an instance of SystemUiHider to control the system UI for
@@ -186,9 +180,8 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.playPauseButton).setOnTouchListener(mDelayHideTouchListener);
-        //new BackgroundAsyncTask().execute(url);
-        reproducir(url);
-        updateProgressBar();
+        new GetVideoUrlAndPlay().execute();
+
         Log.d(TAG, "create");
     }
 
@@ -202,27 +195,10 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
     }*/
 
     public void reproducir(String url) {
-        Utilities util = new Utilities();
-        SharedPreferences sharedPref = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
         bar.setVisibility(View.VISIBLE);
 
-        Uri aux = Uri.parse("http://animeflv.net/video/hyperion.php?key=ra7qudupvbPtjK2%2F1tzi17WspdOy06y0kQ%3D%3D");
-        //video.setVideoURI(aux); //setVideoURI llama internamente a prepareAsync(); de mediaplayer
-        Method setVideoURIMethod = null;
-        try {
-            Log.d("HOLA", "HOLA");
-            setVideoURIMethod = video.getClass().getMethod("setVideoURI", Uri.class, Map.class);
-            Map<String, String> params = new HashMap<String, String>();
-            params = util.cookieToHashmap(sharedPref.getString("cookies", null));
-            setVideoURIMethod.invoke(video, aux, params);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
+        Uri aux = Uri.parse(url);
+        video.setVideoURI(aux); //setVideoURI llama internamente a prepareAsync(); de mediaplayer
         video.requestFocus();
         video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -238,8 +214,10 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         super.onResume();
         //Log.d(TAG, String.valueOf(posicionGuardada));
         if (posicionGuardada == 0){
+
             //video.start();
-            reproducir(url);
+            //reproducir(url);
+            //new GetVideoUrlAndPlay().execute();
             Log.d(TAG, "resume de 0");
         } else {
             bar.setVisibility(View.VISIBLE);
@@ -452,6 +430,42 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
 
     private void updateProgressBar() {
         mHideHandler.postDelayed(mUpdateTimeTask, 100);
+    }
+
+    private class GetVideoUrlAndPlay extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Utilities util = new Utilities();
+            try {
+                Document codigoFuente = util.connect(urlEntrada); //obtiene el codigo fuente en forma de elementos
+                if (util.queProveedorEs(getBaseContext()) == Utilities.ANIMEFLV) {
+                    List<String> codFuente = util.downloadWebPageTaskNoAsync(urlEntrada); //obtiene el codigo fuente en forma de una lista de string
+                    Animeflv anime = new Animeflv(getResources());
+
+                    url = anime.urlDisponible(urlEntrada,getBaseContext());
+
+                } else {
+                    Animejoy joyAnime = new Animejoy();
+                    url = joyAnime.urlVideo(codigoFuente);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            reproducir(url);
+            updateProgressBar();
+        }
     }
 
 

@@ -7,7 +7,8 @@ import android.util.Log;
 import android.webkit.CookieManager;
 
 import com.ouiaboo.ouiaboo.clases.Episodios;
-import com.ouiaboo.ouiaboo.clases.HomeScreen;
+import com.ouiaboo.ouiaboo.clases.GenerosClass;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,6 +16,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +39,7 @@ public class Animeflv{
     private String animeflv = "http://animeflv.net/"; //sitio web
 
 
-    public ArrayList<HomeScreen> homeScreenAnimeflv(List<String> codigoFuente){
+    public ArrayList<HomeScreenEpi> homeScreenAnimeflv(List<String> codigoFuente){
 
         int max = codigoFuente.size();
         //String que contiene el indicador que en lo que resta del codigo fuente se encuentran los animes recientes
@@ -60,7 +63,7 @@ public class Animeflv{
         String informacion = null;
         String preview = null;
 
-        ArrayList<HomeScreen> home = new ArrayList<HomeScreen>();
+        ArrayList<HomeScreenEpi> home = new ArrayList<HomeScreenEpi>();
 
         for (int i = 0; i < max && !ultimo; i++) {
             if (codigoFuente.get(i).contains(condUltimosCap)){//seccion de ultimos capitulos
@@ -68,7 +71,7 @@ public class Animeflv{
                 for (int j = i + 1; j < max; j++) {
 
                     if ((urlCapitulo != null) && (nombre != null) && (informacion != null) && (preview != null)){ //para no agregar capitulos repetidos
-                        HomeScreen item = new HomeScreen(urlCapitulo, nombre, informacion, preview);
+                        HomeScreenEpi item = new HomeScreenEpi(urlCapitulo, nombre, informacion, preview);
                         /*Log.d("URL11  ", urlCapitulo);
                         Log.d("Nombre11  ", nombre);
                         Log.d("Informacion11  ", informacion);
@@ -256,74 +259,45 @@ public class Animeflv{
     }*/
 
 
-    public ArrayList<HomeScreen> busquedaFLV(String url, Context context){
-        Utilities util = new Utilities();
+    public List<HomeScreenEpi> busquedaFLV(Document codigoFuente){
         String pelicula = "tipo_2"; //pelicula
         String ova = "tipo_1"; //OVA
         String serie = "tipo_0"; //serie de anime
-        Document doc = null;
-        ArrayList<HomeScreen> search = new ArrayList<HomeScreen>();
-        String urlAnime;
-        String nombre;
-        String informacion;
-        String informacionAux;
-        String preview;
-        Map<String, String> cookyes = new HashMap<String, String>();
-        SharedPreferences sharedPref = context.getSharedPreferences("preferencias", Context.MODE_PRIVATE);
-        String cookies = CookieManager.getInstance().getCookie("http://animeflv.net/");
-        Log.d("cookies", sharedPref.getString("cookies", null));
-        //cookieToHashmap(sharedPref.getString("cookies", null));
-       // repeat();
-        try {
-
-            doc = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .referrer("http://www.google.com")
-                    .followRedirects(true)
-                    .cookies(util.cookieToHashmap(sharedPref.getString("cookies", null)))
-                    .get();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        List<HomeScreenEpi> search = new ArrayList<HomeScreenEpi>();
+        String urlAnime, nombre, informacion, informacionAux, preview;
 
         Elements objetosEpi;
-        if (doc != null) {
-            objetosEpi = doc.getElementsByClass("aboxy_lista");
-            if (objetosEpi.isEmpty()){ // si no contiene la clase, es decir la busqueda no produjo resultados
-                search = null;
-                Log.d("Empty", "busqueda no produce resultados");
-            } else {
-                Element dirAnime; //primer elemento del objeto aboxy_lista(i) que contiene el nombre, link e imagen del anime
-                Element dirAnimeTipo; //elemento que contiene la informacion acerca si es pelicula, ova o serie
-                for (int i = 0; i < objetosEpi.size(); i++) {
-                    dirAnime = objetosEpi.get(i).select("a").first();
-                    urlAnime = "http://animeflv.net" + dirAnime.attr("href");
-                    nombre = dirAnime.attr("title");
-                    preview = dirAnime.select("img").attr("data-original"); //accede a img, ya que <a> contiene un <img> en su interior. Ej: <a <img /> </a>
-                    dirAnimeTipo = objetosEpi.get(i).select("span").first();
-                    informacionAux = dirAnimeTipo.attr("class");
-                    if (informacionAux.equals(pelicula)) { //es pelicula?
-                        informacion = "Pelicula";
-                    } else {
-                        if (informacionAux.equals(ova)) { //es OVA?
-                            informacion = "OVA";
-                        } else { // es serie
-                            informacion = "Serie de anime";
-                        }
-                    }
-                   // System.out.println("url  : " + urlAnime);
-                   // System.out.println("Nombre  : " + nombre);
-                   // System.out.println("Imagen  : " + preview);
-                   // System.out.println("Tipo  : " + informacion);
-
-                    HomeScreen item = new HomeScreen(urlAnime, nombre, informacion, preview); //crea un item tipo homescreen y le añade los valores
-                    search.add(item); //agrega el item a la lista de items
-                }
-            }
-        } else {
+        objetosEpi = codigoFuente.getElementsByClass("aboxy_lista");
+        if (objetosEpi.isEmpty()){ // si no contiene la clase, es decir la busqueda no produjo resultados
             search = null;
-            Log.d("ERROR", "doc.getElementsByClass(\"aboxy_lista\"); es nulo");
+            Log.d("Empty", "busqueda no produce resultados");
+        } else {
+            Element dirAnime; //primer elemento del objeto aboxy_lista(i) que contiene el nombre, link e imagen del anime
+            Element dirAnimeTipo; //elemento que contiene la informacion acerca si es pelicula, ova o serie
+            for (int i = 0; i < objetosEpi.size(); i++) {
+                dirAnime = objetosEpi.get(i).select("a").first();
+                urlAnime = "http://animeflv.net" + dirAnime.attr("href");
+                nombre = dirAnime.attr("title");
+                preview = dirAnime.select("img").attr("data-original"); //accede a img, ya que <a> contiene un <img> en su interior. Ej: <a <img /> </a>
+                dirAnimeTipo = objetosEpi.get(i).select("span").first();
+                informacionAux = dirAnimeTipo.attr("class");
+                if (informacionAux.equals(pelicula)) { //es pelicula?
+                    informacion = "Pelicula";
+                } else {
+                    if (informacionAux.equals(ova)) { //es OVA?
+                        informacion = "OVA";
+                    } else { // es serie
+                        informacion = "Serie de anime";
+                    }
+                }
+               // System.out.println("url  : " + urlAnime);
+               // System.out.println("Nombre  : " + nombre);
+               // System.out.println("Imagen  : " + preview);
+               // System.out.println("Tipo  : " + informacion);
+
+                HomeScreenEpi item = new HomeScreenEpi(urlAnime, nombre, informacion, preview); //crea un item tipo homescreen y le añade los valores
+                search.add(item); //agrega el item a la lista de items
+            }
         }
 
         return search;
@@ -468,6 +442,204 @@ public class Animeflv{
         return urlAnime;
     }
 
+    public ArrayList<HomeScreenEpi> homeScreenAnimeFlv(Document codigoFuente) {
+        ArrayList<HomeScreenEpi> home = new ArrayList<>();
+        String urlCapitulo, nombre, informacion, preview, aux;
+
+        Element objHome = codigoFuente.getElementsByClass("ultimos_epis").first(); //contiene los episodios recientes
+        Elements objEpisodios = objHome.select("a"); //contiene los episodios recientes pero como una lista
+        Element img;
+        for (int i = 0; i < objEpisodios.size(); i++) {
+            //Obtiene url del capitulo
+            aux = objEpisodios.get(i).attr("href");
+            urlCapitulo = "http://animeflv.net" + aux;
+            //Obtiene nombre Anime
+            nombre = objEpisodios.get(i).attr("title");
+            //Obtiene informacion capitulo, Ej; capitulo numero x, Ova, pelicula
+            aux = objEpisodios.get(i).getElementsByClass("tit_ep").toString(); //es episodio? (mas probable)
+            if (!aux.equals("")) {
+                String nombreAux = "";
+                String[] div = nombre.split(" ");
+                for (int j = 0; j < div.length - 1; j++) { // consigue sólo el nombre del anime
+                    if (j < div.length - 2) {
+                        nombreAux = nombreAux + div[j] + " ";
+                    } else {
+                        nombreAux = nombreAux + div[j]; //ultima palabra y asi no queda con un espacio al final
+                    }
+                }
+                nombre = nombreAux; //agrega el nombre de la serie
+                informacion = resources.getString(R.string.numero_episodio_menu_central_ES) + " " + div[div.length - 1]; //info, Ej: Capitulo numero x
+            } else {
+                aux = objEpisodios.get(i).getElementsByClass("tova").toString(); //es ova? (probable)
+                if (aux.equals("")) {
+                    informacion = resources.getString(R.string.ova_menu_central_ES);
+                } else { //entonces es pelicula (menos probable
+                    informacion = resources.getString(R.string.pelicula_menu_central_ES);
+                }
+            }
+            //Obtiene url de la imagen del episodio
+            img = objEpisodios.get(i).select("img").first();
+            preview = img.attr("src");
+            home.add(new HomeScreenEpi(urlCapitulo, nombre, informacion, preview)); //agrega el nuevo objeto al array
+
+           /* Log.d("URLCAPITULO", urlCapitulo);
+            Log.d("NOMBRE", nombre);
+            Log.d("CAPITULO", informacion);
+            Log.d("PREVIEW", preview);*/
+        }
+
+        return home;
+    }
+
+    public String urlIzanagiServer(List<String> paginaWeb){
+        String url = "", auxUrl = "";
+
+        int max = paginaWeb.size();
+
+        for (int i = 0; i < max; i++) {
+            if (paginaWeb.get(i).contains("var videos")) {
+                Matcher localMatcher = Pattern.compile("embed_izanagi.php\\?key=(.*?)\"").matcher(paginaWeb.get(i));
+                //Log.d("URL  ", paginaWeb.get(i));
+                while (localMatcher.find()) {
+                    auxUrl = localMatcher.group(1);
+                    //System.out.println(aux);
+                }
+            }
+        }
+
+        try {
+            url = URLDecoder.decode("http://animeflv.net/video/izanagi.php?key=" + auxUrl, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    public String urlFLVServer(List<String> paginaWeb){
+        String auxUrl = "", urlFinal = "";
+
+        int max = paginaWeb.size();
+
+        for (int i = 0; i < max; i++) {
+            if (paginaWeb.get(i).contains("var videos")) {
+                Matcher localMatcher = Pattern.compile("embed.php\\?aid=(.*?)\\\\").matcher(paginaWeb.get(i));
+                //Log.d("URL  ", paginaWeb.get(i));
+                while (localMatcher.find()) {
+                    auxUrl = localMatcher.group(1);
+                    //System.out.println(aux);
+                }
+            }
+        }
+        String[] url = auxUrl.split("&num=");
+
+        urlFinal = "http://subidas.com/files/" + url[0] + "/" + url[1] + ".mp4";
+
+        return urlFinal;
+    }
+
+    public String urlHyperionServer(List<String> paginaWeb){
+        String auxUrl = "", url = "";
+
+        int max = paginaWeb.size();
+
+        for (int i = 0; i < max; i++) {
+            if (paginaWeb.get(i).contains("var videos")) {
+                Matcher localMatcher = Pattern.compile("hyperion.php\\?key=(.*?)&provider").matcher(paginaWeb.get(i));
+                //Log.d("URL  ", paginaWeb.get(i));
+                while (localMatcher.find()) {
+                    auxUrl = localMatcher.group(1);
+                    //System.out.println(aux);
+                }
+            }
+        }
+
+
+        try {
+            url = URLDecoder.decode("http://animeflv.net/video/hyperion.php?key=" + auxUrl, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
+    /*Entrega la url que este disponible
+    @urlEpisodio --> es la url del capitulo en cuestion
+     */
+    public String urlDisponible(String urlEpisodio, Context context) {
+        String url = "";
+        Utilities util = new Utilities();
+        List<String> codFuente = util.downloadWebPageTaskNoAsync(urlEpisodio); //obtiene el codigo fuente en forma de una lista de string
+        String urlAux;
+        boolean hyperionDisponible = true, izanagiDisponible = false;
+
+        urlAux = urlHyperionServer(codFuente);
+        if (!urlAux.equals("")) {
+            if (util.isServerReachable(urlAux, context)) {
+                url = urlAux;
+            } else {
+                hyperionDisponible = false;
+            }
+        } else {
+            hyperionDisponible = false;
+        }
+        if (!hyperionDisponible) {
+            urlAux = urlIzanagiServer(codFuente);
+            if (!urlAux.equals("")) { //revisa si existe la url
+                if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible
+                    url = urlAux;
+                    izanagiDisponible = true;
+                }
+            }
+        }
+        if (!izanagiDisponible && !hyperionDisponible) {
+            urlAux = urlFLVServer(codFuente);
+            if (!urlAux.equals("")) {
+                if (util.isServerReachable(urlAux, context)) {
+                    url = urlAux;
+                }
+            }
+        }
+
+        return url;
+    }
+
+    public List<GenerosClass> generosDisponibles(Document codigoFuente) {
+        List<GenerosClass> resultado = new ArrayList<>();
+        String nombre, url;
+        Element objGeneros;
+        Elements generos;
+
+        objGeneros = codigoFuente.getElementsByClass("generos_box").first();
+        generos = objGeneros.select("a");
+
+        for (int i = 0; i < generos.size(); i++) {
+            nombre = generos.get(i).text();
+            url = "http://animeflv.net" + generos.get(i).attr("href");
+
+            resultado.add(new GenerosClass(nombre, url));
+        }
+
+        Log.d("GENEROS", String.valueOf(resultado.size()));
+        return resultado;
+    }
+
+    /*verifica si la pagina contiene mas elementos que mostrar en una segunda pagina.
+    * En caso de existir devuelve la url de dicha pagina
+    */
+    public String siguientePagina(Document codigoFuente) {
+        String urlPagina = "";
+
+        Element numPaginas = codigoFuente.getElementsByClass("pagin").first();
+        Element pagSiguiente = numPaginas.select("a").last();
+        if (pagSiguiente != null) {
+            if (pagSiguiente.text().equals("»")) { //&raquo; es el simbolo para »
+                urlPagina = "http://animeflv.net" + pagSiguiente.attr("href");
+                //Log.d("URL", urlPagina);
+            }
+        }
+        return urlPagina;
+    }
 
 }
 

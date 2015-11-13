@@ -33,7 +33,7 @@ import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
 import com.ouiaboo.ouiaboo.adaptadores.AdEpisodios;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.Episodios;
-import com.ouiaboo.ouiaboo.clases.HomeScreen;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
 import org.litepal.crud.DataSupport;
 
@@ -154,7 +154,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
 
                 if (position == 1) {
                     //getNombreAnime y getUrlImagen son en posicion 0 ya que en las demas se encuentran como null
-                    HomeScreen episodio = new HomeScreen(episodios.get(posAnime).getUrlEpisodio(), episodios.get(0).getNombreAnime(),
+                    HomeScreenEpi episodio = new HomeScreenEpi(episodios.get(posAnime).getUrlEpisodio(), episodios.get(0).getNombreAnime(),
                             episodios.get(posAnime).getNumero(), episodios.get(0).getUrlImagen());
                     if (!fun.esPosibleverMasTardeHome(episodio)) { //no se pudo
                         snackbar = Snackbar.make(coordLayout, getString(R.string.noti_vermastarde_no), Snackbar.LENGTH_LONG);
@@ -203,7 +203,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
         @Override
         protected Void doInBackground(Void... params) {
             Animeflv animeflv = new Animeflv(getResources());
-            String url = animeflv.urlVideoNoAsync(episodios.get(posicionAnime).getUrlEpisodio()); //consigue la url del video a descargar
+            String url = animeflv.urlDisponible(episodios.get(posicionAnime).getUrlEpisodio(), getActivity()); //consigue la url del video a descargar
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setDescription(episodios.get(posicionAnime).getNumero()); //descripcion de la notificacion
             request.setTitle(episodios.get(0).getNombreAnime()); //titulo de la notificacion

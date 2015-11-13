@@ -37,7 +37,6 @@ public class AnimeInfo extends  android.support.v4.app.Fragment {
         View convertView = inflater.inflate(R.layout.fragment_anime_info, container, false);
         adquiereInfo();
         asignaInfo(convertView);
-
         return convertView;
     }
     @SuppressWarnings("unchecked")

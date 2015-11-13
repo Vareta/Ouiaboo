@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.R;
-import com.ouiaboo.ouiaboo.clases.HomeScreen;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -19,11 +19,11 @@ import java.util.List;
  * Created by Vareta on 13-08-2015.
  */
 public class AdBusquedaFLV extends RecyclerView.Adapter<AdBusquedaFLV.BusquedaHolder>{
-    public List<HomeScreen> items;
+    public List<HomeScreenEpi> items;
     public Context context;
     public CustomRecyclerListener customRecyclerListener;
 
-    public AdBusquedaFLV (Context context, List<HomeScreen> items) {
+    public AdBusquedaFLV (Context context, List<HomeScreenEpi> items) {
         this.context = context;
         this.items = items;
     }

@@ -13,7 +13,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 
 import com.ouiaboo.ouiaboo.R;
-import com.ouiaboo.ouiaboo.clases.HomeScreen;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -23,13 +23,13 @@ import java.util.List;
  * Created by Vareta on 27-07-2015.
  */
 public class AdDescargadas extends RecyclerView.Adapter<AdDescargadas.AdDescargadasHolder> {
-    public List<HomeScreen> items;
+    public List<HomeScreenEpi> items;
     public Context context;
     public CustomRecyclerListener customRecyclerListener;
 
-    // HomeScreen item = (HomeScreen)getItem(position);
+    // HomeScreenEpi item = (HomeScreenEpi)getItem(position);
 
-    public AdDescargadas(Context context, List<HomeScreen> items) {
+    public AdDescargadas(Context context, List<HomeScreenEpi> items) {
         this.context = context;
         this.items = items;
     }

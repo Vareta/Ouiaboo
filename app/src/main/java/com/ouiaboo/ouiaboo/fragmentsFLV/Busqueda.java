@@ -14,9 +14,14 @@ import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
+
+import org.jsoup.nodes.Document;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,7 +36,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
     private ProgressBar bar;
     private String searchQuery;
     private String queryTemplate = "http://animeflv.net/animes/?buscar=";
-    private ArrayList<com.ouiaboo.ouiaboo.clases.HomeScreen> animesBuscados;
+    private List<HomeScreenEpi> animesBuscados;
     private AdBusquedaFLV adaptador;
     private boolean produceResultados;
     private TextView sinResultados;
@@ -61,12 +66,6 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
         return convertView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-   /* public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(url);
-        }
-    }*/
 
     @Override
     public void onAttach(Context context) {
@@ -131,8 +130,11 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
         @Override
         protected Void doInBackground(AdBusquedaFLV.CustomRecyclerListener... params) {
             Animeflv anime = new Animeflv(getResources());
+            Utilities util = new Utilities();
             try {
-                animesBuscados = anime.busquedaFLV(searchQuery, getActivity());
+                Document codigoFuente = util.connect(searchQuery);
+                animesBuscados = anime.busquedaFLV(codigoFuente);
+                anime.siguientePagina(codigoFuente);
                 if (animesBuscados.isEmpty()) {
                     produceResultados = false;
                 } else {

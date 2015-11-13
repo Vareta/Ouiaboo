@@ -28,6 +28,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
+import com.ouiaboo.ouiaboo.clases.GenerosClass;
 import com.ouiaboo.ouiaboo.clases.SitiosWeb;
 import com.ouiaboo.ouiaboo.fragmentsFLV.AvisoLegal;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Busqueda;
@@ -35,6 +36,7 @@ import com.ouiaboo.ouiaboo.fragmentsFLV.Descargadas;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Faq;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Favoritos;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Generos;
+import com.ouiaboo.ouiaboo.fragmentsFLV.GenerosContenido;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Historial;
 import com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen;
 import com.ouiaboo.ouiaboo.fragmentsFLV.EpisodiosFlv;
@@ -52,7 +54,8 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
                                                         VerMasTarde.OnFragmentInteractionListener, AvisoLegal.OnFragmentInteractionListener,
                                                         Favoritos.OnFragmentInteractionListener, Descargadas.OnFragmentInteractionListener,
                                                         Historial.OnFragmentInteractionListener, Generos.OnFragmentInteractionListener,
-                                                        PaginasAnime.OnFragmentInteractionListener, Faq.OnFragmentInteractionListener {
+                                                        PaginasAnime.OnFragmentInteractionListener, Faq.OnFragmentInteractionListener,
+                                                        GenerosContenido.OnFragmentInteractionListener {
 
     private DrawerLayout drawerLayout;
     private String drawerTitle;
@@ -101,8 +104,6 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
                         break;
 
                     case R.id.nav_favoritos:
-                       /* Intent intent = new Intent(getBaseContext(), EpisodiosPlusInfo.class);
-                        startActivity(intent);*/
                         ft.replace(R.id.contenedor, new Favoritos());
                         break;
 
@@ -295,6 +296,28 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
     @Override
     public void onFavoritoInteraction(String url) {
+        Intent intent = new Intent(getBaseContext(), EpisodiosPlusInfo.class);
+        intent.putExtra("url", url);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onGenerosInteraction(GenerosClass objGeneros) {
+        //Envia la query al fragment Generos
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("genero", objGeneros);
+        GenerosContenido generosContenido = new GenerosContenido();
+        generosContenido.setArguments(bundle);
+
+        //Inicia el fragmente que contiene la url
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.contenedor, generosContenido);
+        ft.addToBackStack(null); //para que se pueda devolver a un fragment anterior
+        ft.commit();
+    }
+
+    @Override
+    public void onGenerosContenidoInteraction(String url) {
         Intent intent = new Intent(getBaseContext(), EpisodiosPlusInfo.class);
         intent.putExtra("url", url);
         startActivity(intent);

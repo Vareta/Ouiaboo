@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.view.View.OnClickListener;
 
 import com.ouiaboo.ouiaboo.R;
-import com.ouiaboo.ouiaboo.clases.HomeScreen;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -21,13 +21,13 @@ import java.util.List;
  * Created by Vareta on 27-07-2015.
  */
 public class AdVerMasTarde extends RecyclerView.Adapter<AdVerMasTarde.AdVerMasTardeHolder> {
-    public List<HomeScreen> items;
+    public List<HomeScreenEpi> items;
     public Context context;
     public CustomRecyclerListener customRecyclerListener;
 
-    // HomeScreen item = (HomeScreen)getItem(position);
+    // HomeScreenEpi item = (HomeScreenEpi)getItem(position);
 
-    public AdVerMasTarde(Context context, List<HomeScreen> items) {
+    public AdVerMasTarde(Context context, List<HomeScreenEpi> items) {
         this.context = context;
         this.items = items;
     }

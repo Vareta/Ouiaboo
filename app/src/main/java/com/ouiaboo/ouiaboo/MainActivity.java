@@ -30,8 +30,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
         SharedPreferences sharedPreferences = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE); //se cargan las preferencias
         if (!sharedPreferences.contains("animeflv")){//si no tiene el string, quiere decir que es primera vez que se crean las preferencias
+            Log.d("PREF", "primera");
             SharedPreferences.Editor editor = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE).edit();
-            editor.putBoolean("animeflv", false);
+            editor.putBoolean("animeflv", true);
             editor.putBoolean("animejoy", false);
             editor.apply();
         } else {
@@ -41,11 +42,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         }
 
         setContentView(R.layout.activity_main);
-        //se setean las preferencias sobre los sitios web de anime
-        SharedPreferences.Editor editor = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE).edit();
-        editor.putBoolean("animeflv", false);
-        editor.putBoolean("animejoy", false);
-        editor.apply();
 
         String[] paginasWebNombre = getResources().getStringArray(R.array.paginas_anime);
         String[] paginasWebIdioma = getResources().getStringArray(R.array.idioma_paginas_anime);

@@ -35,6 +35,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.Animeflv;
+import com.ouiaboo.ouiaboo.Animejoy;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
@@ -44,7 +45,9 @@ import com.ouiaboo.ouiaboo.VideoPlayer;
 import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
 import com.ouiaboo.ouiaboo.adaptadores.AdHomeScreen;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
+import org.jsoup.nodes.Document;
 import org.litepal.crud.DataSupport;
 
 import java.io.File;
@@ -57,16 +60,16 @@ import java.util.List;
  * to handle interaction events.
  */
 public class HomeScreen extends android.support.v4.app.Fragment implements AdHomeScreen.CustomRecyclerListener{
-    private final String animeFLV = "http://animeflv.net/";
-    private final String animeJoy = "http://www.animejoy.tv/";
+    private String animeFLV = "http://animeflv.net/";
+    private String animeJoy = "http://www.animejoy.tv/";
     private OnFragmentInteractionListener mListener;
     private AdHomeScreen adaptador;
     private RecyclerView list;
     private ProgressBar bar;
-    private ArrayList<com.ouiaboo.ouiaboo.clases.HomeScreen> animesRecientes;
-    private Animeflv animes;
+    private ArrayList<HomeScreenEpi> animesRecientes;
+    private Animeflv flvAnimes;
+    private Animejoy joyAnimes;
     private Utilities util;
-    private List<String> codigoFuente;
     private CoordinatorLayout coordLayout;
     private Snackbar snackbar;
     private int posicionAnime;
@@ -78,7 +81,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -88,14 +90,13 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         list = (RecyclerView)convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         webView = (WebView)getActivity().findViewById(R.id.web_view);
-        listener = this;
-        setWebView();
+        new BackgroundTask().execute(this);
 
         getActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         return convertView;
     }
 
-
+    /*en caso que la pagina contenga cloudflare*/
     public void setWebView() {
         //CookieManager.getInstance().setAcceptCookie(true);
         String agent = "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6";
@@ -109,8 +110,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString("cookies", cookies); //guarda las cookies en preferencias
                 editor.commit();
-
-                new BackgroundTask().execute(listener);
                 Log.d("Null", "Cargue");
             }
         });
@@ -121,6 +120,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         Intent intent = new Intent(getActivity(), VideoPlayer.class);
         intent.putExtra("url", animesRecientes.get(position).getUrlCapitulo());
         startActivity(intent);
+       // new GetVideoUrlAndPlay().execute(position);
     }
 
     @Override
@@ -257,10 +257,18 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         @Override
         protected Void doInBackground(AdHomeScreen.CustomRecyclerListener... params) {
             try {
-                animes = new Animeflv(getResources());
                 util = new Utilities();
-                codigoFuente = util.downloadWebPageTaskNoAsync(animeFLV);
-                animesRecientes = animes.homeScreenAnimeflv(codigoFuente);
+                Document codigoFuente;
+                Log.d("PROVEEDOR", String.valueOf(util.queProveedorEs(getContext())));
+                if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    flvAnimes = new Animeflv(getResources());
+                    codigoFuente = util.connect(animeFLV);
+                    animesRecientes = flvAnimes.homeScreenAnimeFlv(codigoFuente);
+                } else {
+                    joyAnimes = new Animejoy();
+                    codigoFuente = util.connect(animeJoy);
+                    animesRecientes = joyAnimes.homeScreenAnimejoy(codigoFuente, getResources());
+                }
                /* for (int i = 0; i < animesRecientes.size(); i++){
 
                     Log.d("Url", animesRecientes.get(i).getUrlCapitulo());
@@ -295,12 +303,14 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
     }
 
+
+
     /*Obtiene la url de un anime mediante el url del capitulo de manera asincrona*/
     public class EpiUrlToAnimeUlr extends AsyncTask<String, Void, Void> {
         private String url;
         @Override
         protected Void doInBackground(String... params) {
-            url = animes.urlCapituloToUrlAnime(params[0]);
+            url = flvAnimes.urlCapituloToUrlAnime(params[0]);
             return null;
         }
 
@@ -326,7 +336,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         @Override
         protected Void doInBackground(Void... params) {
             Animeflv animeflv = new Animeflv(getResources());
-            String url = animeflv.urlVideoNoAsync(animesRecientes.get(posicionAnime).getUrlCapitulo()); //consigue la url del video a descargar
+            String url = animeflv.urlDisponible(animesRecientes.get(posicionAnime).getUrlCapitulo(), getActivity()); //consigue la url del video a descargar
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setDescription(animesRecientes.get(posicionAnime).getInformacion()); //descripcion de la notificacion
             request.setTitle(animesRecientes.get(posicionAnime).getNombre()); //titulo de la notificacion
@@ -417,5 +427,41 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
             }
         }
     };
+
+    private class GetVideoUrlAndPlay extends AsyncTask<Integer, Void, Void> {
+        String url;
+        @Override
+        protected Void doInBackground(Integer... params) {
+            Utilities util = new Utilities();
+            int posicion = params[0];
+            try {
+                Document codigoFuente = util.connect(animesRecientes.get(posicion).getUrlCapitulo());
+                if (util.queProveedorEs(getActivity()) == Utilities.ANIMEFLV) {
+                    Animeflv anime = new Animeflv(getResources());
+                    url = anime.urlVideo(animesRecientes.get(posicion).getUrlCapitulo());
+                } else {
+                    Animejoy joyAnime = new Animejoy();
+                    url = joyAnime.urlVideo(codigoFuente);
+                }
+
+                // Log.d("HOLA", "pase despues");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.setDataAndType(Uri.parse(url), "video/mp4");
+            startActivity(intent);
+        }
+    }
 
 }

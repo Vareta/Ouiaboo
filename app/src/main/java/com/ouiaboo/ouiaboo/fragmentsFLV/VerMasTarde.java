@@ -23,7 +23,7 @@ import android.widget.TextView;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.VerMasTardeTable;
 import com.ouiaboo.ouiaboo.adaptadores.AdVerMasTarde;
-import com.ouiaboo.ouiaboo.clases.HomeScreen;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
 import org.litepal.crud.DataSupport;
 
@@ -39,7 +39,7 @@ import java.util.List;
 public class VerMasTarde extends android.support.v4.app.Fragment implements AdVerMasTarde.CustomRecyclerListener{
     private RecyclerView lista;
     private ProgressBar bar;
-    private ArrayList<com.ouiaboo.ouiaboo.clases.HomeScreen> masTardeAnime;
+    private ArrayList<HomeScreenEpi> masTardeAnime;
     private AdVerMasTarde adaptador;
     private boolean existeAnimeMastarde;
     private CoordinatorLayout coordinatorLayout;
@@ -62,7 +62,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
         lista = (RecyclerView)convertView.findViewById(R.id.ver_mas_tarde_recyclerview);
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         sinResultados = (TextView)convertView.findViewById(R.id.noResultados);
-        masTardeAnime = new ArrayList<HomeScreen>();
+        masTardeAnime = new ArrayList<HomeScreenEpi>();
         new BackgroundTask().execute(this);
 
 
@@ -82,7 +82,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
         public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
 
             final int position = viewHolder.getAdapterPosition(); //obtiene la posicion
-            final HomeScreen aux = masTardeAnime.get(position); //guarda el elemento al cual se le hizo swipe
+            final HomeScreenEpi aux = masTardeAnime.get(position); //guarda el elemento al cual se le hizo swipe
             masTardeAnime.remove(position); //remueve de la lista de capitulos en memoria
             adaptador.notifyItemRemoved(position); //notifica al adaptador que un item fue removido
             Snackbar snackbar = Snackbar.make(coordinatorLayout, getResources().getString(R.string.animeBorrado_verMasTarde), Snackbar.LENGTH_LONG) //muestra la snackbar para informar al usuario
@@ -184,7 +184,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                 } else {
                     existeAnimeMastarde = true;
                     for (int i = 0; i < datos.size(); i++) {
-                        masTardeAnime.add(new HomeScreen(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(),datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
+                        masTardeAnime.add(new HomeScreenEpi(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(),datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
                     }
 
                     adaptador = new AdVerMasTarde(getActivity(), masTardeAnime);

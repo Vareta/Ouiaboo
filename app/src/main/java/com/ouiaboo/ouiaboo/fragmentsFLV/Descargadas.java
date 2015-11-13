@@ -31,7 +31,7 @@ import android.widget.TextView;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.DescargadosTable;
 import com.ouiaboo.ouiaboo.adaptadores.AdDescargadas;
-import com.ouiaboo.ouiaboo.clases.HomeScreen;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
 import org.litepal.crud.DataSupport;
 
@@ -50,7 +50,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
 
     private OnFragmentInteractionListener mListener;
     private ProgressBar bar;
-    private ArrayList<com.ouiaboo.ouiaboo.clases.HomeScreen> animeDescargado;
+    private ArrayList<HomeScreenEpi> animeDescargado;
     private TextView sinDescargados;
     private RecyclerView list;
     private boolean existenDescargados;
@@ -151,9 +151,9 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
                     }
 
                     List<DescargadosTable> enDisco = DataSupport.where("complete=?", String.valueOf(1)).find(DescargadosTable.class);
-                    HomeScreen objeto;
+                    HomeScreenEpi objeto;
                     for (int j = 0; j < enDisco.size(); j++) {
-                        objeto = new HomeScreen(enDisco.get(j).getUrlCapitulo(), enDisco.get(j).getNombre(), enDisco.get(j).getTipo(), enDisco.get(j).getImagenPreview());
+                        objeto = new HomeScreenEpi(enDisco.get(j).getUrlCapitulo(), enDisco.get(j).getNombre(), enDisco.get(j).getTipo(), enDisco.get(j).getImagenPreview());
                         animeDescargado.add(objeto);
                     }
 
@@ -204,7 +204,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
         public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
 
             final int position = viewHolder.getAdapterPosition(); //obtiene la posicion
-            final HomeScreen aux = animeDescargado.get(position); //guarda el elemento al cual se le hizo swipe
+            final HomeScreenEpi aux = animeDescargado.get(position); //guarda el elemento al cual se le hizo swipe
             animeDescargado.remove(position); //remueve de la lista de capitulos en memoria
             adaptador.notifyItemRemoved(position); //notifica al adaptador que un item fue removido
             Snackbar snackbar = Snackbar.make(coordinatorLayout, getResources().getString(R.string.animeBorrado_verMasTarde), Snackbar.LENGTH_LONG) //muestra la snackbar para informar al usuario

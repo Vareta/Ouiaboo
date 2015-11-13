@@ -23,7 +23,7 @@ import android.widget.TextView;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.FavoritosTable;
 import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
-import com.ouiaboo.ouiaboo.clases.HomeScreen;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
 import org.litepal.crud.DataSupport;
 
@@ -41,7 +41,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
     private OnFragmentInteractionListener mListener;
     private RecyclerView lista;
     private ProgressBar bar;
-    private ArrayList<HomeScreen> animeFavoritos;
+    private ArrayList<HomeScreenEpi> animeFavoritos;
     private TextView noFavoritos;
     private boolean existenFavoritos;
     private AdBusquedaFLV adaptador;
@@ -63,7 +63,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
         lista = (RecyclerView)convertView.findViewById(R.id.favoritos_recyclerview);
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         noFavoritos = (TextView)convertView.findViewById(R.id.noFavoritos);
-        animeFavoritos = new ArrayList<HomeScreen>();
+        animeFavoritos = new ArrayList<HomeScreenEpi>();
         new BackgroundTask().execute(this);
 
         return convertView;
@@ -117,7 +117,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
                 } else {
                     existenFavoritos = true;
                     for (int i = 0; i < datos.size(); i++) {
-                        animeFavoritos.add(new HomeScreen(datos.get(i).getUrlAnime(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
+                        animeFavoritos.add(new HomeScreenEpi(datos.get(i).getUrlAnime(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
                     }
 
                     adaptador = new AdBusquedaFLV(getActivity(), animeFavoritos);
@@ -169,7 +169,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
         public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
 
             final int position = viewHolder.getAdapterPosition(); //obtiene la posicion
-            final HomeScreen aux = animeFavoritos.get(position); //guarda el elemento al cual se le hizo swipe
+            final HomeScreenEpi aux = animeFavoritos.get(position); //guarda el elemento al cual se le hizo swipe
             animeFavoritos.remove(position); //remueve de la lista de capitulos en memoria
             adaptador.notifyItemRemoved(position); //notifica al adaptador que un item fue removido
             Snackbar snackbar = Snackbar.make(coordinatorLayout, getResources().getString(R.string.animeBorrado_verMasTarde), Snackbar.LENGTH_LONG) //muestra la snackbar para informar al usuario

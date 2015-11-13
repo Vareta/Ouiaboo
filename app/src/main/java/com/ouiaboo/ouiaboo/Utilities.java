@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.webkit.WebView;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +33,8 @@ import java.util.Map;
  */
 public class Utilities {
     public static final String PREFERENCIAS = "preferencias";
+    public static final int ANIMEFLV = 0;
+    public static final int ANIMEJOY = 1;
     /*insertar una imagen en un ImageView via url
     * source: http://stackoverflow.com/questions/2471935/how-to-load-an-imageview-by-url-in-android
     * */
@@ -173,5 +178,42 @@ public class Utilities {
             // do stuff
         }
         return respuesta;
+    }
+
+    /*Consulta en las preferencias acerca de cual pagina de anime se esta utilizando
+    como proveedor para luego retornar el resultado
+     */
+    public int queProveedorEs(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(PREFERENCIAS, Context.MODE_PRIVATE);
+        boolean animeflv = preferences.getBoolean("animeflv", true);
+        if (animeflv) {
+            return ANIMEFLV;
+        } else {
+            return ANIMEJOY;
+        }
+
+    }
+    /*http://stackoverflow.com/questions/25805580/how-to-quickly-check-if-url-server-is-available*/
+    public boolean isServerReachable(String url, Context context) {
+        ConnectivityManager connMan = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = connMan.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnected()) {
+            try {
+                URL urlServer = new URL(url);
+                HttpURLConnection urlConn = (HttpURLConnection) urlServer.openConnection();
+                urlConn.setConnectTimeout(3000); //<- 3Seconds Timeout
+                urlConn.connect();
+                if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK || urlConn.getResponseCode() == HttpURLConnection.HTTP_PARTIAL || urlConn.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (MalformedURLException e1) {
+                return false;
+            } catch (IOException e) {
+                return false;
+            }
+        }
+        return false;
     }
 }

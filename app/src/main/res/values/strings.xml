@@ -53,6 +53,8 @@
     <string name="search_hint.menu_central.ES">Buscar anime</string>
     <string name="ins_caracteres.menu_central.ES">Debe ingresar al menos 4 caracteres</string>
     <string name="numero_episodio.menu_central.ES">Episodio número</string>
+    <string name="ova.menu_central.ES">OVA</string>
+    <string name="pelicula.menu_central.ES">Película</string>
 
     <!--********************************************************************************************************************************************************************* -->
     <!-- **********************************************************        fragment_busqueda_flv        *************************************************************************** -->

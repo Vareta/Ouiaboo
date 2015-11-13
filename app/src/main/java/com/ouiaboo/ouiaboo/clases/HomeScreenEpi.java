@@ -5,14 +5,14 @@ import java.io.Serializable;
 /**
  * Created by Vareta on 27-07-2015.
  */
-public class HomeScreen implements Serializable{
+public class HomeScreenEpi implements Serializable{
 
     private String urlCapitulo;
     private String nombre;
     private String informacion;
     private String preview;
 
-    public HomeScreen(String urlCapitulo, String nombre, String informacion, String preview) {
+    public HomeScreenEpi(String urlCapitulo, String nombre, String informacion, String preview) {
         this.urlCapitulo = urlCapitulo;
         this.nombre = nombre;
         this.informacion = informacion;

@@ -3,7 +3,7 @@ package com.ouiaboo.ouiaboo;
 import com.ouiaboo.ouiaboo.Tables.FavoritosTable;
 import com.ouiaboo.ouiaboo.Tables.VerMasTardeTable;
 import com.ouiaboo.ouiaboo.clases.Episodios;
-import com.ouiaboo.ouiaboo.clases.HomeScreen;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
 import org.litepal.crud.DataSupport;
 
@@ -15,7 +15,7 @@ import java.util.List;
 public class Funciones {
 
     /*Funcion para agregar a ver mas tarde desde el Home de la app */
-    public boolean esPosibleverMasTardeHome(HomeScreen home) {
+    public boolean esPosibleverMasTardeHome(HomeScreenEpi home) {
 
         List<VerMasTardeTable> lista = DataSupport.where("nombre=? and tipo=?", home.getNombre(), home.getInformacion()).find(VerMasTardeTable.class);
         if (!lista.isEmpty()){ //si la lista contiene el capitulo que se quiere añadir
