@@ -26,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.clases.Episodios;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.ouiaboo.ouiaboo.fragmentsFLV.AnimeInfo;
 import com.ouiaboo.ouiaboo.fragmentsFLV.EpisodiosFlv;
 import com.squareup.picasso.Picasso;
@@ -135,9 +136,9 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
     }
 
     @Override
-    public void onEpisodiosFlvInteraction(String url) {
+    public void onEpisodiosFlvInteraction(HomeScreenEpi objEpi) {
         Intent intent = new Intent(this, VideoPlayer.class);
-        intent.putExtra("url", url);
+        intent.putExtra("episodio", objEpi);
         startActivity(intent);
     }
 
@@ -178,7 +179,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
             String url = params[0];
 
             try {
-                Animeflv ani = new Animeflv(getResources());
+                Animeflv ani = new Animeflv();
                 epi = ani.getEpisodios(url); //contiene los episodios y la info
                 epiInfo = new ArrayList<>(); //inicializa
                 epiInfo.add(new Episodios(epi.get(0).getNombreAnime(),epi.get(0).getUrlAnime(), epi.get(0).getUrlEpisodio(), epi.get(0).getNumero(), epi.get(0).getUrlImagen(),

@@ -14,12 +14,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.FavoritosTable;
 import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
@@ -89,7 +91,10 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
 
     @Override
     public void customClickListener(View v, int position) {
-        mListener.onFavoritoInteraction(animeFavoritos.get(position).getUrlCapitulo());  //En este caso urlCapitulo, contiene la url del anime
+        //Animeflv animeflv = new Animeflv(getResources());
+        //animeflv.añadirHistorialFlv(animeFavoritos.get(position).getNombre(), animeFavoritos.get(position).getUrlCapitulo());
+        HomeScreenEpi objEpi = animeFavoritos.get(position);
+        mListener.onFavoritoInteraction(objEpi);  //En este caso urlCapitulo, contiene la url del anime
     }
 
     /**
@@ -103,7 +108,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        public void onFavoritoInteraction(String url);
+        public void onFavoritoInteraction(HomeScreenEpi objEpi);
     }
 
     private class BackgroundTask extends AsyncTask<AdBusquedaFLV.CustomRecyclerListener, Void, Void> {
@@ -149,8 +154,6 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
 
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
                 itemTouchHelper.attachToRecyclerView(lista); //añade la lista a la escucha
-
-
             }
             bar.setVisibility(View.GONE);
             //
@@ -183,7 +186,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
                         @Override
                         public void onDismissed(Snackbar snackbar, int event) { //para cuando la snackbar desapara, se toman todos los casos en donde esto puede ocurrir
                             super.onDismissed(snackbar, event);
-                            if (event != DISMISS_EVENT_ACTION) { //excluye la accion ya que choca con onclick, haciendo que al clickear undo se ejecutara esta accion
+                            if (event != DISMISS_EVENT_ACTION && event != DISMISS_EVENT_MANUAL) { //excluye la accion ya que choca con onclick, haciendo que al clickear undo se ejecutara esta accion
                                 DataSupport.deleteAll(FavoritosTable.class, "nombre =? and tipo =?", aux.getNombre(), aux.getInformacion());
                             }
                         }
@@ -221,10 +224,6 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
 
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-
-
-
-
             }
         }
     };

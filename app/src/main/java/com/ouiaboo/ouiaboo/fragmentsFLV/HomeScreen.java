@@ -91,7 +91,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         webView = (WebView)getActivity().findViewById(R.id.web_view);
         new BackgroundTask().execute(this);
-
         getActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         return convertView;
     }
@@ -109,7 +108,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 SharedPreferences sharedPref = getActivity().getSharedPreferences(PREFERENCIAS, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString("cookies", cookies); //guarda las cookies en preferencias
-                editor.commit();
+                editor.apply();
                 Log.d("Null", "Cargue");
             }
         });
@@ -117,10 +116,9 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
     @Override
     public void customClickListener(View v, int position) {
-        Intent intent = new Intent(getActivity(), VideoPlayer.class);
-        intent.putExtra("url", animesRecientes.get(position).getUrlCapitulo());
-        startActivity(intent);
-       // new GetVideoUrlAndPlay().execute(position);
+        //flvAnimes.añadirHistorialFlv(animesRecientes.get(position).getNombre(), animesRecientes.get(position).getUrlCapitulo());
+        HomeScreenEpi objEpi = animesRecientes.get(position);
+        mListener.onHomeScreenInteraction(objEpi);
     }
 
     @Override
@@ -261,9 +259,9 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 Document codigoFuente;
                 Log.d("PROVEEDOR", String.valueOf(util.queProveedorEs(getContext())));
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
-                    flvAnimes = new Animeflv(getResources());
+                    flvAnimes = new Animeflv();
                     codigoFuente = util.connect(animeFLV);
-                    animesRecientes = flvAnimes.homeScreenAnimeFlv(codigoFuente);
+                    animesRecientes = flvAnimes.homeScreenAnimeFlv(codigoFuente, getResources());
                 } else {
                     joyAnimes = new Animejoy();
                     codigoFuente = util.connect(animeJoy);
@@ -335,7 +333,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         String nombreVideo = animesRecientes.get(posicionAnime).getNombre() + "-" + animesRecientes.get(posicionAnime).getInformacion() + ".mp4";
         @Override
         protected Void doInBackground(Void... params) {
-            Animeflv animeflv = new Animeflv(getResources());
+            Animeflv animeflv = new Animeflv();
             String url = animeflv.urlDisponible(animesRecientes.get(posicionAnime).getUrlCapitulo(), getActivity()); //consigue la url del video a descargar
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setDescription(animesRecientes.get(posicionAnime).getInformacion()); //descripcion de la notificacion
@@ -400,8 +398,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        public void onHomeScreenInteraction(HomeScreenEpi objEpi);
     }
 
     BroadcastReceiver onComplete = new BroadcastReceiver() {
@@ -437,7 +434,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
             try {
                 Document codigoFuente = util.connect(animesRecientes.get(posicion).getUrlCapitulo());
                 if (util.queProveedorEs(getActivity()) == Utilities.ANIMEFLV) {
-                    Animeflv anime = new Animeflv(getResources());
+                    Animeflv anime = new Animeflv();
                     url = anime.urlVideo(animesRecientes.get(posicion).getUrlCapitulo());
                 } else {
                     Animejoy joyAnime = new Animejoy();

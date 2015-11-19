@@ -56,6 +56,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     private boolean existenDescargados;
     private AdDescargadas adaptador;
     private CoordinatorLayout coordinatorLayout;
+    private List<String> urlAnimeAux;
 
 
     public Descargadas() {
@@ -98,6 +99,19 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
 
     @Override
     public void customClickListener(View v, int position) {
+        HomeScreenEpi objAux = animeDescargado.get(position);
+        /*
+        En el atributo de informacion se añade el string "descargado", para que de esta manera sea reconocible por el reproductor
+        como un episodio que se encuentra almacenado en el dispositivo. De tal manera que no tenga que pasar por
+        las validaciones que se aplican a la url, dado que en este caso la "url" para este episodio es la direccion
+        de donde se encuentra almacenado en el dispositivo.
+
+        En el atributo de preview se añade la url del anime, para efectos de historial. Los cuales se llevan a cabo en la actividad
+        del reproductor de video.
+        */
+        objAux.setInformacion("descargado");
+        objAux.setPreview(urlAnimeAux.get(position));
+        mListener.onDescargadasInteraction(objAux);
 
     }
 
@@ -118,8 +132,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
      */
 
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        public void onDescargadasInteraction(HomeScreenEpi objEpi);
     }
 
     private class listarDescargas extends AsyncTask<AdDescargadas.CustomRecyclerListener, Void, Void> {
@@ -128,6 +141,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
         protected Void doInBackground(AdDescargadas.CustomRecyclerListener... params) {
             try {
                 String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Ouiaboo"; //direccion de donde se encuentran los capitulos
+                urlAnimeAux = new ArrayList<>();
                 File carpetaDescargados = new File(path);
                 List<DescargadosTable> completas = DataSupport.where("complete=?", String.valueOf(1)).find(DescargadosTable.class);
                 if (!completas.isEmpty()) {
@@ -152,9 +166,14 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
 
                     List<DescargadosTable> enDisco = DataSupport.where("complete=?", String.valueOf(1)).find(DescargadosTable.class);
                     HomeScreenEpi objeto;
+                    /*
+                    A anime descargado se le agrega la direccion del video en vez de url del anime en el atributo urlCapitulo.
+                    Pero como la url del anime tambien se debe ocupar (para efectos de historial) esta se guarda en una lista auxiliar
+                     */
                     for (int j = 0; j < enDisco.size(); j++) {
-                        objeto = new HomeScreenEpi(enDisco.get(j).getUrlCapitulo(), enDisco.get(j).getNombre(), enDisco.get(j).getTipo(), enDisco.get(j).getImagenPreview());
+                        objeto = new HomeScreenEpi(enDisco.get(j).getDirVideo(), enDisco.get(j).getNombre(), enDisco.get(j).getTipo(), enDisco.get(j).getImagenPreview());
                         animeDescargado.add(objeto);
+                        urlAnimeAux.add(enDisco.get(j).getUrlCapitulo());
                     }
 
                     adaptador = new AdDescargadas(getActivity(), animeDescargado);
@@ -218,13 +237,14 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
                         @Override
                         public void onDismissed(Snackbar snackbar, int event) { //para cuando la snackbar desaparece, se toman todos los casos en donde esto puede ocurrir
                             super.onDismissed(snackbar, event);
-                            if (event != DISMISS_EVENT_ACTION) { //excluye la accion ya que choca con onclick, haciendo que al clickear undo se ejecutara esta accion
+                            if (event != DISMISS_EVENT_ACTION && event != DISMISS_EVENT_MANUAL) { //excluye la accion ya que choca con onclick, haciendo que al clickear undo se ejecutara esta accion
                                 List<DescargadosTable> aBorrar = DataSupport.where("imagenPreview=?", aux.getPreview()).find(DescargadosTable.class); //busca el video a borrar en la bd
                                 if (!aBorrar.isEmpty()) {
                                     deleteVideo(aBorrar.get(0).getDirVideo()); //borra el video
                                     File img = new File(aBorrar.get(0).getImagenPreview());
                                     img.delete();
                                     DataSupport.deleteAll(DescargadosTable.class, "imagenPreview=?", aux.getPreview());
+
                                 } else {
                                     Log.d("Descargadas", "elemento a borrar de las descargas no encontrado");
                                 }
@@ -265,9 +285,6 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
 
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-
-
-
 
             }
         }

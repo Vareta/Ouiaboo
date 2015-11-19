@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.GenerosClass;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.ouiaboo.ouiaboo.clases.SitiosWeb;
 import com.ouiaboo.ouiaboo.fragmentsFLV.AvisoLegal;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Busqueda;
@@ -288,16 +289,16 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
 
     @Override
-    public void onVerMasTardeInteraction(String url) {
+    public void onVerMasTardeInteraction(HomeScreenEpi objEpi) {
         Intent intent = new Intent(this, VideoPlayer.class);
-        intent.putExtra("url", url);
+        intent.putExtra("episodio", objEpi);
         startActivity(intent);
     }
 
     @Override
-    public void onFavoritoInteraction(String url) {
+    public void onFavoritoInteraction(HomeScreenEpi objEpi) {
         Intent intent = new Intent(getBaseContext(), EpisodiosPlusInfo.class);
-        intent.putExtra("url", url);
+        intent.putExtra("episodio", objEpi);
         startActivity(intent);
     }
 
@@ -323,6 +324,20 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         startActivity(intent);
     }
 
+    @Override
+    public void onHomeScreenInteraction(HomeScreenEpi objEpi) {
+        Intent intent = new Intent(getBaseContext(), VideoPlayer.class);
+        intent.putExtra("episodio", objEpi);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onDescargadasInteraction(HomeScreenEpi objEpi) {
+        Intent intent = new Intent(getBaseContext(), VideoPlayer.class);
+        intent.putExtra("episodio", objEpi);
+        startActivity(intent);
+    }
+
 
     //para probar jsoup
     private class BackgroundTask extends AsyncTask<Void, Void, Void> {
@@ -331,7 +346,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                Animeflv ani = new Animeflv(getResources());
+                Animeflv ani = new Animeflv();
                 ani.getEpisodios("http://animeflv.net/anime/nanatsu-no-taizai.html");
             } catch (Exception e) {
                 e.printStackTrace();

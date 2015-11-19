@@ -103,7 +103,7 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
                 Document codigoFuente;
                 Log.d("PROVEEDOR", String.valueOf(util.queProveedorEs(getContext())));
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
-                    Animeflv flvAnime = new Animeflv(getResources());
+                    Animeflv flvAnime = new Animeflv();
                     codigoFuente = util.connect("http://animeflv.net/animes/");
                     generos = flvAnime.generosDisponibles(codigoFuente);
                 }

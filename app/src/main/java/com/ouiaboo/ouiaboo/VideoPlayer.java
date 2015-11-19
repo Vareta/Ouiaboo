@@ -1,6 +1,7 @@
 package com.ouiaboo.ouiaboo;
 
 import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.ouiaboo.ouiaboo.util.SystemUiHider;
 
 import android.annotation.TargetApi;
@@ -57,6 +58,8 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
     Handler mHideHandler = new Handler();
     private String urlEntrada;
     private ProgressBar bar;
+    private HomeScreenEpi objEpi;
+    private boolean esDeInternet; //para ver si el archivo viene de internet o desde el dispositivo
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -94,9 +97,9 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         setContentView(R.layout.activity_video_player);
 
         bar = (ProgressBar)findViewById(R.id.progressBar);
-        urlEntrada = getIntent().getStringExtra("url");
         video = (VideoView)findViewById(R.id.videoView);
 
+        getData();
 
         final View controlsView = findViewById(R.id.fullscreen_content_controls);
         final View contentView = findViewById(R.id.videoView);
@@ -194,11 +197,19 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         Log.d(TAG, "pause2");
     }*/
 
+    public void getData() {
+        objEpi = (HomeScreenEpi) getIntent().getSerializableExtra("episodio");
+        urlEntrada = objEpi.getUrlCapitulo();
+    }
+
     public void reproducir(String url) {
         bar.setVisibility(View.VISIBLE);
-
-        Uri aux = Uri.parse(url);
-        video.setVideoURI(aux); //setVideoURI llama internamente a prepareAsync(); de mediaplayer
+        if (esDeInternet) {
+            Uri aux = Uri.parse(url);
+            video.setVideoURI(aux); //setVideoURI llama internamente a prepareAsync(); de mediaplayer
+        } else {
+            video.setVideoPath(url);
+        }
         video.requestFocus();
         video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -432,22 +443,29 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         mHideHandler.postDelayed(mUpdateTimeTask, 100);
     }
 
+    /*Falta mejorar el como consulta por proveedor ya que se encuentra muy engorroso*/
     private class GetVideoUrlAndPlay extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
             Utilities util = new Utilities();
+            Animeflv anime = new Animeflv();
             try {
-                Document codigoFuente = util.connect(urlEntrada); //obtiene el codigo fuente en forma de elementos
-                if (util.queProveedorEs(getBaseContext()) == Utilities.ANIMEFLV) {
-                    List<String> codFuente = util.downloadWebPageTaskNoAsync(urlEntrada); //obtiene el codigo fuente en forma de una lista de string
-                    Animeflv anime = new Animeflv(getResources());
+                if (objEpi.getInformacion().equals("descargado")) { //video almacenado en el dispositivo
+                    esDeInternet = false;
+                    url = urlEntrada;
+                    anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getPreview()); //se usa preview ya que en este campo se guarda la url del anime cuando este proviene del dispositivo
+                } else { //video desde internet
+                    esDeInternet = true;
+                    Document codigoFuente = util.connect(urlEntrada); //obtiene el codigo fuente en forma de elementos
+                    if (util.queProveedorEs(getBaseContext()) == Utilities.ANIMEFLV) {
+                        url = anime.urlDisponible(urlEntrada, getBaseContext());
+                        anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial
 
-                    url = anime.urlDisponible(urlEntrada,getBaseContext());
-
-                } else {
-                    Animejoy joyAnime = new Animejoy();
-                    url = joyAnime.urlVideo(codigoFuente);
+                    } else {
+                        Animejoy joyAnime = new Animejoy();
+                        url = joyAnime.urlVideo(codigoFuente);
+                    }
                 }
 
             } catch (Exception e) {

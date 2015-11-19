@@ -14,12 +14,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.VerMasTardeTable;
 import com.ouiaboo.ouiaboo.adaptadores.AdVerMasTarde;
@@ -44,7 +46,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     private boolean existeAnimeMastarde;
     private CoordinatorLayout coordinatorLayout;
     private TextView sinResultados;
-
+    private View convertView;
     private OnFragmentInteractionListener mListener;
 
     public VerMasTarde() {
@@ -56,7 +58,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View convertView = inflater.inflate(R.layout.fragment_ver_mas_tarde, container, false);
+        convertView = inflater.inflate(R.layout.fragment_ver_mas_tarde, container, false);
         coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
         getActivity().setTitle(R.string.mas_tarde_drawer_layout);
         lista = (RecyclerView)convertView.findViewById(R.id.ver_mas_tarde_recyclerview);
@@ -96,7 +98,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                         @Override
                         public void onDismissed(Snackbar snackbar, int event) { //para cuando la snackbar desapara, se toman todos los casos en donde esto puede ocurrir
                             super.onDismissed(snackbar, event);
-                            if (event != DISMISS_EVENT_ACTION) { //excluye la accion ya que choca con onclick, haciendo que al clickear undo se ejecutara esta accion
+                            if (event != DISMISS_EVENT_ACTION && event != DISMISS_EVENT_MANUAL) { //excluye la accion ya que choca con onclick, haciendo que al clickear undo se ejecutara esta accion
                                 DataSupport.deleteAll(VerMasTardeTable.class, "nombre=? and tipo=?", aux.getNombre(), aux.getInformacion());
                             }
                         }
@@ -165,12 +167,14 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
 
     @Override
     public void customClickListener(View v, int position) {
-        mListener.onVerMasTardeInteraction(masTardeAnime.get(position).getUrlCapitulo());
+        //Animeflv animeflv = new Animeflv(getResources());
+       // animeflv.añadirHistorialFlv(masTardeAnime.get(position).getNombre(), masTardeAnime.get(position).getUrlCapitulo());
+        HomeScreenEpi objEpi = masTardeAnime.get(position);
+        mListener.onVerMasTardeInteraction(objEpi);
     }
 
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onVerMasTardeInteraction(String url);
+        public void onVerMasTardeInteraction(HomeScreenEpi objEpi);
     }
 
     private class BackgroundTask extends AsyncTask<AdVerMasTarde.CustomRecyclerListener, Void, Void> {

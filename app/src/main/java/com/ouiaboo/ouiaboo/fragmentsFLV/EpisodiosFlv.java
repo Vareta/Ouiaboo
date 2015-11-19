@@ -54,6 +54,8 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     private Snackbar snackbar;
     private CoordinatorLayout coordLayout;
     private int posicionAnime;
+    private int posAnimeOnClick = -1; //valor auxiliar para actualizar el adaptador en OnAttach
+    private AdEpisodios adaptador;
 
     public EpisodiosFlv() {
         // Required empty public constructor
@@ -79,7 +81,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     }
 
     private void setAdaptador() {
-        AdEpisodios adaptador = new AdEpisodios(getContext(), episodios);
+        adaptador = new AdEpisodios(getContext(), episodios);
         adaptador.setClickListener(this);
         list.setLayoutManager(new LinearLayoutManager(getActivity()));
         list.setAdapter(adaptador);
@@ -97,6 +99,14 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (posAnimeOnClick != -1) {
+            adaptador.notifyItemChanged(posAnimeOnClick);
+        }
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         getActivity().unregisterReceiver(onComplete);
@@ -105,8 +115,10 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
 
     @Override
     public void customClickListener(View v, int position) {
-        System.out.println("click fragment");
-        mListener.onEpisodiosFlvInteraction(episodios.get(position).getUrlEpisodio());
+        posAnimeOnClick = position; //para luego al volver de ver el video, le diga al adaptador que dicho item cambió en OnAttach
+        HomeScreenEpi objEpi = new HomeScreenEpi(episodios.get(position).getUrlEpisodio(), episodios.get(0).getNombreAnime(),
+                                                episodios.get(0).getTipo(), episodios.get(0).getUrlImagen());
+        mListener.onEpisodiosFlvInteraction(objEpi);
 
     }
 
@@ -135,7 +147,6 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
                     posicionAnime = posAnime; //almacena la posicion para asi utilizarla en otros contextos
                     List<DescargadosTable> lista = DataSupport.where("urlCapitulo=?", episodios.get(posAnime).getUrlEpisodio()).find(DescargadosTable.class);
                     if (!lista.isEmpty()) { //ya tiene el capitulo
-                        Log.d("TAMAÑO", String.valueOf(lista.size()));
                         if (!lista.get(0).isComplete()){ //cuando la descarga se esta efectuando en estos momentos
                             snackbar = Snackbar.make(coordLayout, getString(R.string.noti_descargado_actualmente), Snackbar.LENGTH_LONG);
                         } else {
@@ -180,7 +191,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
 
 
     public interface OnFragmentInteractionListener {
-        public void onEpisodiosFlvInteraction(String url);
+        public void onEpisodiosFlvInteraction(HomeScreenEpi objEpi);
     }
 
     public int measureContentWidth(ListAdapter adapter) {
@@ -202,7 +213,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
         String nombreVideo = episodios.get(0).getNombreAnime() + "-" + episodios.get(posicionAnime).getNumero() + ".mp4";
         @Override
         protected Void doInBackground(Void... params) {
-            Animeflv animeflv = new Animeflv(getResources());
+            Animeflv animeflv = new Animeflv();
             String url = animeflv.urlDisponible(episodios.get(posicionAnime).getUrlEpisodio(), getActivity()); //consigue la url del video a descargar
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setDescription(episodios.get(posicionAnime).getNumero()); //descripcion de la notificacion

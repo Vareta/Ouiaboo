@@ -129,7 +129,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
 
         @Override
         protected Void doInBackground(AdBusquedaFLV.CustomRecyclerListener... params) {
-            Animeflv anime = new Animeflv(getResources());
+            Animeflv anime = new Animeflv();
             Utilities util = new Utilities();
             try {
                 Document codigoFuente = util.connect(searchQuery);

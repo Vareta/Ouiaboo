@@ -103,7 +103,7 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
 
         @Override
         protected Void doInBackground(AdGenerosEndless.CustomRecyclerListener... params) {
-            Animeflv anime = new Animeflv(getResources());
+            Animeflv anime = new Animeflv();
             Utilities util = new Utilities();
             try {
                 Document codigoFuente = util.connect(url);
@@ -139,7 +139,7 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
 
         @Override
         protected Void doInBackground(Void... params) {
-            Animeflv anime = new Animeflv(getResources());
+            Animeflv anime = new Animeflv();
             Utilities util = new Utilities();
             try {
 

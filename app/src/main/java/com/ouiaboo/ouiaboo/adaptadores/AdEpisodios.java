@@ -2,6 +2,7 @@ package com.ouiaboo.ouiaboo.adaptadores;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.TextView;
 
+import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import java.util.List;
@@ -23,8 +25,10 @@ public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolde
     public List<Episodios> items;
     public Context context;
     public CustomRecyclerListener customRecyclerListener;
+    private Animeflv animeflv;
 
     public AdEpisodios (Context context, List<Episodios> items) {
+        animeflv = new Animeflv();
         this.context = context;
         this.items = items;
     }
@@ -73,9 +77,13 @@ public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolde
     }
 
     @Override
-    public void onBindViewHolder(EpisodiosHolder episodiosHolder, int i) {
-        episodiosHolder.capitulo.setText(Html.fromHtml(items.get(i).getNumero()));
-        // new Utilities.DownloadImageTask(preview).execute(item.getPreview());
+    public void onBindViewHolder(EpisodiosHolder episodiosHolder, int position) {
+        episodiosHolder.capitulo.setText(Html.fromHtml(items.get(position).getNumero()));
+        if (animeflv.seEncuentraEnHistorialFlv(items.get(0).getNombreAnime(), items.get(position).getUrlEpisodio())) {
+            episodiosHolder.capitulo.setTextColor(Color.BLUE);
+        } else {
+            episodiosHolder.capitulo.setTextColor(Color.BLACK);
+        }
     }
 
     @Override

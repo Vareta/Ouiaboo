@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.util.Log;
 import android.webkit.CookieManager;
 
+import com.ouiaboo.ouiaboo.Tables.HistorialFlvTable;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.GenerosClass;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
@@ -14,6 +15,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -30,16 +32,10 @@ import java.util.regex.Pattern;
  * Created by Vareta on 29-07-2015.
  */
 public class Animeflv{
-    Resources resources;
-
-
-    public Animeflv(Resources resources){
-        this.resources = resources;
-    }
     private String animeflv = "http://animeflv.net/"; //sitio web
 
 
-    public ArrayList<HomeScreenEpi> homeScreenAnimeflv(List<String> codigoFuente){
+    public ArrayList<HomeScreenEpi> homeScreenAnimeflv(List<String> codigoFuente, Resources resources){
 
         int max = codigoFuente.size();
         //String que contiene el indicador que en lo que resta del codigo fuente se encuentran los animes recientes
@@ -395,7 +391,7 @@ public class Animeflv{
 
     //entrega el valor: Episodio número "x"
     /****************Deprecado*************************/
-    private String numeroEpisodio(String episodio) {
+    private String numeroEpisodio(String episodio, Resources resources) {
         String epi;
 
         String[] aux = episodio.split(":");
@@ -442,7 +438,7 @@ public class Animeflv{
         return urlAnime;
     }
 
-    public ArrayList<HomeScreenEpi> homeScreenAnimeFlv(Document codigoFuente) {
+    public ArrayList<HomeScreenEpi> homeScreenAnimeFlv(Document codigoFuente, Resources resources) {
         ArrayList<HomeScreenEpi> home = new ArrayList<>();
         String urlCapitulo, nombre, informacion, preview, aux;
 
@@ -639,6 +635,23 @@ public class Animeflv{
             }
         }
         return urlPagina;
+    }
+
+    public void añadirHistorialFlv(String nombre, String urlEpisodio) {
+        List<HistorialFlvTable> lista = DataSupport.where("nombre=? and urlEpisodio=?", nombre, urlEpisodio).find(HistorialFlvTable.class);
+        if (lista.isEmpty()){ //si la lista no contiene el capitulo que se quiere añadir
+            HistorialFlvTable historialFlv = new HistorialFlvTable(nombre, urlEpisodio);
+            historialFlv.save();
+        }
+    }
+
+    public boolean seEncuentraEnHistorialFlv(String nombre, String urlEpisodio) {
+        List<HistorialFlvTable> lista = DataSupport.where("nombre=? and urlEpisodio=?", nombre, urlEpisodio).find(HistorialFlvTable.class);
+        if (lista.isEmpty()){ //si la lista no contiene el capitulo que se quiere añadir
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }
