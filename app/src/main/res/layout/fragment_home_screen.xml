@@ -1,23 +1,12 @@
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coord_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/coord_layout"
     tools:context="com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:gravity="center"
-        android:visibility="gone" />
-    <LinearLayout
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/homeScreen_swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -27,8 +16,7 @@
             android:layout_height="match_parent"
             android:choiceMode="singleChoice" />
 
-    </LinearLayout>
-    </RelativeLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 
 </android.support.design.widget.CoordinatorLayout>

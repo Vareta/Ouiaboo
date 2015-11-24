@@ -3,6 +3,7 @@ package com.ouiaboo.ouiaboo.adaptadores;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
@@ -80,9 +81,9 @@ public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolde
     public void onBindViewHolder(EpisodiosHolder episodiosHolder, int position) {
         episodiosHolder.capitulo.setText(Html.fromHtml(items.get(position).getNumero()));
         if (animeflv.seEncuentraEnHistorialFlv(items.get(0).getNombreAnime(), items.get(position).getUrlEpisodio())) {
-            episodiosHolder.capitulo.setTextColor(Color.BLUE);
+            episodiosHolder.capitulo.setTextColor(ContextCompat.getColor(context, R.color.ColorPrimary));
         } else {
-            episodiosHolder.capitulo.setTextColor(Color.BLACK);
+            episodiosHolder.capitulo.setTextColor(ContextCompat.getColor(context, R.color.primary_text_material_dark));
         }
     }
 

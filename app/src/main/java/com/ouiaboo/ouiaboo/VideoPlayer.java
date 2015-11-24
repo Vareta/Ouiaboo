@@ -460,7 +460,8 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
                     Document codigoFuente = util.connect(urlEntrada); //obtiene el codigo fuente en forma de elementos
                     if (util.queProveedorEs(getBaseContext()) == Utilities.ANIMEFLV) {
                         url = anime.urlDisponible(urlEntrada, getBaseContext());
-                        anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial
+                        anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
+                        anime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
 
                     } else {
                         Animejoy joyAnime = new Animejoy();

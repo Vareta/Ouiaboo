@@ -1,6 +1,7 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,19 +13,26 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.Animeflv;
+import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
+import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.VerMasTardeTable;
+import com.ouiaboo.ouiaboo.Utilities;
+import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
 import com.ouiaboo.ouiaboo.adaptadores.AdVerMasTarde;
+import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
 import org.litepal.crud.DataSupport;
@@ -117,17 +125,17 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                 Bitmap bitmap;
 
                 if (dX > 0) { // swiping right
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.black_overlay));
-                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.ic_launcher);
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.indigo));
+                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
 
                     c.drawRect((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom(), paint);
                     c.drawBitmap(bitmap, 96f, (float) itemView.getTop() + height, null);
 
                 } else { // swiping left
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimary));
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.azulclaro));
 
-                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.ic_launcher);
+                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
                     float bitmapWidth = bitmap.getWidth();
 
@@ -167,11 +175,42 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
 
     @Override
     public void customClickListener(View v, int position) {
-        //Animeflv animeflv = new Animeflv(getResources());
-       // animeflv.añadirHistorialFlv(masTardeAnime.get(position).getNombre(), masTardeAnime.get(position).getUrlCapitulo());
         HomeScreenEpi objEpi = masTardeAnime.get(position);
         mListener.onVerMasTardeInteraction(objEpi);
     }
+
+    @Override
+    public void customLongClickListener(View v, int position) {
+        final int posAnime = position; //para diferenciar el onclick del listpopup
+        Utilities util = new Utilities();
+
+        List<DrawerItemsListUno> items = new ArrayList<>();
+        items.add(new DrawerItemsListUno(getString(R.string.irAnime_PopupWindow), R.drawable.ic_forward_white_24dp));
+
+        AdContMenuCentral adapter = new AdContMenuCentral(getActivity(), items);
+
+        final ListPopupWindow listPopupWindow = new ListPopupWindow(getActivity());
+        listPopupWindow.setAdapter(adapter);
+
+        listPopupWindow.setAnchorView(v.findViewById(R.id.nombre_flv));
+        int width = util.measureContentWidth(adapter, this);
+        listPopupWindow.setWidth(width);
+        listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                if (position == 0) {
+                    new EpiUrlToAnimeUlr().execute(masTardeAnime.get(posAnime).getUrlCapitulo());
+                    listPopupWindow.dismiss();
+                }
+            }
+        });
+        listPopupWindow.setModal(true);
+        listPopupWindow.setHorizontalOffset(0);
+        listPopupWindow.show();
+    }
+
+
 
     public interface OnFragmentInteractionListener {
         public void onVerMasTardeInteraction(HomeScreenEpi objEpi);
@@ -225,6 +264,33 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
             }
             bar.setVisibility(View.GONE);
             //
+        }
+    }
+
+    /*Obtiene la url de un anime mediante el url del capitulo de manera asincrona*/
+    private class EpiUrlToAnimeUlr extends AsyncTask<String, Void, Void> {
+        private String url;
+
+        @Override
+        protected Void doInBackground(String... params) {
+            Animeflv animeflv = new Animeflv();
+            url = animeflv.urlCapituloToUrlAnime(params[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            lista.setVisibility(View.GONE);
+            bar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            lista.setVisibility(View.VISIBLE);
+            bar.setVisibility(View.GONE);
+            Intent intent = new Intent(getActivity(), EpisodiosPlusInfo.class);
+            intent.putExtra("url", url);
+            startActivity(intent);
         }
     }
 

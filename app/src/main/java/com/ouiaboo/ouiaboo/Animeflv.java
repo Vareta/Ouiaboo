@@ -7,9 +7,11 @@ import android.util.Log;
 import android.webkit.CookieManager;
 
 import com.ouiaboo.ouiaboo.Tables.HistorialFlvTable;
+import com.ouiaboo.ouiaboo.Tables.HistorialTable;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.GenerosClass;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
+import com.ouiaboo.ouiaboo.fragmentsFLV.Historial;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -651,6 +653,33 @@ public class Animeflv{
             return false;
         } else {
             return true;
+        }
+    }
+
+    public void añadirHistorial(String nombre, String tipo, String urlImagen, String urlCapitulo) {
+        List<HistorialTable> lista = DataSupport.where("nombre=? and urlCapitulo=?", nombre, urlCapitulo).find(HistorialTable.class);
+        if (lista.isEmpty()){ //si la lista no contiene el capitulo que se quiere añadir
+            int tamaño = DataSupport.count(HistorialTable.class);
+            if (tamaño < 20) {
+                HistorialTable historial = new HistorialTable(nombre, tipo, urlImagen, urlCapitulo);
+                historial.save();
+            }
+            if (tamaño == 20) { //El historial tendra un maximo de 20 items
+                //ELimina el primero
+                HistorialTable primero = DataSupport.findFirst(HistorialTable.class);
+                DataSupport.deleteAll(HistorialTable.class, "nombre=? and urlCapitulo=?", primero.getNombre(), primero.getUrlCapitulo());
+                //Agrega el siguiente
+                HistorialTable historial = new HistorialTable(nombre, tipo, urlImagen, urlCapitulo);
+                historial.save();
+            }
+        } else {
+            if (lista.size() == 1) { //si ya se encuentra en la lista
+                //Se elimina de la posicion anterior
+                DataSupport.deleteAll(HistorialTable.class, "nombre=? and urlCapitulo=?", lista.get(0).getNombre(), lista.get(0).getUrlCapitulo());
+                //se agrega nuevamente
+                HistorialTable historial = new HistorialTable(nombre, tipo, urlImagen, urlCapitulo);
+                historial.save();
+            }
         }
     }
 

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
@@ -32,7 +33,7 @@ public class AdVerMasTarde extends RecyclerView.Adapter<AdVerMasTarde.AdVerMasTa
         this.items = items;
     }
 
-    public class AdVerMasTardeHolder extends RecyclerView.ViewHolder implements OnClickListener {
+    public class AdVerMasTardeHolder extends RecyclerView.ViewHolder implements OnClickListener, OnLongClickListener {
         public CardView cardView;
         public TextView nombre;
         public TextView informacion;
@@ -46,6 +47,7 @@ public class AdVerMasTarde extends RecyclerView.Adapter<AdVerMasTarde.AdVerMasTa
             informacion = (TextView)itemLayoutView.findViewById(R.id.informacion_flv);
             preview = (ImageView)itemLayoutView.findViewById(R.id.preview_flv);
             itemLayoutView.setOnClickListener(this);
+            itemLayoutView.setOnLongClickListener(this);
         }
 
         @Override
@@ -55,9 +57,19 @@ public class AdVerMasTarde extends RecyclerView.Adapter<AdVerMasTarde.AdVerMasTa
                 customRecyclerListener.customClickListener(v, getLayoutPosition());
             }
         }
+
+        @Override
+        public boolean onLongClick(View v) {
+            if (customRecyclerListener != null) {
+                customRecyclerListener.customLongClickListener(v, getLayoutPosition());
+            }
+
+            return true;
+        }
     }
     public static interface CustomRecyclerListener {
         public void customClickListener(View v, int position);
+        public void customLongClickListener(View v, int position);
     }
 
     public void setClickListener(CustomRecyclerListener customRecyclerListener){

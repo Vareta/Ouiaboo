@@ -5,6 +5,7 @@
 
         <ImageView
             android:id="@+id/imagen"
+            android:tint="@color/ColorPrimary"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginBottom="9dp"

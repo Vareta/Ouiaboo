@@ -1,16 +1,25 @@
 package com.ouiaboo.ouiaboo;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Adapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 
 
 import org.jsoup.Jsoup;
@@ -35,6 +44,9 @@ public class Utilities {
     public static final String PREFERENCIAS = "preferencias";
     public static final int ANIMEFLV = 0;
     public static final int ANIMEJOY = 1;
+
+
+
     /*insertar una imagen en un ImageView via url
     * source: http://stackoverflow.com/questions/2471935/how-to-load-an-imageview-by-url-in-android
     * */
@@ -215,5 +227,36 @@ public class Utilities {
             }
         }
         return false;
+    }
+
+    public boolean esReproductorExterno(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(PREFERENCIAS, Context.MODE_PRIVATE);
+
+        return preferences.getBoolean("reproductorExterno", false);
+    }
+
+    /*
+    http://stackoverflow.com/questions/1309629/how-to-change-colors-of-a-drawable-in-android
+     */
+    public Drawable cambiarColorIcono(Drawable drawable, int color) {
+        Drawable resultado = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(resultado, color);
+
+        return resultado;
+    }
+
+    /*Obtiene el ancho del popup window segun los items contenidos dentro de ella*/
+    public int measureContentWidth(ListAdapter adapter, Fragment fragment) {
+        int maxWidth = 0;
+        int count = adapter.getCount();
+        final int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        final int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        View itemView = null;
+        for (int i = 0; i < count; i++) {
+            itemView = adapter.getView(i, itemView, ((ViewGroup)fragment.getView().getParent()));
+            itemView.measure(widthMeasureSpec, heightMeasureSpec);
+            maxWidth = Math.max(maxWidth, itemView.getMeasuredWidth());
+        }
+        return maxWidth;
     }
 }

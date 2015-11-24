@@ -31,7 +31,7 @@
     <string name="descargadas_drawer_layout">Descargadas</string>
     <string name="historial_drawer_layout">Historial</string>
     <string name="generos_drawer_layout">Géneros</string>
-    <string name="paginas_drawer_layout">Páginas de anime</string>
+    <string name="preferencias_drawer_layout">Preferencias</string>
     <string name="faq_drawer_layout">FAQ</string>
     <string name="aviso_legal_drawer_layout">Aviso Legal</string>
 
@@ -69,7 +69,7 @@
     <string name="noti_vermastarde_si">Añadido correctamente para ver mas tarde</string>
     <string name="noti_vermastarde_no">Este capitulo ya se encuentra en ver mas tarde</string>
     <string name="noti_favoritos_si">Añadido correctamente a favoritos</string>
-    <string name="noti_favoritos_no">Este anime ya se encuentra en favoritos</string>
+    <string name="noti_favoritos_no">Eliminado de favoritos</string>
     <string name="noti_descargado_actualmente">Este capitulo se esta descargando actualmente</string>
     <string name="noti_descargado_existe">Este capitulo ya se encuentra descargado</string>
 
@@ -103,5 +103,20 @@
     <!-- **********************************************************        fragment_descargados     *************************************************************************** -->
     <!--********************************************************************************************************************************************************************* -->
     <string name="noExisten.Descargados">No hay anime descargado</string>
-
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        fragment_historial    *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+    <string name="noExisten.Historial">No hay anime en el historial</string>
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        settings    *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+    <string name="reproductorTittle.Settings">Reproductor</string>
+    <string name="reprExterno.Settings">Reproductor externo</string>
+    <string name="reprExternoSum.Settings">Si no tienes ninguno, te recomendamos Mx Player.</string>
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        PopupWindow    *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+    <string name="masTarde.PopupWindow">Ver mas tarde</string>
+    <string name="irAnime.PopupWindow">Ir a anime</string>
+    <string name="descargar.PopupWindow">Descargar</string>
 </resources>

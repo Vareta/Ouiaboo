@@ -44,6 +44,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
     private Snackbar snackbar;
     private CoordinatorLayout coordLayout;
     private CollapsingToolbarLayout collaToolbar;
+    private boolean esFavorito;
 
 
     @Override
@@ -63,13 +64,19 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
             @Override
             public void onClick(View v) {
                 Funciones fun = new Funciones();
-                if (!fun.esPosibleFavoritos(epiInfo.get(0))) { //no se pudo
+                if (esFavorito) { //se encuentra en favoritos --> se elimina
+                    esFavorito = false;
+                    fun.eliminarFavorito(epiInfo.get(0)); //elimina de favoritos
+                    favorito.setImageResource(R.drawable.ic_favorite_border_white_24dp); //cambia el icono por el correspondiente (no favorito)
                     snackbar = Snackbar.make(coordLayout, getString(R.string.noti_favoritos_no), Snackbar.LENGTH_LONG);
                     View sbView = snackbar.getView();
                     TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
                     textView.setTextColor(Color.YELLOW);
                     snackbar.show();
-                } else {
+                } else { //no se encuentra en favoritos --> se añade
+                    esFavorito = true;
+                    fun.añadirFavorito(epiInfo.get(0));
+                    favorito.setImageResource(R.drawable.ic_favorite_white_24dp);
                     snackbar = Snackbar.make(coordLayout, getString(R.string.noti_favoritos_si), Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
@@ -99,6 +106,19 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    private void setupFAB(Episodios epiInfo) {
+        Funciones fun = new Funciones();
+        if (fun.estaEnFavoritos(epiInfo)) { //si esta en favoritos
+            favorito.setImageResource(R.drawable.ic_favorite_white_24dp);
+            esFavorito = true;
+            Log.d("FAV", "SI");
+        } else { //caso contrario
+            favorito.setImageResource(R.drawable.ic_favorite_border_white_24dp);
+            esFavorito = false;
+            Log.d("FAV", "NO");
         }
     }
 
@@ -132,14 +152,18 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-        Log.d("333", "333");
     }
 
     @Override
     public void onEpisodiosFlvInteraction(HomeScreenEpi objEpi) {
-        Intent intent = new Intent(this, VideoPlayer.class);
-        intent.putExtra("episodio", objEpi);
-        startActivity(intent);
+        Utilities util = new Utilities();
+        if (util.esReproductorExterno(this)) {
+            new ReproductorExterno().execute(objEpi);
+        } else {
+            Intent intent = new Intent(this, VideoPlayer.class);
+            intent.putExtra("episodio", objEpi);
+            startActivity(intent);
+        }
     }
 
     static class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -204,6 +228,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
             setupCollapsingToolbar();
             setupViewPager();
             setupToolbar();
+            setupFAB(epiInfo.get(0));
             setTitle(epiInfo.get(0).getNombreAnime());
             Picasso.with(getBaseContext()).load(epi.get(0).getUrlImagen()).into(header);
             bar.setVisibility(View.GONE);
@@ -211,7 +236,41 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         }
     }
 
+    private class ReproductorExterno extends AsyncTask<HomeScreenEpi, Void, Void> {
+        String url;
+        @Override
+        protected Void doInBackground(HomeScreenEpi... params) {
+            Utilities util = new Utilities();
+            Animeflv anime = new Animeflv();
+            HomeScreenEpi objEpi = params[0];
+            try {
+                if (objEpi.getInformacion().equals("descargado")) { //video almacenado en el dispositivo
+                    url = objEpi.getUrlCapitulo(); //aqui la direccion es el path del video en el dispositivo
+                    anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getPreview()); //se usa preview ya que en este campo se guarda la url del anime cuando este proviene del dispositivo
+                } else {
+                    url = anime.urlDisponible(objEpi.getUrlCapitulo(), getBaseContext());
+                    anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
+                    anime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
+                }
 
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.setDataAndType(Uri.parse(url), "video/mp4");
+            startActivity(intent);
+        }
+    }
     /*
         Esta función tiene por objetivo solucionar el acto de presentar un titulo (toolbar) incorrecto cuando se ejecuta la siguiente accion:
         buscar serie, ej one piece --> titulo: one piece

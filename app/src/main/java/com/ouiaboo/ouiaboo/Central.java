@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -22,7 +21,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -40,8 +38,7 @@ import com.ouiaboo.ouiaboo.fragmentsFLV.Generos;
 import com.ouiaboo.ouiaboo.fragmentsFLV.GenerosContenido;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Historial;
 import com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen;
-import com.ouiaboo.ouiaboo.fragmentsFLV.EpisodiosFlv;
-import com.ouiaboo.ouiaboo.fragmentsFLV.PaginasAnime;
+import com.ouiaboo.ouiaboo.fragmentsFLV.Preferencias;
 import com.ouiaboo.ouiaboo.fragmentsFLV.VerMasTarde;
 
 import org.litepal.tablemanager.Connector;
@@ -55,7 +52,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
                                                         VerMasTarde.OnFragmentInteractionListener, AvisoLegal.OnFragmentInteractionListener,
                                                         Favoritos.OnFragmentInteractionListener, Descargadas.OnFragmentInteractionListener,
                                                         Historial.OnFragmentInteractionListener, Generos.OnFragmentInteractionListener,
-                                                        PaginasAnime.OnFragmentInteractionListener, Faq.OnFragmentInteractionListener,
+                                                        Preferencias.OnFragmentInteractionListener, Faq.OnFragmentInteractionListener,
                                                         GenerosContenido.OnFragmentInteractionListener {
 
     private DrawerLayout drawerLayout;
@@ -120,8 +117,8 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
                         ft.replace(R.id.contenedor, new Generos());
                         break;
 
-                    case R.id.nav_paginas:
-                        ft.replace(R.id.contenedor, new PaginasAnime());
+                    case R.id.nav_preferencias:
+                        ft.replace(R.id.contenedor, new Preferencias());
                         break;
 
                     case R.id.nav_faq:
@@ -160,7 +157,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         if (toolbar != null) {
             assert getSupportActionBar() != null; //agregado ya que getSupportAction puede producir Method invocation may produce java.lang.NullPointerException
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            toolbar.setNavigationIcon(R.drawable.ic_menu_white);
+            toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);
             setTitle(R.string.inicio_drawer_layout);
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
@@ -268,7 +265,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.drawable.ic_menu_white) {
+        if (id == R.drawable.ic_menu_white_24dp) {
             Log.d("Toolbar", "hola");
             return true;
         }
@@ -290,15 +287,13 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
     @Override
     public void onVerMasTardeInteraction(HomeScreenEpi objEpi) {
-        Intent intent = new Intent(this, VideoPlayer.class);
-        intent.putExtra("episodio", objEpi);
-        startActivity(intent);
+        reproducir(objEpi);
     }
 
     @Override
-    public void onFavoritoInteraction(HomeScreenEpi objEpi) {
+    public void onFavoritoInteraction(String url) {
         Intent intent = new Intent(getBaseContext(), EpisodiosPlusInfo.class);
-        intent.putExtra("episodio", objEpi);
+        intent.putExtra("url", url);
         startActivity(intent);
     }
 
@@ -326,28 +321,51 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
     @Override
     public void onHomeScreenInteraction(HomeScreenEpi objEpi) {
-        Intent intent = new Intent(getBaseContext(), VideoPlayer.class);
-        intent.putExtra("episodio", objEpi);
-        startActivity(intent);
+        reproducir(objEpi);
     }
 
     @Override
     public void onDescargadasInteraction(HomeScreenEpi objEpi) {
-        Intent intent = new Intent(getBaseContext(), VideoPlayer.class);
-        intent.putExtra("episodio", objEpi);
-        startActivity(intent);
+        reproducir(objEpi);
     }
 
+    @Override
+    public void onHistorialInteraction(HomeScreenEpi objEpi) {
+        reproducir(objEpi);
+    }
 
-    //para probar jsoup
-    private class BackgroundTask extends AsyncTask<Void, Void, Void> {
+    /*Si los datos son dirigidos hacia el VideoPlayer, esta funcion es la encargada de manejar los datos
+        correspondientes y verificar si se usa el reproductor nativo o el externo
+     */
+    private void reproducir(HomeScreenEpi objEpi) {
+        Utilities util = new Utilities();
 
+        if (util.esReproductorExterno(this)) {
+            new ReproductorExterno().execute(objEpi);
+        } else {
+            Intent intent = new Intent(getBaseContext(), VideoPlayer.class);
+            intent.putExtra("episodio", objEpi);
+            startActivity(intent);
+        }
+    }
 
+    private class ReproductorExterno extends AsyncTask<HomeScreenEpi, Void, Void> {
+        String url;
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(HomeScreenEpi... params) {
+            Utilities util = new Utilities();
+            Animeflv anime = new Animeflv();
+            HomeScreenEpi objEpi = params[0];
             try {
-                Animeflv ani = new Animeflv();
-                ani.getEpisodios("http://animeflv.net/anime/nanatsu-no-taizai.html");
+                if (objEpi.getInformacion().equals("descargado")) { //video almacenado en el dispositivo
+                    url = objEpi.getUrlCapitulo(); //aqui la direccion es el path del video en el dispositivo
+                    anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getPreview()); //se usa preview ya que en este campo se guarda la url del anime cuando este proviene del dispositivo
+                } else {
+                    url = anime.urlDisponible(objEpi.getUrlCapitulo(), getBaseContext());
+                    anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
+                    anime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -356,10 +374,14 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
         @Override
         protected void onPreExecute() {
+
         }
 
         @Override
         protected void onPostExecute(Void result) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.setDataAndType(Uri.parse(url), "video/mp4");
+            startActivity(intent);
         }
     }
 

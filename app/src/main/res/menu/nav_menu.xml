@@ -8,47 +8,47 @@
         <item
             android:id="@+id/nav_inicio"
             android:checked="true"
-            android:icon="@drawable/ic_action_home"
+            android:icon="@drawable/ic_home_white_24dp"
             android:title="@string/inicio_drawer_layout"/>
 
         <item
             android:id="@+id/nav_mas_tarde"
-            android:icon="@drawable/ic_action_home"
+            android:icon="@drawable/ic_watch_later_white_24dp"
             android:title="@string/mas_tarde_drawer_layout"/>
 
         <item
             android:id="@+id/nav_favoritos"
-            android:icon="@drawable/ic_action_home"
+            android:icon="@drawable/ic_favorite_white_24dp"
             android:title="@string/favoritos_drawer_layout"/>
 
         <item
             android:id="@+id/nav_descargadas"
-            android:icon="@drawable/ic_action_home"
+            android:icon="@drawable/ic_file_download_white_24dp"
             android:title="@string/descargadas_drawer_layout"/>
 
         <item
             android:id="@+id/nav_historial"
-            android:icon="@drawable/ic_action_home"
+            android:icon="@drawable/ic_history_white_24dp"
             android:title="@string/historial_drawer_layout"/>
 
         <item
             android:id="@+id/nav_generos"
-            android:icon="@drawable/ic_action_home"
+            android:icon="@drawable/ic_list_white_24dp"
             android:title="@string/generos_drawer_layout"/>
 
         <item
-            android:id="@+id/nav_paginas"
-            android:icon="@drawable/ic_action_home"
-            android:title="@string/paginas_drawer_layout"/>
+            android:id="@+id/nav_preferencias"
+            android:icon="@drawable/ic_settings_white_24dp"
+            android:title="@string/preferencias_drawer_layout"/>
 
         <item
             android:id="@+id/nav_faq"
-            android:icon="@drawable/ic_action_home"
+            android:icon="@drawable/ic_help_white_24dp"
             android:title="@string/faq_drawer_layout"/>
 
         <item
             android:id="@+id/nav_aviso_legal"
-            android:icon="@drawable/ic_action_home"
+            android:icon="@drawable/ic_warning_white_24dp"
             android:title="@string/aviso_legal_drawer_layout"/>
 
     </group>

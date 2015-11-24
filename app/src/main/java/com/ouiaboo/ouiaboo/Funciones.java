@@ -27,16 +27,36 @@ public class Funciones {
             return true;
         }
     }
-
-    public boolean esPosibleFavoritos(Episodios home) {
+    /*DEPRECADO HASTA NUEVO AVISO
+    public boolean añadeaFavoritos(Episodios home) {
 
         List<FavoritosTable> lista = DataSupport.where("nombre=?", home.getNombreAnime()).find(FavoritosTable.class);
-        if (!lista.isEmpty()) { //si la lista de favoritos contiene el anime que se quiere añadir
+        if (!lista.isEmpty()) { //si la lista de favoritos contiene el anime que se quiere añadir lo elimina
+            DataSupport.deleteAll(FavoritosTable.class, "nombre=?", home.getNombreAnime());
             return false;
         } else { //caso contrario, lo añade
             FavoritosTable favoritos = new FavoritosTable(home.getNombreAnime(), home.getTipo(), home.getUrlImagen(), home.getUrlAnime());
             favoritos.save();
             return true;
+        }
+    }*/
+
+    public void añadirFavorito(Episodios home) {
+        FavoritosTable favoritos = new FavoritosTable(home.getNombreAnime(), home.getTipo(), home.getUrlImagen(), home.getUrlAnime());
+        favoritos.save();
+    }
+
+    public void eliminarFavorito(Episodios home) {
+        DataSupport.deleteAll(FavoritosTable.class, "nombre=?", home.getNombreAnime());
+    }
+
+    public boolean estaEnFavoritos(Episodios home) {
+
+        List<FavoritosTable> lista = DataSupport.where("nombre=?", home.getNombreAnime()).find(FavoritosTable.class);
+        if (!lista.isEmpty()) { //si la lista de favoritos contiene el anime que se quiere añadir
+            return true;
+        } else { //caso contrario
+            return false;
         }
     }
 

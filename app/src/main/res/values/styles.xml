@@ -5,8 +5,10 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/ColorPrimary</item>
         <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
 
     </style>
+
 
     <style name="FullscreenTheme" parent="android:Theme.NoTitleBar">
         <item name="android:windowContentOverlay">@null</item>

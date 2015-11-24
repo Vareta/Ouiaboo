@@ -66,6 +66,7 @@ public class AdContMenuCentral extends BaseAdapter{
         holder.icono.setImageResource(listaMenu.get(position).getIconId());
         holder.nombre.setText(listaMenu.get(position).getNombre());
 
+
         //Extra padding
 
 

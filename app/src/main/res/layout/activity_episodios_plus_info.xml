@@ -70,11 +70,10 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/favorito"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_margin="24dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_margin="16dp"
         app:elevation="6dp"
-        android:src="@drawable/ic_action_heart"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|right|end" />
 

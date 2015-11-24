@@ -117,7 +117,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     public void customClickListener(View v, int position) {
         posAnimeOnClick = position; //para luego al volver de ver el video, le diga al adaptador que dicho item cambió en OnAttach
         HomeScreenEpi objEpi = new HomeScreenEpi(episodios.get(position).getUrlEpisodio(), episodios.get(0).getNombreAnime(),
-                                                episodios.get(0).getTipo(), episodios.get(0).getUrlImagen());
+                                                episodios.get(position).getNumero(), episodios.get(0).getUrlImagen());
         mListener.onEpisodiosFlvInteraction(objEpi);
 
     }
@@ -127,8 +127,8 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
         final int posAnime = position; //para diferenciar el onclick del listpopup
 
         List<DrawerItemsListUno> items = new ArrayList<>();
-        items.add(new DrawerItemsListUno("Descargar", R.drawable.ic_action_globe));
-        items.add(new DrawerItemsListUno("Ver mas tarde", R.drawable.ic_action_globe));
+        items.add(new DrawerItemsListUno("Descargar", R.drawable.ic_menu_white_24dp));
+        items.add(new DrawerItemsListUno("Ver mas tarde", R.drawable.ic_menu_white_24dp));
 
         AdContMenuCentral adapter = new AdContMenuCentral(getActivity(), items);
 

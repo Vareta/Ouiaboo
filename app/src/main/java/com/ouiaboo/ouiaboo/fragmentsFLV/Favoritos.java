@@ -43,7 +43,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
     private OnFragmentInteractionListener mListener;
     private RecyclerView lista;
     private ProgressBar bar;
-    private ArrayList<HomeScreenEpi> animeFavoritos;
+    private List<HomeScreenEpi> animeFavoritos;
     private TextView noFavoritos;
     private boolean existenFavoritos;
     private AdBusquedaFLV adaptador;
@@ -91,10 +91,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
 
     @Override
     public void customClickListener(View v, int position) {
-        //Animeflv animeflv = new Animeflv(getResources());
-        //animeflv.añadirHistorialFlv(animeFavoritos.get(position).getNombre(), animeFavoritos.get(position).getUrlCapitulo());
-        HomeScreenEpi objEpi = animeFavoritos.get(position);
-        mListener.onFavoritoInteraction(objEpi);  //En este caso urlCapitulo, contiene la url del anime
+        mListener.onFavoritoInteraction(animeFavoritos.get(position).getUrlCapitulo());  //En este caso urlCapitulo, contiene la url del anime
     }
 
     /**
@@ -108,7 +105,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        public void onFavoritoInteraction(HomeScreenEpi objEpi);
+        public void onFavoritoInteraction(String url);
     }
 
     private class BackgroundTask extends AsyncTask<AdBusquedaFLV.CustomRecyclerListener, Void, Void> {
@@ -205,17 +202,17 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
                 Bitmap bitmap;
 
                 if (dX > 0) { // swiping right
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.black_overlay));
-                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.ic_launcher);
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.rojo));
+                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
 
                     c.drawRect((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom(), paint);
                     c.drawBitmap(bitmap, 96f, (float) itemView.getTop() + height, null);
 
                 } else { // swiping left
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimary));
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.cafe));
 
-                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.mipmap.ic_launcher);
+                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
                     float bitmapWidth = bitmap.getWidth();
 

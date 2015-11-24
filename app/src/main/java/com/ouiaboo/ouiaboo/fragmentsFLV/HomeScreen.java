@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -18,6 +19,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
@@ -41,7 +43,6 @@ import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.DescargadosTable;
 import com.ouiaboo.ouiaboo.Utilities;
-import com.ouiaboo.ouiaboo.VideoPlayer;
 import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
 import com.ouiaboo.ouiaboo.adaptadores.AdHomeScreen;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
@@ -53,13 +54,14 @@ import org.litepal.crud.DataSupport;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
  * {@link HomeScreen.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class HomeScreen extends android.support.v4.app.Fragment implements AdHomeScreen.CustomRecyclerListener{
+public class HomeScreen extends android.support.v4.app.Fragment implements AdHomeScreen.CustomRecyclerListener {
     private String animeFLV = "http://animeflv.net/";
     private String animeJoy = "http://www.animejoy.tv/";
     private OnFragmentInteractionListener mListener;
@@ -76,6 +78,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     private WebView webView;
     public static final String PREFERENCIAS = "preferencias";
     private AdHomeScreen.CustomRecyclerListener listener;
+    private SwipeRefreshLayout swipeRefresh;
 
     public HomeScreen() {
         // Required empty public constructor
@@ -84,16 +87,27 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View convertView =  inflater.inflate(R.layout.fragment_home_screen, container, false);
-        coordLayout = (CoordinatorLayout)convertView.findViewById(R.id.coord_layout);
+        View convertView = inflater.inflate(R.layout.fragment_home_screen, container, false);
+        coordLayout = (CoordinatorLayout) convertView.findViewById(R.id.coord_layout);
         getActivity().setTitle(R.string.inicio_drawer_layout);
-        list = (RecyclerView)convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
-        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
-        webView = (WebView)getActivity().findViewById(R.id.web_view);
+        list = (RecyclerView) convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
+        bar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
+        webView = (WebView) getActivity().findViewById(R.id.web_view);
+        swipeRefresh = (SwipeRefreshLayout) convertView.findViewById(R.id.homeScreen_swipe_refresh);
+        listener = this;
         new BackgroundTask().execute(this);
         getActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new SwipeRefresh().execute(listener);
+            }
+        });
+
         return convertView;
     }
+
 
     /*en caso que la pagina contenga cloudflare*/
     public void setWebView() {
@@ -125,13 +139,12 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     public void customLongClickListener(View v, int position) {
 
         final int posAnime = position; //para diferenciar el onclick del listpopup
-       // LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-       // View popUpView = inflater.inflate(R.layout.context_menu, null);
+        // LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        // View popUpView = inflater.inflate(R.layout.context_menu, null);
         List<DrawerItemsListUno> items = new ArrayList<>();
-        items.add( new DrawerItemsListUno( "Favorito", R.drawable.ic_action_globe ) );
-        items.add( new DrawerItemsListUno( "Descargar", R.drawable.ic_action_globe ) );
-        items.add(new DrawerItemsListUno("Ir a anime", R.drawable.ic_action_globe));
-        items.add(new DrawerItemsListUno("Ver mas tarde", R.drawable.ic_action_globe));
+        items.add(new DrawerItemsListUno(getString(R.string.descargar_PopupWindow), R.drawable.ic_file_download_white_24dp));
+        items.add(new DrawerItemsListUno(getString(R.string.irAnime_PopupWindow), R.drawable.ic_forward_white_24dp));
+        items.add(new DrawerItemsListUno(getString(R.string.masTarde_PopupWindow), R.drawable.ic_watch_later_white_24dp));
 
         AdContMenuCentral adapter = new AdContMenuCentral(getActivity(), items);
 
@@ -139,53 +152,26 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         listPopupWindow.setAdapter(adapter);
 
         listPopupWindow.setAnchorView(v.findViewById(R.id.nombre_flv));
-        int width = measureContentWidth(adapter);
+        int width = util.measureContentWidth(adapter, this);
         listPopupWindow.setWidth(width);
         listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Funciones fun = new Funciones();
-                //Toast.makeText(mContext, getAdapterPosition() + " : " + position, Toast.LENGTH_SHORT).show();
 
-                    /*Intent intent = new Intent(mContext, CarActivity.class);
-                    intent.putExtra("car", mList.get( getAdapterPosition() ));
-                    mContext.startActivity(intent);*/
                 if (position == 0) {
-                    String path2 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Ouiaboo";
-                    String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Ouiaboo/Kowabon -Episodio número 3.mp4";
-                    File file = new File(path2);
-
-                    if (file.list() == null) {
-                        Log.d("Null", "PATH null");
-                    } else {
-                        for (int i = 0; i < file.list().length; i++) {
-                            Log.d("List", file.list()[i]);
-                        }
-                    }
-                    Bitmap preview = ThumbnailUtils.createVideoThumbnail(path, MediaStore.Images.Thumbnails.MINI_KIND);
-
-                    if (preview == null) {
-                        Log.d("Null", "preview null");
-                        Log.d("PATH", path);
-                    }
-                    Log.d("PATH", Environment.DIRECTORY_MOVIES);
-
-
-                }
-
-                if (position == 1) {
 
                     posicionAnime = posAnime; //almacena la posicion para asi utilizarla en otros contextos
                     List<DescargadosTable> lista = DataSupport.where("urlCapitulo=?", animesRecientes.get(posAnime).getUrlCapitulo()).find(DescargadosTable.class);
                     if (!lista.isEmpty()) { //ya tiene el capitulo
                         Log.d("TAMAÑO", String.valueOf(lista.size()));
-                        if (!lista.get(0).isComplete()){ //cuando la descarga se esta efectuando en estos momentos
+                        if (!lista.get(0).isComplete()) { //cuando la descarga se esta efectuando en estos momentos
                             snackbar = Snackbar.make(coordLayout, getString(R.string.noti_descargado_actualmente), Snackbar.LENGTH_LONG);
                         } else {
                             snackbar = Snackbar.make(coordLayout, getString(R.string.noti_descargado_existe), Snackbar.LENGTH_LONG);
                         }
                         View sbView = snackbar.getView();
-                        TextView textView = (TextView)sbView.findViewById(android.support.design.R.id.snackbar_text);
+                        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
                         textView.setTextColor(Color.YELLOW);
                         snackbar.show();
                     } else { //no tiene el capitulo, por lo tanto lo descarga
@@ -196,7 +182,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 }
 
 
-                if (position == 2) {
+                if (position == 1) {
 
                     new EpiUrlToAnimeUlr().execute(animesRecientes.get(posAnime).getUrlCapitulo());
 
@@ -213,12 +199,12 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                     listPopupWindow.dismiss();
                 }
 
-                if (position == 3) {
+                if (position == 2) {
 
                     if (!fun.esPosibleverMasTardeHome(animesRecientes.get(posAnime))) { //no se pudo
                         snackbar = Snackbar.make(coordLayout, getString(R.string.noti_vermastarde_no), Snackbar.LENGTH_LONG);
                         View sbView = snackbar.getView();
-                        TextView textView = (TextView)sbView.findViewById(android.support.design.R.id.snackbar_text);
+                        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
                         textView.setTextColor(Color.YELLOW);
                         snackbar.show();
 
@@ -235,19 +221,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         listPopupWindow.show();
     }
 
-    public int measureContentWidth(ListAdapter adapter) {
-        int maxWidth = 0;
-        int count = adapter.getCount();
-        final int widthMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
-        final int heightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
-        View itemView = null;
-        for (int i = 0; i < count; i++) {
-            itemView = adapter.getView(i, itemView, ((ViewGroup)getView().getParent()));
-            itemView.measure(widthMeasureSpec, heightMeasureSpec);
-            maxWidth = Math.max(maxWidth, itemView.getMeasuredWidth());
-        }
-        return maxWidth;
-    }
+
 
 
     private class BackgroundTask extends AsyncTask<AdHomeScreen.CustomRecyclerListener, Void, Void> {
@@ -287,7 +261,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         @Override
         protected void onPreExecute() {
             bar.setVisibility(View.VISIBLE);
-           // Log.d("HOLA", "PREEXECUTE 333");
+            // Log.d("HOLA", "PREEXECUTE 333");
         }
 
         @Override
@@ -298,14 +272,46 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
             //
         }
 
-
     }
 
+    private class SwipeRefresh extends AsyncTask<AdHomeScreen.CustomRecyclerListener, Void, Void> {
 
+        @Override
+        protected Void doInBackground(AdHomeScreen.CustomRecyclerListener... params) {
+            try {
+                util = new Utilities();
+                Document codigoFuente;
+                flvAnimes = new Animeflv();
+                codigoFuente = util.connect(animeFLV);
+                animesRecientes = flvAnimes.homeScreenAnimeFlv(codigoFuente, getResources());
+
+                adaptador = new AdHomeScreen(getActivity(), animesRecientes);
+                adaptador.setClickListener(params[0]);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            list.setLayoutManager(new LinearLayoutManager(getActivity()));
+            list.setAdapter(adaptador);
+            swipeRefresh.setRefreshing(false);
+        }
+
+
+    }
 
     /*Obtiene la url de un anime mediante el url del capitulo de manera asincrona*/
     public class EpiUrlToAnimeUlr extends AsyncTask<String, Void, Void> {
         private String url;
+
         @Override
         protected Void doInBackground(String... params) {
             url = flvAnimes.urlCapituloToUrlAnime(params[0]);
@@ -331,6 +337,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     /*Obtiene la url de un anime mediante el url del capitulo de manera asincrona*/
     public class DownloadAnime extends AsyncTask<Void, Void, Void> {
         String nombreVideo = animesRecientes.get(posicionAnime).getNombre() + "-" + animesRecientes.get(posicionAnime).getInformacion() + ".mp4";
+
         @Override
         protected Void doInBackground(Void... params) {
             Animeflv animeflv = new Animeflv();
@@ -343,7 +350,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
             request.setMimeType("video/x-msvideo");
 
-            DownloadManager manager = (DownloadManager)getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+            DownloadManager manager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
             long id = manager.enqueue(request);
 
             //almacena los capitulos guardados en la tabla, sin importar si estos estan completamente descargados
@@ -392,7 +399,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
+     * <p/>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
@@ -427,6 +434,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
     private class GetVideoUrlAndPlay extends AsyncTask<Integer, Void, Void> {
         String url;
+
         @Override
         protected Void doInBackground(Integer... params) {
             Utilities util = new Utilities();
