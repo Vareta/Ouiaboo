@@ -11,6 +11,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.adaptadores.AdSitiosWeb;
 import com.ouiaboo.ouiaboo.clases.SitiosWeb;
 
@@ -21,8 +23,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     private static final String TAG = "";
     public static final String PREFERENCIAS = "preferencias";
-    ListView paginasAnime;
-    ArrayAdapter adaptador;
+    private ListView paginasAnime;
+    private ArrayAdapter adaptador;
+    private Tracker mTracker;
 
 
     @Override
@@ -44,6 +47,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         }
 
         setContentView(R.layout.activity_main);
+        // Obtain the shared Tracker instance.
 
         String[] paginasWebNombre = getResources().getStringArray(R.array.paginas_anime);
         String[] paginasWebIdioma = getResources().getStringArray(R.array.idioma_paginas_anime);
@@ -66,6 +70,12 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         paginasAnime.setOnItemClickListener(this);
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AnalyticsApplication.getInstance().trackScreenView("Main Activity");
+    }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

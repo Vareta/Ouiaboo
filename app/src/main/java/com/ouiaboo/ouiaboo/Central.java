@@ -25,6 +25,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.GenerosClass;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
@@ -41,11 +43,13 @@ import com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Preferencias;
 import com.ouiaboo.ouiaboo.fragmentsFLV.VerMasTarde;
 
+import org.litepal.LitePalApplication;
 import org.litepal.tablemanager.Connector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 
 public class Central extends AppCompatActivity implements HomeScreen.OnFragmentInteractionListener, Busqueda.OnFragmentInteractionListener,
@@ -66,6 +70,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
     HashMap<DrawerItemsListUno, List<SitiosWeb>> listDataChild; //objetos hijos de la lista expandible
     ArrayList<DrawerItemsListUno> items;
     private Toolbar toolbar;
+    private Tracker mTracker;
 
   //  private ProgressBar bar;
 
@@ -74,7 +79,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
        // requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_central);
-
+        LitePalApplication.initialize(this);
 
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout); //el drawerLayout
         navigationView = (NavigationView)findViewById(R.id.nav_view);
@@ -168,6 +173,11 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
 
 
     /*
@@ -228,18 +238,18 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // Do something
-                //Log.d("TextChange", query);
-                //Log.d("TextSubmit", "busqué");
                 if (query.length() < 4) {
                     //Log.d("TextSubmit", "menos o igual de 3");
                     Toast.makeText(Central.this, getString(R.string.ins_caracteres_menu_central_ES), Toast.LENGTH_SHORT).show();
+                    AnalyticsApplication.getInstance().trackEvent("Warning", "Buscar", query);
                 } else {
                     //Envia la query al fragment Busqueda
                     Bundle bundle = new Bundle();
                     bundle.putString("query", query);
                     Busqueda search = new Busqueda();
                     search.setArguments(bundle);
+
+                    AnalyticsApplication.getInstance().trackEvent("Anime", "Buscar", query);
 
                     //Inicia el fragmente que contiene los resultados de la busqueda
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -341,8 +351,10 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         Utilities util = new Utilities();
 
         if (util.esReproductorExterno(this)) {
+            AnalyticsApplication.getInstance().trackEvent("Reproductor Externo", "ver", objEpi.getNombre());
             new ReproductorExterno().execute(objEpi);
         } else {
+            AnalyticsApplication.getInstance().trackEvent("Reproductor Interno", "ver", objEpi.getNombre());
             Intent intent = new Intent(getBaseContext(), VideoPlayer.class);
             intent.putExtra("episodio", objEpi);
             startActivity(intent);

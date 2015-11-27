@@ -19,6 +19,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.Animejoy;
 import com.ouiaboo.ouiaboo.R;
@@ -49,6 +52,7 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
     private ProgressBar bar;
     private List<GenerosClass> generos;
     private AdGeneros adaptador;
+    private Tracker mTracker;
 
     public Generos() {
         // Required empty public constructor
@@ -60,6 +64,9 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_generos, container, false);
         getActivity().setTitle(R.string.generos_drawer_layout);
+
+
+
         list = (RecyclerView)convertView.findViewById(R.id.generos);
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
 
@@ -82,6 +89,12 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AnalyticsApplication.getInstance().trackScreenView("Generos");
     }
 
     @Override

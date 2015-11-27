@@ -446,7 +446,9 @@ public class Animeflv{
 
         Element objHome = codigoFuente.getElementsByClass("ultimos_epis").first(); //contiene los episodios recientes
         Elements objEpisodios = objHome.select("a"); //contiene los episodios recientes pero como una lista
+        Elements objEpiTipo = objHome.getElementsByClass("not"); //contiene los episodios mas el tipo (ova, pelicula, anime)
         Element img;
+        Element auxElement;
         for (int i = 0; i < objEpisodios.size(); i++) {
             //Obtiene url del capitulo
             aux = objEpisodios.get(i).attr("href");
@@ -454,25 +456,26 @@ public class Animeflv{
             //Obtiene nombre Anime
             nombre = objEpisodios.get(i).attr("title");
             //Obtiene informacion capitulo, Ej; capitulo numero x, Ova, pelicula
-            aux = objEpisodios.get(i).getElementsByClass("tit_ep").toString(); //es episodio? (mas probable)
-            if (!aux.equals("")) {
-                String nombreAux = "";
-                String[] div = nombre.split(" ");
-                for (int j = 0; j < div.length - 1; j++) { // consigue sólo el nombre del anime
-                    if (j < div.length - 2) {
-                        nombreAux = nombreAux + div[j] + " ";
-                    } else {
-                        nombreAux = nombreAux + div[j]; //ultima palabra y asi no queda con un espacio al final
-                    }
-                }
-                nombre = nombreAux; //agrega el nombre de la serie
-                informacion = resources.getString(R.string.numero_episodio_menu_central_ES) + " " + div[div.length - 1]; //info, Ej: Capitulo numero x
+            String[] div = nombre.split(" ");
+            auxElement = objEpiTipo.get(i).getElementsByClass("tova").first(); //es ova? (probable)
+           // Log.d("AUX", String.valueOf(auxElement.size()));
+            if (auxElement != null) {
+                informacion = resources.getString(R.string.ova_menu_central_ES);
             } else {
-                aux = objEpisodios.get(i).getElementsByClass("tova").toString(); //es ova? (probable)
-                if (aux.equals("")) {
-                    informacion = resources.getString(R.string.ova_menu_central_ES);
-                } else { //entonces es pelicula (menos probable
+                auxElement = objEpiTipo.get(i).getElementsByClass("tpeli").first(); //es pelicula? (poco probable)
+                if (auxElement != null) {
                     informacion = resources.getString(R.string.pelicula_menu_central_ES);
+                } else { //entonces es anime (mas probable)
+                    String nombreAux = "";
+                    for (int j = 0; j < div.length - 1; j++) { // consigue sólo el nombre del anime
+                        if (j < div.length - 2) {
+                            nombreAux = nombreAux + div[j] + " ";
+                        } else {
+                            nombreAux = nombreAux + div[j]; //ultima palabra y asi no queda con un espacio al final
+                        }
+                    }
+                    nombre = nombreAux; //agrega el nombre de la serie
+                    informacion = resources.getString(R.string.numero_episodio_menu_central_ES) + " " + div[div.length - 1]; //info, Ej: Capitulo numero x
                 }
             }
             //Obtiene url de la imagen del episodio
@@ -501,15 +504,16 @@ public class Animeflv{
                 while (localMatcher.find()) {
                     auxUrl = localMatcher.group(1);
                     //System.out.println(aux);
+                    try {
+                        url = URLDecoder.decode("http://animeflv.net/video/izanagi.php?key=" + auxUrl, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
 
-        try {
-            url = URLDecoder.decode("http://animeflv.net/video/izanagi.php?key=" + auxUrl, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+
         return url;
     }
 
@@ -525,12 +529,13 @@ public class Animeflv{
                 while (localMatcher.find()) {
                     auxUrl = localMatcher.group(1);
                     //System.out.println(aux);
+                    String[] url = auxUrl.split("&num=");
+
+                    urlFinal = "http://subidas.com/files/" + url[0] + "/" + url[1] + ".mp4";
                 }
             }
         }
-        String[] url = auxUrl.split("&num=");
 
-        urlFinal = "http://subidas.com/files/" + url[0] + "/" + url[1] + ".mp4";
 
         return urlFinal;
     }
@@ -547,16 +552,18 @@ public class Animeflv{
                 while (localMatcher.find()) {
                     auxUrl = localMatcher.group(1);
                     //System.out.println(aux);
+                    try {
+                        url = URLDecoder.decode("http://animeflv.net/video/hyperion.php?key=" + auxUrl, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+
                 }
             }
         }
 
 
-        try {
-            url = URLDecoder.decode("http://animeflv.net/video/hyperion.php?key=" + auxUrl, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+
 
         return url;
     }
@@ -681,6 +688,25 @@ public class Animeflv{
                 historial.save();
             }
         }
+    }
+
+
+    /*obtiene la foto de preview del capitulo del anime, cuando este proviene desde la vista
+    de los episodios (EpisodiosFlv)
+     */
+    public String getMiniImage(Document codigoFuente) {
+        String imagen = "";
+
+        Elements imgRecipiente = codigoFuente.select("meta");
+        Element imgAtributo;
+        for (int i = 0; i < imgRecipiente.size(); i++) {
+            imgAtributo = imgRecipiente.get(i).getElementsByAttributeValueContaining("property", "og:image").first();
+            if (imgAtributo != null) {
+                imagen = imgAtributo.attr("content");
+            }
+        }
+
+        return imagen;
     }
 
 }

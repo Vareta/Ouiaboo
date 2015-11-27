@@ -1,6 +1,7 @@
 package com.ouiaboo.ouiaboo;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -25,16 +26,20 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.ouiaboo.ouiaboo.fragmentsFLV.AnimeInfo;
 import com.ouiaboo.ouiaboo.fragmentsFLV.EpisodiosFlv;
 import com.squareup.picasso.Picasso;
 
+import org.jsoup.nodes.Document;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.OnFragmentInteractionListener, EpisodiosFlv.OnFragmentInteractionListener{
+public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.OnFragmentInteractionListener, EpisodiosFlv.OnFragmentInteractionListener {
     private ProgressBar bar;
     private AppBarLayout appBar;
     private ArrayList<Episodios> epi;
@@ -45,17 +50,21 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
     private CoordinatorLayout coordLayout;
     private CollapsingToolbarLayout collaToolbar;
     private boolean esFavorito;
+    private Context context;
+    private Tracker mTracker;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_episodios_plus_info);
+
         header = (ImageView) findViewById(R.id.header);
-        bar = (ProgressBar)findViewById(R.id.progressBar);
-        appBar = (AppBarLayout)findViewById(R.id.appbar);
-        favorito = (FloatingActionButton)findViewById(R.id.favorito);
-        coordLayout = (CoordinatorLayout)findViewById(R.id.coord_layout);
+        bar = (ProgressBar) findViewById(R.id.progressBar);
+        appBar = (AppBarLayout) findViewById(R.id.appbar);
+        favorito = (FloatingActionButton) findViewById(R.id.favorito);
+        coordLayout = (CoordinatorLayout) findViewById(R.id.coord_layout);
+        context = this;
 
         new GetCapitulosData().execute(getIntent().getStringExtra("url"));
         //new GetCapitulosData().execute("http://animeflv.net/anime/one-piece.html");
@@ -75,6 +84,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
                     snackbar.show();
                 } else { //no se encuentra en favoritos --> se añade
                     esFavorito = true;
+                    AnalyticsApplication.getInstance().trackEvent("Favorito", "añadir", epiInfo.get(0).getNombreAnime());
                     fun.añadirFavorito(epiInfo.get(0));
                     favorito.setImageResource(R.drawable.ic_favorite_white_24dp);
                     snackbar = Snackbar.make(coordLayout, getString(R.string.noti_favoritos_si), Snackbar.LENGTH_LONG);
@@ -86,23 +96,22 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
     }
 
 
-
     private void setupCollapsingToolbar() {
-        CollapsingToolbarLayout cToolbar = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
+        CollapsingToolbarLayout cToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         cToolbar.setTitleEnabled(false); //para que el titulo no tenga animacion
     }
 
     private void setupViewPager() {
-        ViewPager viewPager = (ViewPager)findViewById(R.id.tab_viewpager);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.tab_viewpager);
         setupViewPager(viewPager);
 
-        TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setupWithViewPager(viewPager);
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -114,15 +123,13 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         if (fun.estaEnFavoritos(epiInfo)) { //si esta en favoritos
             favorito.setImageResource(R.drawable.ic_favorite_white_24dp);
             esFavorito = true;
-            Log.d("FAV", "SI");
         } else { //caso contrario
             favorito.setImageResource(R.drawable.ic_favorite_border_white_24dp);
             esFavorito = false;
-            Log.d("FAV", "NO");
         }
     }
 
-    private void setupViewPager(ViewPager viewPager){
+    private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(sendDataCapitulos(), getString(R.string.episodios_EpisodiosPlusInfo));
         adapter.addFrag(sendDataInformacion(), getString(R.string.informacion_EpisodiosPlusInfo));
@@ -158,11 +165,11 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
     public void onEpisodiosFlvInteraction(HomeScreenEpi objEpi) {
         Utilities util = new Utilities();
         if (util.esReproductorExterno(this)) {
+            AnalyticsApplication.getInstance().trackEvent("Reproductor Externo", "ver", objEpi.getNombre());
             new ReproductorExterno().execute(objEpi);
         } else {
-            Intent intent = new Intent(this, VideoPlayer.class);
-            intent.putExtra("episodio", objEpi);
-            startActivity(intent);
+            AnalyticsApplication.getInstance().trackEvent("Reproductor Interno", "ver", objEpi.getNombre());
+            new ReproductorInterno().execute(objEpi);
         }
     }
 
@@ -175,7 +182,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         }
 
         @Override
-        public Fragment getItem(int position){
+        public Fragment getItem(int position) {
             return mFragmentList.get(position);
         }
 
@@ -206,11 +213,11 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
                 Animeflv ani = new Animeflv();
                 epi = ani.getEpisodios(url); //contiene los episodios y la info
                 epiInfo = new ArrayList<>(); //inicializa
-                epiInfo.add(new Episodios(epi.get(0).getNombreAnime(),epi.get(0).getUrlAnime(), epi.get(0).getUrlEpisodio(), epi.get(0).getNumero(), epi.get(0).getUrlImagen(),
+                epiInfo.add(new Episodios(epi.get(0).getNombreAnime(), epi.get(0).getUrlAnime(), epi.get(0).getUrlEpisodio(), epi.get(0).getNumero(), epi.get(0).getUrlImagen(),
                         epi.get(0).getInformacion(), epi.get(0).getTipo(), epi.get(0).getEstado(), epi.get(0).getGeneros(),
                         epi.get(0).getFechaInicio())); //agrega el primero elemento que contiene la informacion del espisodio
 
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -238,20 +245,18 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
 
     private class ReproductorExterno extends AsyncTask<HomeScreenEpi, Void, Void> {
         String url;
+
         @Override
         protected Void doInBackground(HomeScreenEpi... params) {
             Utilities util = new Utilities();
             Animeflv anime = new Animeflv();
             HomeScreenEpi objEpi = params[0];
             try {
-                if (objEpi.getInformacion().equals("descargado")) { //video almacenado en el dispositivo
-                    url = objEpi.getUrlCapitulo(); //aqui la direccion es el path del video en el dispositivo
-                    anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getPreview()); //se usa preview ya que en este campo se guarda la url del anime cuando este proviene del dispositivo
-                } else {
-                    url = anime.urlDisponible(objEpi.getUrlCapitulo(), getBaseContext());
-                    anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
-                    anime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
-                }
+                url = anime.urlDisponible(objEpi.getUrlCapitulo(), getBaseContext());
+                Document codigoFuente = util.connect(objEpi.getUrlCapitulo());
+                String preview = anime.getMiniImage(codigoFuente); //preview estilo homeScreen
+                anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
+                anime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), preview, objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -271,6 +276,46 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
             startActivity(intent);
         }
     }
+
+    /*De esta manera pasa el preview correspondiente al episodio y no al anime en si*/
+    private class ReproductorInterno extends AsyncTask<HomeScreenEpi, Void, Void> {
+        String url;
+        HomeScreenEpi objEpi;
+
+        @Override
+        protected Void doInBackground(HomeScreenEpi... params) {
+            Utilities util = new Utilities();
+            Animeflv anime = new Animeflv();
+            objEpi = params[0];
+            try {
+                Document codigoFuente = util.connect(objEpi.getUrlCapitulo());
+                String preview = anime.getMiniImage(codigoFuente); //preview estilo homeScreen
+                objEpi.setPreview(preview);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            Intent intent = new Intent(context, VideoPlayer.class);
+            intent.putExtra("episodio", objEpi);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
     /*
         Esta función tiene por objetivo solucionar el acto de presentar un titulo (toolbar) incorrecto cuando se ejecuta la siguiente accion:
         buscar serie, ej one piece --> titulo: one piece

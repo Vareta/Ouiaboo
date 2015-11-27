@@ -5,11 +5,15 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 
@@ -25,6 +29,7 @@ public class AnimeInfo extends  android.support.v4.app.Fragment {
 
     private OnFragmentInteractionListener mListener;
     private ArrayList<Episodios> informacion;
+    private Tracker mTracker;
 
     public AnimeInfo() {
         // Required empty public constructor
@@ -35,6 +40,8 @@ public class AnimeInfo extends  android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_anime_info, container, false);
+
+
         adquiereInfo();
         asignaInfo(convertView);
         return convertView;
@@ -73,6 +80,19 @@ public class AnimeInfo extends  android.support.v4.app.Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            AnalyticsApplication.getInstance().trackScreenView("Anime info");
+        }
     }
 
     /**

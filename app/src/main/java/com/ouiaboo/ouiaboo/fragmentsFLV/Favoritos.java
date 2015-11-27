@@ -21,6 +21,9 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.FavoritosTable;
@@ -48,7 +51,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
     private boolean existenFavoritos;
     private AdBusquedaFLV adaptador;
     private CoordinatorLayout coordinatorLayout;
-
+    private Tracker mTracker;
 
     public Favoritos() {
         // Required empty public constructor
@@ -61,6 +64,8 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
         View convertView = inflater.inflate(R.layout.fragment_favoritos, container, false);
         coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
         getActivity().setTitle(R.string.favoritos_drawer_layout);
+
+
 
         lista = (RecyclerView)convertView.findViewById(R.id.favoritos_recyclerview);
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
@@ -81,6 +86,12 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
             throw new ClassCastException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AnalyticsApplication.getInstance().trackScreenView("Favoritos");
     }
 
     @Override

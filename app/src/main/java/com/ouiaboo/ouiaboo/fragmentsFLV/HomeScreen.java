@@ -19,6 +19,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.os.EnvironmentCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
@@ -36,6 +38,9 @@ import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.Animejoy;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
@@ -52,8 +57,10 @@ import org.jsoup.nodes.Document;
 import org.litepal.crud.DataSupport;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -79,6 +86,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     public static final String PREFERENCIAS = "preferencias";
     private AdHomeScreen.CustomRecyclerListener listener;
     private SwipeRefreshLayout swipeRefresh;
+    private Tracker mTracker;
 
     public HomeScreen() {
         // Required empty public constructor
@@ -90,6 +98,9 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         View convertView = inflater.inflate(R.layout.fragment_home_screen, container, false);
         coordLayout = (CoordinatorLayout) convertView.findViewById(R.id.coord_layout);
         getActivity().setTitle(R.string.inicio_drawer_layout);
+
+
+
         list = (RecyclerView) convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
         bar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
         webView = (WebView) getActivity().findViewById(R.id.web_view);
@@ -97,7 +108,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         listener = this;
         new BackgroundTask().execute(this);
         getActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -164,7 +174,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                     posicionAnime = posAnime; //almacena la posicion para asi utilizarla en otros contextos
                     List<DescargadosTable> lista = DataSupport.where("urlCapitulo=?", animesRecientes.get(posAnime).getUrlCapitulo()).find(DescargadosTable.class);
                     if (!lista.isEmpty()) { //ya tiene el capitulo
-                        Log.d("TAMAÑO", String.valueOf(lista.size()));
                         if (!lista.get(0).isComplete()) { //cuando la descarga se esta efectuando en estos momentos
                             snackbar = Snackbar.make(coordLayout, getString(R.string.noti_descargado_actualmente), Snackbar.LENGTH_LONG);
                         } else {
@@ -175,6 +184,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                         textView.setTextColor(Color.YELLOW);
                         snackbar.show();
                     } else { //no tiene el capitulo, por lo tanto lo descarga
+                        AnalyticsApplication.getInstance().trackEvent("Anime", "descargar", animesRecientes.get(posicionAnime).getNombre());
                         new DownloadAnime().execute();
                     }
 
@@ -209,6 +219,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                         snackbar.show();
 
                     } else {
+                        AnalyticsApplication.getInstance().trackEvent("Anime", "ver mas tarde", animesRecientes.get(posicionAnime).getNombre());
                         snackbar = Snackbar.make(coordLayout, getString(R.string.noti_vermastarde_si), Snackbar.LENGTH_LONG);
                         snackbar.show();
                     }
@@ -341,13 +352,13 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         @Override
         protected Void doInBackground(Void... params) {
             Animeflv animeflv = new Animeflv();
+            Utilities util = new Utilities();
             String url = animeflv.urlDisponible(animesRecientes.get(posicionAnime).getUrlCapitulo(), getActivity()); //consigue la url del video a descargar
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setDescription(animesRecientes.get(posicionAnime).getInformacion()); //descripcion de la notificacion
             request.setTitle(animesRecientes.get(posicionAnime).getNombre()); //titulo de la notificacion
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); //setea las notificaciones
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES + "/Ouiaboo", nombreVideo);
-
             request.setMimeType("video/x-msvideo");
 
             DownloadManager manager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
@@ -385,6 +396,12 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
             throw new ClassCastException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AnalyticsApplication.getInstance().trackScreenView("Home Screen");
     }
 
     @Override

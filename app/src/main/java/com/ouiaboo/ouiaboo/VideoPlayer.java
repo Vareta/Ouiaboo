@@ -1,20 +1,16 @@
 package com.ouiaboo.ouiaboo;
 
-import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.ouiaboo.ouiaboo.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,15 +24,6 @@ import android.widget.VideoView;
 
 import org.jsoup.nodes.Document;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -46,13 +33,12 @@ import java.util.concurrent.ExecutionException;
  */
 public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeListener {
 
-    private static final String TAG = "";
+    private static final String TAG = "VIDEO PLAYER";
     private String url;
     private VideoView video;
     private ToggleButton play_pause_button;
     private TextView tiempo_actual;
     private TextView tiempo_total;
-    private MediaPlayer mPlayer;
     private int posicionGuardada = 0;
     private SeekBar barraProgreso;
     Handler mHideHandler = new Handler();
@@ -60,6 +46,8 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
     private ProgressBar bar;
     private HomeScreenEpi objEpi;
     private boolean esDeInternet; //para ver si el archivo viene de internet o desde el dispositivo
+    private String tActual;
+    private String tTotal;
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -70,7 +58,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
      * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
      * user interaction before hiding the system UI.
      */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+    private static final int AUTO_HIDE_DELAY_MILLIS = 5000;
 
     /**
      * If set, will toggle the system UI visibility upon interaction. Otherwise,
@@ -182,10 +170,11 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
+
         findViewById(R.id.playPauseButton).setOnTouchListener(mDelayHideTouchListener);
         new GetVideoUrlAndPlay().execute();
 
-        Log.d(TAG, "create");
+        Log.d(TAG, "OnCreate");
     }
 
    /* @Override
@@ -204,6 +193,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
 
     public void reproducir(String url) {
         bar.setVisibility(View.VISIBLE);
+        Log.d(TAG, "Reproducir");
         if (esDeInternet) {
             Uri aux = Uri.parse(url);
             video.setVideoURI(aux); //setVideoURI llama internamente a prepareAsync(); de mediaplayer
@@ -214,54 +204,16 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
+                Log.d(TAG, "Reproducir Listener (Ready)");
                 video.start();
                 bar.setVisibility(View.GONE);
+                updateProgressBar();
             }
         });
     }
 
-    @Override
-    protected void onResume(){
-        super.onResume();
-        //Log.d(TAG, String.valueOf(posicionGuardada));
-        if (posicionGuardada == 0){
-
-            //video.start();
-            //reproducir(url);
-            //new GetVideoUrlAndPlay().execute();
-            Log.d(TAG, "resume de 0");
-        } else {
-            bar.setVisibility(View.VISIBLE);
-            video.seekTo(posicionGuardada);
-            video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    Log.d("RESUME", "Onprepare");
-                    mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-                        @Override
-                        public void onSeekComplete(MediaPlayer mp) {
-                            Log.d("RESUME", "OnSEEK");
-                            video.pause();
-                            bar.setVisibility(View.GONE);
-                        }
-                    });
-
-                }
-            });
-            Log.d(TAG, "resume");
-        }
 
 
-    }
-
-    @Override
-    protected void onPause(){
-        super.onPause();
-        posicionGuardada = video.getCurrentPosition();
-        Log.d(TAG, "guardo " + String.valueOf(posicionGuardada));
-        video.pause();
-        Log.d(TAG, "pause1");
-    }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -281,59 +233,6 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         // TODO Auto-generated method stub
 
     }
-
-
-
-  /*  public class BackgroundAsyncTask extends AsyncTask<String, Uri, Void> {
-
-        protected void onPreExecute() {
-            bar.setVisibility(View.VISIBLE);
-        }
-
-        protected void onProgressUpdate(final Uri... uri) {
-            try {
-
-                video.setVideoURI(uri[0]);
-                video.requestFocus();
-                video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-
-                    public void onPrepared(MediaPlayer mp) {
-                        video.start();
-                        bar.setVisibility(View.GONE);
-                        Log.d(TAG, "inicio");
-                        // mPlayer = mp;
-                        // mPlayer.start();
-                    }
-                });
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            } catch (SecurityException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            try {
-                Uri uri = Uri.parse(params[0]);
-                publishProgress(uri);
-            } catch (Exception e) {
-                e.printStackTrace();
-
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-           // bar.setVisibility(View.GONE);
-        }
-    }*/
-
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -410,15 +309,13 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
             int totalDuration = video.getDuration();
             int currentDuration = video.getCurrentPosition();
 
+            tActual = milliSecondsToTimer(currentDuration);
+            tTotal = milliSecondsToTimer(totalDuration);
             // Displaying Total Duration time
-            tiempo_total.setText(""+milliSecondsToTimer(totalDuration));
+            tiempo_total.setText("" + tTotal);
             // Displaying time completed playing
-            tiempo_actual.setText(""+milliSecondsToTimer(currentDuration));
+            tiempo_actual.setText("" + tActual);
 
-            // Updating progress bar
-            //  int progress = (int)(utils.getProgressPercentage(currentDuration, totalDuration));
-            //Log.d("Progress", ""+progress);
-            // songProgressBar.setProgress(progress);
 
             barraProgreso.setMax(totalDuration);
             barraProgreso.setProgress(currentDuration);
@@ -432,7 +329,12 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
                 if (play_pause_button.isChecked()) { //si esta en pause se desmarca (se muestra play)
                     play_pause_button.setChecked(false);
                 }
+                if (tTotal.equals(tActual)){
+                    finish();
+                    Log.d(TAG, "Finish");
+                }
             }
+            //Log.d(TAG, "Handler");
 
             // Running this thread after 100 milliseconds
             mHideHandler.postDelayed(this, 100);
@@ -483,9 +385,73 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         @Override
         protected void onPostExecute(Void result) {
             reproducir(url);
-            updateProgressBar();
         }
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "OnRestart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume");
+        AnalyticsApplication.getInstance().trackScreenView("Video Player");
+        Log.d(TAG, String.valueOf(posicionGuardada));
+        if (posicionGuardada == 0){
+            //video.start();
+            //reproducir(url);
+            //new GetVideoUrlAndPlay().execute();
+            Log.d(TAG, "resume de 0");
+        } else {
+            Log.d(TAG, "resume de" + posicionGuardada);
+            bar.setVisibility(View.VISIBLE);
+            video.resume();
+            video.seekTo(posicionGuardada);
+            video.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    Log.d(TAG, "Onprepare");
+                    mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                        @Override
+                        public void onSeekComplete(MediaPlayer mp) {
+                            Log.d(TAG, "onSeeker listener ready");
+                                mHideHandler.postDelayed(mUpdateTimeTask, 100);
+                            video.start();
+                            bar.setVisibility(View.GONE);
+                            //video.pause();
+
+                        }
+                    });
+
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        Log.d(TAG, "onPause");
+        posicionGuardada = video.getCurrentPosition();
+        Log.d(TAG, "guardo " + posicionGuardada);
+        video.pause();
+        mHideHandler.removeCallbacks(mUpdateTimeTask);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG, "onDestroy");
+    }
 
 }

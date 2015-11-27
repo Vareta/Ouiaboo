@@ -25,6 +25,9 @@ import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.R;
@@ -56,6 +59,7 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
     private boolean existeHistorial;
     private AdHomeScreen adaptador;
     private CoordinatorLayout coordinatorLayout;
+    private Tracker mTracker;
 
     public Historial() {
         // Required empty public constructor
@@ -68,6 +72,9 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_historial, container, false);
         getActivity().setTitle(R.string.historial_drawer_layout);
+
+
+
         coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
         list = (RecyclerView)convertView.findViewById(R.id.historial_recyclerview);
         noHistorial = (TextView)convertView.findViewById(R.id.noHistorial);
@@ -93,6 +100,7 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
     @Override
     public void onResume() {
         super.onResume();
+        AnalyticsApplication.getInstance().trackScreenView("Historial");
         if (adaptador != null) {
             new GetHistorial().execute(this);
         }

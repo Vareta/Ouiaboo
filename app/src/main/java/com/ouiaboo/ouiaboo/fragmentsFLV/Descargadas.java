@@ -31,6 +31,9 @@ import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.R;
@@ -65,6 +68,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     private AdDescargadas adaptador;
     private CoordinatorLayout coordinatorLayout;
     private List<String> urlAnimeAux;
+    private Tracker mTracker;
 
 
     public Descargadas() {
@@ -77,6 +81,8 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_descargadas, container, false);
         getActivity().setTitle(R.string.descargadas_drawer_layout);
+
+
 
         list = (RecyclerView) convertView.findViewById(R.id.descargados_recyclerview);
         sinDescargados = (TextView) convertView.findViewById(R.id.noDescargados);
@@ -103,6 +109,12 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AnalyticsApplication.getInstance().trackScreenView("Descargadas");
     }
 
     @Override

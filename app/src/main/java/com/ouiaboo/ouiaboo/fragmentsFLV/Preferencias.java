@@ -13,6 +13,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.R;
 
 /**
@@ -25,6 +28,7 @@ public class Preferencias extends PreferenceFragmentCompat {
 
     private OnFragmentInteractionListener mListener;
     private Preference preferencias;
+    private Tracker mTracker;
 
     public Preferencias() {
         // Required empty public constructor
@@ -33,6 +37,8 @@ public class Preferencias extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
         getPreferenceManager().setSharedPreferencesName("preferencias");
+
+
         addPreferencesFromResource(R.xml.preferences);
         getActivity().setTitle(R.string.preferencias_drawer_layout);
 
@@ -56,6 +62,12 @@ public class Preferencias extends PreferenceFragmentCompat {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AnalyticsApplication.getInstance().trackScreenView("Preferencias");
     }
 
     /**

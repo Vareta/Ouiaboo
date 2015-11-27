@@ -25,6 +25,9 @@ import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
@@ -56,6 +59,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     private int posicionAnime;
     private int posAnimeOnClick = -1; //valor auxiliar para actualizar el adaptador en OnAttach
     private AdEpisodios adaptador;
+    private Tracker mTracker;
 
     public EpisodiosFlv() {
         // Required empty public constructor
@@ -68,6 +72,8 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
         View convertView = inflater.inflate(R.layout.fragment_episodios, container, false);
         list = (RecyclerView)convertView.findViewById(R.id.episodios);
         coordLayout = (CoordinatorLayout)getActivity().findViewById(R.id.coord_layout);
+
+
         getData();
         setAdaptador();
         getActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
@@ -107,6 +113,14 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            AnalyticsApplication.getInstance().trackScreenView("Episodios");
+        }
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         getActivity().unregisterReceiver(onComplete);
@@ -127,8 +141,8 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
         final int posAnime = position; //para diferenciar el onclick del listpopup
 
         List<DrawerItemsListUno> items = new ArrayList<>();
-        items.add(new DrawerItemsListUno("Descargar", R.drawable.ic_menu_white_24dp));
-        items.add(new DrawerItemsListUno("Ver mas tarde", R.drawable.ic_menu_white_24dp));
+        items.add(new DrawerItemsListUno(getActivity().getString(R.string.descargar_PopupWindow), R.drawable.ic_file_download_white_24dp));
+        items.add(new DrawerItemsListUno(getActivity().getString(R.string.masTarde_PopupWindow), R.drawable.ic_watch_later_white_24dp));
 
         AdContMenuCentral adapter = new AdContMenuCentral(getActivity(), items);
 
@@ -157,6 +171,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
                         textView.setTextColor(Color.YELLOW);
                         snackbar.show();
                     } else { //no tiene el capitulo, por lo tanto lo descarga
+                        AnalyticsApplication.getInstance().trackEvent("Anime", "descargar", episodios.get(0).getNombreAnime());
                         new DownloadAnime().execute();
                     }
 
@@ -175,6 +190,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
                         snackbar.show();
 
                     } else {
+                        AnalyticsApplication.getInstance().trackEvent("Anime", "ver mas tarde", episodios.get(0).getNombreAnime());
                         snackbar = Snackbar.make(coordLayout, getString(R.string.noti_vermastarde_si), Snackbar.LENGTH_LONG);
                         snackbar.show();
                     }

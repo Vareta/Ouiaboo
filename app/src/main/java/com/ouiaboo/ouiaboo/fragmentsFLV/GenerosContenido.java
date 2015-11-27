@@ -13,6 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
@@ -42,6 +45,7 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
     private RecyclerView list;
     private ProgressBar bar;
     private boolean tienePaginaSiguiente;
+    private Tracker mTracker;
 
 
     public GenerosContenido() {
@@ -56,6 +60,9 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
         list = (RecyclerView)convertView.findViewById(R.id.anime_genero);
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         list.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+
+
         getData();
         
         new GetAnimeByGenero().execute(this);
@@ -82,6 +89,12 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
             throw new ClassCastException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AnalyticsApplication.getInstance().trackScreenView("Generos Anime");
     }
 
     @Override

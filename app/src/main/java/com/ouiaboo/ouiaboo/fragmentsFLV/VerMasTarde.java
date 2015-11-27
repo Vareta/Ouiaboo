@@ -24,6 +24,9 @@ import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.Funciones;
@@ -56,6 +59,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     private TextView sinResultados;
     private View convertView;
     private OnFragmentInteractionListener mListener;
+    private Tracker mTracker;
 
     public VerMasTarde() {
         // Required empty public constructor
@@ -69,6 +73,9 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
         convertView = inflater.inflate(R.layout.fragment_ver_mas_tarde, container, false);
         coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
         getActivity().setTitle(R.string.mas_tarde_drawer_layout);
+
+
+
         lista = (RecyclerView)convertView.findViewById(R.id.ver_mas_tarde_recyclerview);
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         sinResultados = (TextView)convertView.findViewById(R.id.noResultados);
@@ -153,7 +160,11 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     };
 
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        AnalyticsApplication.getInstance().trackScreenView("Ver mas tarde");
+    }
 
 
     @Override

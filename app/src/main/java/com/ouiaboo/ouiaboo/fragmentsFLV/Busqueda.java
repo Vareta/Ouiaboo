@@ -6,12 +6,16 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
@@ -40,6 +44,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
     private AdBusquedaFLV adaptador;
     private boolean produceResultados;
     private TextView sinResultados;
+    private Tracker mTracker;
 
     public Busqueda() {
         // Required empty public constructor
@@ -51,6 +56,8 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_busqueda, container, false);
         getActivity().setTitle(getArguments().getString("query"));
+
+
 
         list = (RecyclerView) convertView.findViewById(R.id.busqueda_list_animeflv); //utiliza la misma que home screen
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
@@ -66,6 +73,11 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
         return convertView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        AnalyticsApplication.getInstance().trackScreenView("Busqueda");
+    }
 
     @Override
     public void onAttach(Context context) {

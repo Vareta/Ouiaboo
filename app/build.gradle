@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 23
@@ -6,7 +7,7 @@ android {
     compileOptions.encoding = 'UTF-8'
     defaultConfig {
         applicationId "com.ouiaboo.ouiaboo"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -16,6 +17,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    packagingOptions {
+        exclude 'META-INF/maven/com.squareup.picasso/picasso/pom.properties'
+        exclude 'META-INF/maven/com.squareup.picasso/picasso/pom.xml'
     }
 }
 
@@ -32,4 +37,5 @@ dependencies {
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.google.android.exoplayer:exoplayer:r1.5.2'
     compile 'com.android.support:preference-v7:23.1.1'
+    compile 'com.google.android.gms:play-services-analytics:8.1.0'
 }

@@ -52,7 +52,7 @@
     <string name="drawer_close.menu_central.ES">Cerrar navigation drawer</string>
     <string name="search_hint.menu_central.ES">Buscar anime</string>
     <string name="ins_caracteres.menu_central.ES">Debe ingresar al menos 4 caracteres</string>
-    <string name="numero_episodio.menu_central.ES">Episodio número</string>
+    <string name="numero_episodio.menu_central.ES">Episodio</string>
     <string name="ova.menu_central.ES">OVA</string>
     <string name="pelicula.menu_central.ES">Película</string>
 
@@ -112,7 +112,7 @@
     <!--********************************************************************************************************************************************************************* -->
     <string name="reproductorTittle.Settings">Reproductor</string>
     <string name="reprExterno.Settings">Reproductor externo</string>
-    <string name="reprExternoSum.Settings">Si no tienes ninguno, te recomendamos Mx Player.</string>
+    <string name="reprExternoSum.Settings">Si no tienes ninguno, te recomendamos MX Player.</string>
     <!--********************************************************************************************************************************************************************* -->
     <!-- **********************************************************        PopupWindow    *************************************************************************** -->
     <!--********************************************************************************************************************************************************************* -->

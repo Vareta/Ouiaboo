@@ -9,6 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.R;
 
 /**
@@ -20,6 +23,7 @@ import com.ouiaboo.ouiaboo.R;
 public class Faq extends android.support.v4.app.Fragment {
 
     private OnFragmentInteractionListener mListener;
+    private Tracker mTracker;
 
     public Faq() {
         // Required empty public constructor
@@ -32,6 +36,7 @@ public class Faq extends android.support.v4.app.Fragment {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_faq, container, false);
         getActivity().setTitle(R.string.faq_drawer_layout);
+
 
         return convertView;
     }
@@ -53,6 +58,13 @@ public class Faq extends android.support.v4.app.Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        AnalyticsApplication.getInstance().trackScreenView("F.A.Q.");
+    }
+
 
     @Override
     public void onDetach() {
