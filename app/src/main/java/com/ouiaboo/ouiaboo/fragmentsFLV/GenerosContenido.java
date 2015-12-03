@@ -52,24 +52,43 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true); //hace que el fragment se conserve
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView =  inflater.inflate(R.layout.fragment_generos_cont, container, false);
-        list = (RecyclerView)convertView.findViewById(R.id.anime_genero);
-        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
-        list.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-
-
+        iniciaView(convertView);
         getData();
-        
-        new GetAnimeByGenero().execute(this);
+        iniciaFragment();
 
         return convertView;
     }
 
+    private void iniciaView(View convertView) {
+        list = (RecyclerView)convertView.findViewById(R.id.anime_genero);
+        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
+        list.setLayoutManager(new LinearLayoutManager(getActivity()));
+    }
+
+    private void iniciaFragment() {
+
+        if (getAnimeByGenero() == null) {
+            new GetAnimeByGenero().execute(this);
+        } else {
+            adaptador = new AdGenerosEndless(getActivity(), animeByGenero, list);
+            adaptador.setClickListener(this);
+            list.setLayoutManager(new LinearLayoutManager(getActivity()));
+            list.setAdapter(adaptador);
+            setOnLoadMoreListener();
+        }
+    }
+
+    //Obtiene la informacion que se le es enviada desde el fragment anterior
     @SuppressWarnings("unchecked")
     private void getData() {
         GenerosClass generoRecibido = (GenerosClass) getArguments().getSerializable("genero");
@@ -100,6 +119,7 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
     @Override
     public void onDetach() {
         super.onDetach();
+        setData(animeByGenero);
         mListener = null;
     }
 
@@ -187,12 +207,21 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
             @Override
             public void onLoadMore() {
                 if (tienePaginaSiguiente) {
+                    Log.d("PAGSIGUIENTE", "si");
                     animeByGenero.add(null); //agrega un item null para activar el view de la progressbar
                     adaptador.notifyItemInserted(animeByGenero.size() - 1); //notifica que añadio un elemento
                     new GetAnimeSiguiente().execute(); //recolecta el anime de la pagina siguiente
                 }
             }
         });
+    }
+
+    public void setData(List<HomeScreenEpi> animeByGenero) {
+        this.animeByGenero = animeByGenero;
+    }
+
+    public List<HomeScreenEpi> getAnimeByGenero() {
+        return animeByGenero;
     }
 
 }

@@ -8,16 +8,14 @@
     <!-- ****************************************************************      activity_main      *************************************************************************** -->
     <!--********************************************************************************************************************************************************************* -->
 
-    <string name="activity_main.titulo_1.ES">Seleccione la página desde donde desea ver animes</string>
+    <string name="activity_main.titulo_1.ES">Seleccione la página desde donde desea ver anime</string>
     <string name="activity_main.subtitulo.ES">La selección de la página quedará registrada para futuras visitas. En caso de querer cambiar la pagina, puede hacerlo en cualquier
                                                 momento mediante las opciones de la aplicacion.</string>
     <string-array name="paginas_anime">
         <item>AnimeFLV</item>
-        <item>AnimeJoy</item>
     </string-array>
     <string-array name="idioma_paginas_anime">
         <item>Español</item>
-        <item>Ingles</item>
     </string-array>
 
     <!--********************************************************************************************************************************************************************* -->
@@ -36,12 +34,11 @@
     <string name="aviso_legal_drawer_layout">Aviso Legal</string>
 
 
-<!-- TODO: Remove or change this placeholder text -->
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_video_player">VideoPlayer</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-
 
 
     <!--********************************************************************************************************************************************************************* -->
@@ -119,4 +116,36 @@
     <string name="masTarde.PopupWindow">Ver mas tarde</string>
     <string name="irAnime.PopupWindow">Ir a anime</string>
     <string name="descargar.PopupWindow">Descargar</string>
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        Central    *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+    <string name="mensajeDialog.Central">Nueva actualización disponible ¿Desea actualizar?</string>
+    <string name="tituloDialog.Central">Actualización</string>
+    <string name="aceptarDialog.Central">Aceptar</string>
+    <string name="cancelarDialog.Central">Más tarde</string>
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        fragment_faq    *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+    <string name="seccionReproductor.Faq">REPRODUCTOR</string>
+    <string name="pregunta1Rep.Faq">No reproducción o mensajes de error</string>
+    <string name="respuesta1Rep.Faq">R: Cualquier problema que aparezca relacionado con el reproductor interno (el que viene por defecto), tales como mensajes de error, no reproducción de videos, etc. Se solucionan mediante la utilización del reproductor externo (véase las preferencias de la aplicación, en el menú lateral)</string>
+    <string name="pregunta2Rep.Faq">He cambiado al reproductor externo y sigo teniendo errores</string>
+    <string name="respuesta2Rep.Faq">R: Eso significa que la página web desde la cual estas reproduciendo los videos se encuentra con problemas</string>
+    <string name="pregunta3Rep.Faq">He visto la página y no posee problemas</string>
+    <string name="respuesta3Rep.Faq">R: Pues entonces no dudes en reportarnos dicha situación mediante cualquiera de nuestros canales de comunicación disponibles</string>
+    <string name="seccionDescargas.Faq">DESCARGAS</string>
+    <string name="pregunta1Des.Faq">¿Dónde se encuentran los episodios que descargo?</string>
+    <string name="respuesta1Des.Faq">R: Si por x motivo necesitas conocer la ubicación, estos se encuentran en /Peliculas/Ouiaboo. Desde ya te recomendamos no mover los episodios de esa ubicación, ya que generará problemas en la aplicación</string>
+    <string name="pregunta2Des.Faq">Si necesitas borrar un episodio, hazlo mediante la aplicación y no vía la dirección de donde se encuentran descargados</string>
+    <string name="pregunta3Des.Faq">He descargado un episodio pero me aparece un mensaje de error en la descarga y ahora no puedo descargar el mismo episodio nuevamente</string>
+    <string name="respuesta3Des.Faq">R: Lamentablemente, por el momento, la única solución es borrar los datos de la aplicación (mediante las preferencias de Android, Preferencias --> Aplicaciones --> Ouiaboo --> Borrar datos)</string>
+    <string name="pregunta4Des.Faq">La aplicación descarga los episodios en la memoria interna y no en mi tarjeta SD</string>
+    <string name="respuesta4Des.Faq">R: Lamentablemente este error es algo complejo de solucionar, ya que este varía según el manufacturador (Samsung, Lg, Sony, etc) y para cada modelo de celular. Se están viendo posibles métodos para solucionar esto</string>
+    <string name="seccionGeneral.Faq">GENERAL</string>
+    <string name="pregunta1Gen.Faq">No me aparece nada en la pestaña de inicio (u otras)</string>
+    <string name="respuesta1Gen.Faq">R: Intenta cargar de nuevo la sección, en caso de no aparecer, entonces es un problema de la página web. Ahora bien, si la página web funciona correctamente y no puedes ver nada, no dudes en reportarnos dicho problema</string>
+    <string name="pregunta2Gen.Faq">Al borrar un ítem (video descargado, anime favorito, anime para ver más tarde, anime en historial) este sigue apareciendo</string>
+    <string name="respuesta2Gen.Faq">R: Vuelve a intentarlo, hay veces en que por algún motivo (que desconocemos, estamos trabajando en ello) el ítem no se elimina al primer intento</string>
+    <string name="pregunta3Gen.Faq">La aplicación se cierra (mensaje de error que ha dejado de funcionar)</string>
+    <string name="respuesta3Gen.Faq">R: Vuelve a ejecutar la aplicación, si es reiterado, pues no dudes en notificarnos de tu problema</string>
 </resources>

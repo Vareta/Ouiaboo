@@ -42,7 +42,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
     private String queryTemplate = "http://animeflv.net/animes/?buscar=";
     private List<HomeScreenEpi> animesBuscados;
     private AdBusquedaFLV adaptador;
-    private boolean produceResultados;
+    private Boolean produceResultados = null;
     private TextView sinResultados;
     private Tracker mTracker;
 
@@ -50,27 +50,43 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true); //hace que el fragment se conserve
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_busqueda, container, false);
         getActivity().setTitle(getArguments().getString("query"));
+        iniciaView(convertView);
+        iniciaFragment();
 
+        return convertView;
+    }
 
-
+    private void iniciaView(View convertView) {
         list = (RecyclerView) convertView.findViewById(R.id.busqueda_list_animeflv); //utiliza la misma que home screen
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         sinResultados = (TextView)convertView.findViewById(R.id.noResultados);
-        //sinResultados.setText(R.string.noResultado_busquedaFLV_ES);
-        //Log.d("query", getArguments().getString("query"));
         searchQuery = preparaQuery(getArguments().getString("query")); //prepara la query de busqueda
-        //Log.d("queryLista", searchQuery);
+    }
 
-        new BackgroundTask().execute(this); //ejecuta la busqueda via asynctask
-
-
-        return convertView;
+    private void iniciaFragment() {
+        if (getAnimesBuscados() == null && produceResultados == null) { //significa que es la primera vez que inicia el fragment
+            new BuscarAnime().execute(this); //ejecuta la busqueda via asynctask
+        } else { //el fragment se encontraba guardado en el fragment manager a causa de un cambio en la pantalla (rotacion)
+            if (produceResultados) {
+                adaptador = new AdBusquedaFLV(getActivity(), animesBuscados);
+                adaptador.setClickListener(this);
+                list.setLayoutManager(new LinearLayoutManager(getActivity()));
+                list.setAdapter(adaptador);
+            } else {
+                sinResultados.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     @Override
@@ -93,6 +109,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
     @Override
     public void onDetach() {
         super.onDetach();
+        setData(animesBuscados, produceResultados);
         mListener = null;
     }
 
@@ -137,7 +154,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
     }
 
 
-    private class BackgroundTask extends AsyncTask<AdBusquedaFLV.CustomRecyclerListener, Void, Void> {
+    private class BuscarAnime extends AsyncTask<AdBusquedaFLV.CustomRecyclerListener, Void, Void> {
 
         @Override
         protected Void doInBackground(AdBusquedaFLV.CustomRecyclerListener... params) {
@@ -147,7 +164,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
                 Document codigoFuente = util.connect(searchQuery);
                 animesBuscados = anime.busquedaFLV(codigoFuente);
                 anime.siguientePagina(codigoFuente);
-                if (animesBuscados.isEmpty()) {
+                if (animesBuscados == null) {
                     produceResultados = false;
                 } else {
                     //  System.out.println("tamaño  " + animesBuscados.size());
@@ -182,6 +199,15 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
             //getActivity().setProgressBarIndeterminateVisibility(false);
             bar.setVisibility(View.GONE);
         }
+    }
+
+    public void setData(List<HomeScreenEpi> animesBuscados, boolean produceResultados) {
+        this.animesBuscados = animesBuscados;
+        this.produceResultados = produceResultados;
+    }
+
+    private List<HomeScreenEpi> getAnimesBuscados() {
+        return animesBuscados;
     }
 
 }

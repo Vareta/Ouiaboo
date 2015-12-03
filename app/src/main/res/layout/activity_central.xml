@@ -10,31 +10,46 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
         <include
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             android:id="@+id/toolbar"
             layout="@layout/toolbar" />
 
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginBottom="-8dp"
+            android:layout_marginTop="-4dp"
+            android:id="@+id/UpdateAppProgressBar"
+            android:layout_below="@+id/toolbar"
+            android:visibility="gone"/>
+
+        <ProgressBar
+            android:id="@+id/progressBarTop"
+            style="?android:attr/progressBarStyleLarge"
+            android:indeterminate="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone" />
+
         <RelativeLayout
             android:id="@+id/contenedor"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/toolbar">
+            android:layout_below="@+id/UpdateAppProgressBar">
 
             <ProgressBar
                 android:id="@+id/progressBar"
                 style="?android:attr/progressBarStyleLarge"
+                android:indeterminate="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:visibility="gone" />
-            <WebView
-                android:id="@+id/web_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"/>
 
         </RelativeLayout>
     </RelativeLayout>

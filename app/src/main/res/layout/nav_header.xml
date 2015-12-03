@@ -2,21 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/test"
+    android:background="@drawable/fondo_header"
     android:gravity="bottom"
     android:orientation="vertical">
 
 
     <TextView
         android:id="@+id/pag_actual"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Usted esta utilizando:" />
-
-    <TextView
-        android:id="@+id/nom_pagina"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ANIMEFLV" />
+        android:paddingEnd="16dp"
+        android:paddingRight="16dp"
+        android:paddingLeft="16dp"
+        android:textStyle="bold"
+        android:text="Usted esta utilizando: ANIMEFLV"
+        android:layout_gravity="center" />
 
 </LinearLayout>

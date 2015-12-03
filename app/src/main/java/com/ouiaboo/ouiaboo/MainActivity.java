@@ -37,7 +37,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             Log.d("PREF", "primera");
             SharedPreferences.Editor editor = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE).edit();
             editor.putBoolean("animeflv", true);
-            editor.putBoolean("animejoy", false);
+            //editor.putBoolean("animejoy", false);
             editor.apply();
             PreferenceManager.setDefaultValues(this, PREFERENCIAS, MODE_PRIVATE, R.xml.preferences, false);
         } else {
@@ -88,18 +88,18 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
             if (position == 0){ //AnimeFLV
                 editor.putBoolean("animeflv", true);
-                editor.putBoolean("animejoy", false);
-            }else{
+                //editor.putBoolean("animejoy", false);
+            }/*else{
                 if (position == 1){ //KissAnime
                     editor.putBoolean("animeflv", false);
                     editor.putBoolean("animejoy", true);
                 }
-            }
+            }*/
         editor.apply();
 
         SharedPreferences prefs = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE);
 
-        Log.d(TAG,  "AnimeFLV  "+prefs.getBoolean("animeflv", false) + "  Animejoy" + prefs.getBoolean("animejoy", false));
+       // Log.d(TAG,  "AnimeFLV  "+prefs.getBoolean("animeflv", false) + "  Animejoy" + prefs.getBoolean("animejoy", false));
 
         Intent intent = new Intent(getBaseContext(), Central.class);
         startActivity(intent);

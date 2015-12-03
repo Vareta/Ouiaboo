@@ -61,10 +61,10 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
 
     private OnFragmentInteractionListener mListener;
     private ProgressBar bar;
-    private ArrayList<HomeScreenEpi> animeDescargado;
+    private List<HomeScreenEpi> animeDescargado;
     private TextView sinDescargados;
     private RecyclerView list;
-    private boolean existenDescargados;
+    private Boolean existenDescargados = null;
     private AdDescargadas adaptador;
     private CoordinatorLayout coordinatorLayout;
     private List<String> urlAnimeAux;
@@ -75,22 +75,49 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true); //hace que el fragment se conserve
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_descargadas, container, false);
         getActivity().setTitle(R.string.descargadas_drawer_layout);
+        iniciaView(convertView);
+        iniciaFragment();
 
+        return convertView;
+    }
 
-
+    private void iniciaView(View convertView) {
         list = (RecyclerView) convertView.findViewById(R.id.descargados_recyclerview);
         sinDescargados = (TextView) convertView.findViewById(R.id.noDescargados);
         bar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
         coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coord_layout);
+    }
 
-        new listarDescargas().execute(this);
-        return convertView;
+    private void iniciaFragment() {
+        if (getAnimeDescargado() == null && existenDescargados == null) { //primera vez que inicia fragment
+            new listarDescargas().execute(this);
+        } else { //el fragment se encontraba guardado en el fragment manager
+            if (existenDescargados) {
+                for (int i = 0; i < animeDescargado.size(); i++) {
+                    Log.d("IMG", animeDescargado.get(i).getPreview());
+                    Log.d("IMG", urlAnimeAux.get(i));
+                }
+                adaptador = new AdDescargadas(getActivity(), animeDescargado);
+                adaptador.setClickListener(this);
+                list.setLayoutManager(new LinearLayoutManager(getActivity()));
+                list.setAdapter(adaptador);
+                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
+                itemTouchHelper.attachToRecyclerView(list); //añade la lista a la escucha
+            } else {
+                sinDescargados.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
 
@@ -108,6 +135,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     @Override
     public void onDetach() {
         super.onDetach();
+        setData(animeDescargado, urlAnimeAux, existenDescargados);
         mListener = null;
     }
 
@@ -387,6 +415,20 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
             intent.putExtra("url", url);
             startActivity(intent);
         }
+    }
+
+    public void setData(List<HomeScreenEpi> animeDescargado, List<String> urlAnimeAux, boolean existenDescargados) {
+        this.animeDescargado = animeDescargado;
+        this.urlAnimeAux = urlAnimeAux;
+        this.existenDescargados = existenDescargados;
+    }
+
+    public List<HomeScreenEpi> getAnimeDescargado() {
+        return animeDescargado;
+    }
+
+    public List<String> getUrlAnimeAux() {
+        return urlAnimeAux;
     }
 
 }

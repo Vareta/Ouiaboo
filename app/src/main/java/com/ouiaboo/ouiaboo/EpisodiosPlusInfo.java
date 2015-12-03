@@ -66,6 +66,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         coordLayout = (CoordinatorLayout) findViewById(R.id.coord_layout);
         context = this;
 
+
         new GetCapitulosData().execute(getIntent().getStringExtra("url"));
         //new GetCapitulosData().execute("http://animeflv.net/anime/one-piece.html");
 

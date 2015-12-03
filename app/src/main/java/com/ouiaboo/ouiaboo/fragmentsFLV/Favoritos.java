@@ -48,7 +48,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
     private ProgressBar bar;
     private List<HomeScreenEpi> animeFavoritos;
     private TextView noFavoritos;
-    private boolean existenFavoritos;
+    private Boolean existenFavoritos = null;
     private AdBusquedaFLV adaptador;
     private CoordinatorLayout coordinatorLayout;
     private Tracker mTracker;
@@ -57,25 +57,47 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true); //hace que el fragment se conserve
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_favoritos, container, false);
-        coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
         getActivity().setTitle(R.string.favoritos_drawer_layout);
-
-
-
-        lista = (RecyclerView)convertView.findViewById(R.id.favoritos_recyclerview);
-        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
-        noFavoritos = (TextView)convertView.findViewById(R.id.noFavoritos);
-        animeFavoritos = new ArrayList<HomeScreenEpi>();
-        new BackgroundTask().execute(this);
+        iniciaView(convertView);
+        iniciaFragment();
 
         return convertView;
     }
 
+    private void iniciaView(View convertView) {
+        coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
+        lista = (RecyclerView)convertView.findViewById(R.id.favoritos_recyclerview);
+        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
+        noFavoritos = (TextView)convertView.findViewById(R.id.noFavoritos);
+
+    }
+
+    private void iniciaFragment() {
+        if (getAnimeFavoritos() == null && existenFavoritos == null) { //primera vez que inicia el fragment
+            new ListarFavoritos().execute(this);
+        } else { //fragment desde una instancia guardada
+            if (!existenFavoritos) {
+                noFavoritos.setVisibility(View.VISIBLE);
+            } else {
+                adaptador = new AdBusquedaFLV(getActivity(), animeFavoritos);
+                adaptador.setClickListener(this);
+                lista.setLayoutManager(new LinearLayoutManager(getActivity()));
+                lista.setAdapter(adaptador);
+                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
+                itemTouchHelper.attachToRecyclerView(lista); //añade la lista a la escucha
+            }
+        }
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -97,6 +119,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
     @Override
     public void onDetach() {
         super.onDetach();
+        setData(animeFavoritos, existenFavoritos);
         mListener = null;
     }
 
@@ -119,11 +142,12 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
         public void onFavoritoInteraction(String url);
     }
 
-    private class BackgroundTask extends AsyncTask<AdBusquedaFLV.CustomRecyclerListener, Void, Void> {
+    private class ListarFavoritos extends AsyncTask<AdBusquedaFLV.CustomRecyclerListener, Void, Void> {
 
         @Override
         protected Void doInBackground(AdBusquedaFLV.CustomRecyclerListener... params) {
             try {
+                animeFavoritos = new ArrayList<>();
                 List<FavoritosTable> datos = DataSupport.findAll(FavoritosTable.class);
                 if (datos.isEmpty()) {
                     existenFavoritos = false;
@@ -132,7 +156,6 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
                     for (int i = 0; i < datos.size(); i++) {
                         animeFavoritos.add(new HomeScreenEpi(datos.get(i).getUrlAnime(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
                     }
-
                     adaptador = new AdBusquedaFLV(getActivity(), animeFavoritos);
                     adaptador.setClickListener(params[0]);
                 }
@@ -213,7 +236,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
                 Bitmap bitmap;
 
                 if (dX > 0) { // swiping right
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.rojo));
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
 
@@ -221,7 +244,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
                     c.drawBitmap(bitmap, 96f, (float) itemView.getTop() + height, null);
 
                 } else { // swiping left
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.cafe));
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
 
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
@@ -235,5 +258,14 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
             }
         }
     };
+
+    public void setData(List<HomeScreenEpi> animeFavoritos, boolean existenFavoritos) {
+        this.animeFavoritos = animeFavoritos;
+        this.existenFavoritos = existenFavoritos;
+    }
+
+    public List<HomeScreenEpi> getAnimeFavoritos() {
+        return animeFavoritos;
+    }
 
 }

@@ -11,9 +11,11 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -75,7 +77,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     private AdHomeScreen adaptador;
     private RecyclerView list;
     private ProgressBar bar;
-    private ArrayList<HomeScreenEpi> animesRecientes;
+    private List<HomeScreenEpi> animesRecientes;
     private Animeflv flvAnimes;
     private Animejoy joyAnimes;
     private Utilities util;
@@ -87,27 +89,32 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     private AdHomeScreen.CustomRecyclerListener listener;
     private SwipeRefreshLayout swipeRefresh;
     private Tracker mTracker;
+    List<BroadcastReceiver> receivers = new ArrayList<>(); //variable que contiene el receiver de descarga
 
     public HomeScreen() {
         // Required empty public constructor
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true); //hace que el fragment se conserve
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_home_screen, container, false);
-        coordLayout = (CoordinatorLayout) convertView.findViewById(R.id.coord_layout);
         getActivity().setTitle(R.string.inicio_drawer_layout);
-
-
-
-        list = (RecyclerView) convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
-        bar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
-        webView = (WebView) getActivity().findViewById(R.id.web_view);
-        swipeRefresh = (SwipeRefreshLayout) convertView.findViewById(R.id.homeScreen_swipe_refresh);
+        iniciaView(convertView);
         listener = this;
-        new BackgroundTask().execute(this);
+        iniciaFragment();
+
+        //registra el servicio
         getActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        //agrega el servicio a la lista
+        receivers.add(onComplete);
+
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -118,9 +125,31 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         return convertView;
     }
 
+    private void iniciaView(View convertView) {
+        coordLayout = (CoordinatorLayout) convertView.findViewById(R.id.coord_layout);
+        list = (RecyclerView) convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
+        bar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
+        //Cambia el color de la progressbar para versiones anteriores
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
+            bar.setIndeterminate(true);
+            ((ProgressBar)getActivity().findViewById(R.id.progressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.accent_light), PorterDuff.Mode.SRC_IN);
+        }
+        swipeRefresh = (SwipeRefreshLayout) convertView.findViewById(R.id.homeScreen_swipe_refresh);
+    }
+
+    private void iniciaFragment() {
+        if (getAnimesRecientes() == null) {
+            new GetAnimeHomeScreen().execute(this);
+        } else {
+            adaptador = new AdHomeScreen(getActivity(), animesRecientes);
+            adaptador.setClickListener(this);
+            list.setLayoutManager(new LinearLayoutManager(getActivity()));
+            list.setAdapter(adaptador);
+        }
+    }
 
     /*en caso que la pagina contenga cloudflare*/
-    public void setWebView() {
+   /* public void setWebView() {
         //CookieManager.getInstance().setAcceptCookie(true);
         String agent = "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6";
         webView.getSettings().setUserAgentString(agent);
@@ -136,7 +165,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 Log.d("Null", "Cargue");
             }
         });
-    }
+    }*/
 
     @Override
     public void customClickListener(View v, int position) {
@@ -235,7 +264,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
 
 
-    private class BackgroundTask extends AsyncTask<AdHomeScreen.CustomRecyclerListener, Void, Void> {
+    private class GetAnimeHomeScreen extends AsyncTask<AdHomeScreen.CustomRecyclerListener, Void, Void> {
 
         @Override
         protected Void doInBackground(AdHomeScreen.CustomRecyclerListener... params) {
@@ -407,7 +436,17 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     @Override
     public void onDetach() {
         super.onDetach();
-        getActivity().unregisterReceiver(onComplete);
+        Log.d("HOMESCREEN", "DETACH");
+        setData(animesRecientes);
+        /*
+        Aqui se verifica que el receiver este registrado antes de sacarlo del registro. Ya que existen
+        casos en donde la pantalla rota y el fragment ejecuta sólo onDetach, por lo cual jamas
+        registra el receiver. lo cual genera un error
+         */
+         if (receivers.contains(onComplete)) {
+            receivers.remove(onComplete);
+            getActivity().unregisterReceiver(onComplete);
+        }
         mListener = null;
     }
 
@@ -481,9 +520,17 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         @Override
         protected void onPostExecute(Void result) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            intent.setDataAndType(Uri.parse(url), "video/mp4");
+            intent.setDataAndType(Uri.parse(url), "video/x-msvideo");
             startActivity(intent);
         }
+    }
+
+    public void setData(List<HomeScreenEpi> animesRecientes) {
+        this.animesRecientes = animesRecientes;
+    }
+
+    public List<HomeScreenEpi> getAnimesRecientes() {
+        return animesRecientes;
     }
 
 }

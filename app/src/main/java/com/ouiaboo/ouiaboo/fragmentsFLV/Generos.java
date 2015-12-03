@@ -58,21 +58,39 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true); //hace que el fragment se conserve
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_generos, container, false);
         getActivity().setTitle(R.string.generos_drawer_layout);
+        iniciarView(convertView);
+        iniciarFragment();
 
-
-
-        list = (RecyclerView)convertView.findViewById(R.id.generos);
-        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
-
-        new obtenerGeneros().execute(this);
         return convertView;
     }
+
+    private void iniciarView(View convertView) {
+        list = (RecyclerView)convertView.findViewById(R.id.generos);
+        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
+    }
+
+    private void iniciarFragment() {
+        if (getGeneros() == null) {
+            new obtenerGeneros().execute(this);
+        } else {
+            adaptador = new AdGeneros(getActivity(), generos);
+            adaptador.setClickListener(this);
+            list.setLayoutManager(new LinearLayoutManager(getActivity()));
+            list.setAdapter(adaptador);
+        }
+    }
+
 
     @Override
     public void onAttach(Context context) {
@@ -88,6 +106,7 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
     @Override
     public void onDetach() {
         super.onDetach();
+        setData(generos);
         mListener = null;
     }
 
@@ -152,4 +171,11 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
         }
     }
 
+    public void setData(List<GenerosClass> generos) {
+        this.generos = generos;
+    }
+
+    public List<GenerosClass> getGeneros() {
+        return generos;
+    }
 }

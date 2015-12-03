@@ -5,12 +5,15 @@ import com.ouiaboo.ouiaboo.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -85,6 +88,8 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         setContentView(R.layout.activity_video_player);
 
         bar = (ProgressBar)findViewById(R.id.progressBar);
+        //cambia el color de la barra de progreso circular
+        ((ProgressBar)findViewById(R.id.progressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this, R.color.accent_light), PorterDuff.Mode.SRC_IN);
         video = (VideoView)findViewById(R.id.videoView);
 
         getData();

@@ -52,9 +52,9 @@ import java.util.List;
 public class VerMasTarde extends android.support.v4.app.Fragment implements AdVerMasTarde.CustomRecyclerListener{
     private RecyclerView lista;
     private ProgressBar bar;
-    private ArrayList<HomeScreenEpi> masTardeAnime;
+    private List<HomeScreenEpi> masTardeAnime;
     private AdVerMasTarde adaptador;
-    private boolean existeAnimeMastarde;
+    private Boolean existeAnimeMastarde = null;
     private CoordinatorLayout coordinatorLayout;
     private TextView sinResultados;
     private View convertView;
@@ -65,27 +65,47 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true); //hace que el fragment se conserve
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         convertView = inflater.inflate(R.layout.fragment_ver_mas_tarde, container, false);
-        coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
         getActivity().setTitle(R.string.mas_tarde_drawer_layout);
-
-
-
-        lista = (RecyclerView)convertView.findViewById(R.id.ver_mas_tarde_recyclerview);
-        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
-        sinResultados = (TextView)convertView.findViewById(R.id.noResultados);
-        masTardeAnime = new ArrayList<HomeScreenEpi>();
-        new BackgroundTask().execute(this);
-
+        iniciaView(convertView);
+        iniciaFragment();
 
         return convertView;
     }
 
+    private void iniciaView(View convertView) {
+        coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
+        lista = (RecyclerView)convertView.findViewById(R.id.ver_mas_tarde_recyclerview);
+        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
+        sinResultados = (TextView)convertView.findViewById(R.id.noResultados);
+    }
+
+    public void iniciaFragment() {
+        if (getMasTardeAnime() == null && existeAnimeMastarde == null) { //primera vez que inicia el fragment
+            new ListarAnimeMasTarde().execute(this);
+        } else { //inicia desde un punto guardado
+            if (!existeAnimeMastarde) {
+                sinResultados.setVisibility(View.VISIBLE);
+            } else {
+                adaptador = new AdVerMasTarde(getActivity(), masTardeAnime);
+                adaptador.setClickListener(this);
+                lista.setLayoutManager(new LinearLayoutManager(getActivity()));
+                lista.setAdapter(adaptador);
+                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
+                itemTouchHelper.attachToRecyclerView(lista); //añade la lista a la escucha
+            }
+        }
+    }
 
     /*opcion deslizante para eliminar un item*/
     ItemTouchHelper.SimpleCallback simpleItemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -132,7 +152,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                 Bitmap bitmap;
 
                 if (dX > 0) { // swiping right
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.indigo));
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
 
@@ -140,7 +160,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                     c.drawBitmap(bitmap, 96f, (float) itemView.getTop() + height, null);
 
                 } else { // swiping left
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.azulclaro));
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
 
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
@@ -151,10 +171,6 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
 
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-
-
-
-
             }
         }
     };
@@ -181,6 +197,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     @Override
     public void onDetach() {
         super.onDetach();
+        setData(masTardeAnime, existeAnimeMastarde);
         mListener = null;
     }
 
@@ -227,11 +244,12 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
         public void onVerMasTardeInteraction(HomeScreenEpi objEpi);
     }
 
-    private class BackgroundTask extends AsyncTask<AdVerMasTarde.CustomRecyclerListener, Void, Void> {
+    private class ListarAnimeMasTarde extends AsyncTask<AdVerMasTarde.CustomRecyclerListener, Void, Void> {
 
         @Override
         protected Void doInBackground(AdVerMasTarde.CustomRecyclerListener... params) {
             try {
+                masTardeAnime = new ArrayList<>();
                 List<VerMasTardeTable> datos = DataSupport.findAll(VerMasTardeTable.class);
                 if (datos.isEmpty()) {
                     existeAnimeMastarde = false;
@@ -303,6 +321,15 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
             intent.putExtra("url", url);
             startActivity(intent);
         }
+    }
+
+    public void setData(List<HomeScreenEpi> masTardeAnime, boolean existeAnimeMastarde) {
+        this.masTardeAnime = masTardeAnime;
+        this.existeAnimeMastarde = existeAnimeMastarde;
+    }
+
+    public List<HomeScreenEpi> getMasTardeAnime() {
+        return masTardeAnime;
     }
 
 }

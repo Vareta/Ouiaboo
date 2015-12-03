@@ -1,17 +1,27 @@
 package com.ouiaboo.ouiaboo;
 
 
+import android.app.Dialog;
+import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -19,18 +29,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ExpandableListAdapter;
-import android.widget.ExpandableListView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.GenerosClass;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
-import com.ouiaboo.ouiaboo.clases.SitiosWeb;
 import com.ouiaboo.ouiaboo.fragmentsFLV.AvisoLegal;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Busqueda;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Descargadas;
@@ -43,13 +47,17 @@ import com.ouiaboo.ouiaboo.fragmentsFLV.HomeScreen;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Preferencias;
 import com.ouiaboo.ouiaboo.fragmentsFLV.VerMasTarde;
 
+import org.jsoup.nodes.Document;
 import org.litepal.LitePalApplication;
 import org.litepal.tablemanager.Connector;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 
 public class Central extends AppCompatActivity implements HomeScreen.OnFragmentInteractionListener, Busqueda.OnFragmentInteractionListener,
@@ -60,19 +68,15 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
                                                         GenerosContenido.OnFragmentInteractionListener {
 
     private DrawerLayout drawerLayout;
-    private String drawerTitle;
-    private ListView drawerList;
-    private NavigationView navigationView;
-    LinearLayout linearLayout;
-    ExpandableListAdapter listAdapter;
-    ExpandableListView expListView;
-    ArrayList<DrawerItemsListUno> listDataHeader; //objetos padre lista expandible
-    HashMap<DrawerItemsListUno, List<SitiosWeb>> listDataChild; //objetos hijos de la lista expandible
-    ArrayList<DrawerItemsListUno> items;
     private Toolbar toolbar;
-    private Tracker mTracker;
+    private ProgressBar updateAppBar;
+    private boolean deboActualizar = true;
+    private static final String DEBO_ACTUALIZAR = "deboActualizar";
+    private ProgressBar bar;
+    private RelativeLayout contenedor;
 
-  //  private ProgressBar bar;
+
+    //  private ProgressBar bar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,12 +86,19 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         LitePalApplication.initialize(this);
 
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout); //el drawerLayout
-        navigationView = (NavigationView)findViewById(R.id.nav_view);
+        contenedor = (RelativeLayout)findViewById(R.id.contenedor);
+        updateAppBar = (ProgressBar)findViewById(R.id.UpdateAppProgressBar);
+        bar =(ProgressBar)findViewById(R.id.progressBarTop);
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
+            ((ProgressBar)findViewById(R.id.UpdateAppProgressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this, R.color.accent_light), PorterDuff.Mode.SRC_IN);
+            ((ProgressBar)findViewById(R.id.progressBarTop)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this, R.color.accent_light), PorterDuff.Mode.SRC_IN);
+        }
+        updateAppBar.setIndeterminate(true);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
         setUpToolbar(); //setea la toolbar
         setUpNavDrawer(); //setea el navigation drawer
         SQLiteDatabase db = Connector.getDatabase(); //crea las tablas, si estas no existen
-
 
         //listener del navigationview
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -99,44 +110,45 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
                 switch (menuItem.getItemId()) {
 
                     case R.id.nav_inicio: //inicia fragmento inicio Inicio
-                        ft.replace(R.id.contenedor, new HomeScreen());
+                        ft.replace(R.id.contenedor, new HomeScreen(), "homescreen");
                         break;
 
                     case R.id.nav_mas_tarde:
-                        ft.replace(R.id.contenedor, new VerMasTarde());
+                        ft.replace(R.id.contenedor, new VerMasTarde(), "vermastarde");
                         break;
 
                     case R.id.nav_favoritos:
-                        ft.replace(R.id.contenedor, new Favoritos());
+                        ft.replace(R.id.contenedor, new Favoritos(), "favoritos");
                         break;
 
                     case R.id.nav_descargadas:
-                        ft.replace(R.id.contenedor, new Descargadas());
+                        ft.replace(R.id.contenedor, new Descargadas(), "descargadas");
                         break;
 
                     case R.id.nav_historial:
-                        ft.replace(R.id.contenedor, new Historial());
+                        ft.replace(R.id.contenedor, new Historial(), "historial");
                         break;
 
                     case R.id.nav_generos:
-                        ft.replace(R.id.contenedor, new Generos());
+                        ft.replace(R.id.contenedor, new Generos(), "generos");
                         break;
 
                     case R.id.nav_preferencias:
-                        ft.replace(R.id.contenedor, new Preferencias());
+                        ft.replace(R.id.contenedor, new Preferencias(), "preferencias");
                         break;
 
                     case R.id.nav_faq:
-                        ft.replace(R.id.contenedor, new Faq());
+                        ft.replace(R.id.contenedor, new Faq(), "faq");
                         break;
 
                     case R.id.nav_aviso_legal:
-                        ft.replace(R.id.contenedor, new AvisoLegal());
+                        ft.replace(R.id.contenedor, new AvisoLegal(), "avisolegal");
                         break;
 
                     default:
                         return true;
                 }
+
 
                 ft.addToBackStack(null); //para que se pueda devolver a un fragment anterior
                 ft.commit();
@@ -145,10 +157,61 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
             }
         });
 
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.contenedor, new HomeScreen());
-        ft.commit();
+        if (savedInstanceState != null) { //si existe informacion guardada
+            deboActualizar = savedInstanceState.getBoolean(DEBO_ACTUALIZAR);
+        }
 
+        if (deboActualizar) { //pregunta si debe actualizar
+            new CheckForUpdate().execute();
+        }
+
+
+        if (!existeAlgunFragmentGuardado()) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.contenedor, new HomeScreen(), "homescreen");
+            ft.commit();
+        }
+
+        //new ActualizarAplicacion().execute();
+
+    }
+
+    /*
+    Verifica si existe algun fragment guardado.
+    PS: Revisar por si existe alguna manera de escribir esta funcion de otra manera (codigo engorroso)
+     */
+    private boolean existeAlgunFragmentGuardado() {
+        FragmentManager fm = getSupportFragmentManager();
+        Busqueda busquedaFragm = (Busqueda) fm.findFragmentByTag("busqueda");
+        if (busquedaFragm == null) {
+            Descargadas descargadasFragm = (Descargadas) fm.findFragmentByTag("descargadas");
+            if (descargadasFragm == null) {
+                Favoritos favoritosFragm = (Favoritos) fm.findFragmentByTag("favoritos");
+                if (favoritosFragm == null) {
+                    Generos generosFragm = (Generos) fm.findFragmentByTag("generos");
+                    if (generosFragm == null) {
+                        GenerosContenido generosContenidoFragm = (GenerosContenido) fm.findFragmentByTag("generoscontenido");
+                        if (generosContenidoFragm == null) {
+                            Historial historialFragm = (Historial) fm.findFragmentByTag("historial");
+                            if (historialFragm == null) {
+                                HomeScreen homeScreenFragm = (HomeScreen) fm.findFragmentByTag("homescreen");
+                                if (homeScreenFragm == null) {
+                                    Preferencias preferenciasFragm = (Preferencias) fm.findFragmentByTag("preferencias");
+                                    if (preferenciasFragm == null) {
+                                        VerMasTarde verMasTardeFragm = (VerMasTarde) fm.findFragmentByTag("vermastarde");
+                                        if (verMasTardeFragm == null) {
+                                            return false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     private void setUpToolbar() {
@@ -253,7 +316,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
                     //Inicia el fragmente que contiene los resultados de la busqueda
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    ft.replace(R.id.contenedor, search);
+                    ft.replace(R.id.contenedor, search, "busqueda");
                     ft.addToBackStack(null); //para que se pueda devolver a un fragment anterior
                     ft.commit();
                     searchView.onActionViewCollapsed(); //cierra el teclado
@@ -276,7 +339,6 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
         //noinspection SimplifiableIfStatement
         if (id == R.drawable.ic_menu_white_24dp) {
-            Log.d("Toolbar", "hola");
             return true;
         }
 
@@ -370,7 +432,8 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
             HomeScreenEpi objEpi = params[0];
             try {
                 if (objEpi.getInformacion().equals("descargado")) { //video almacenado en el dispositivo
-                    url = objEpi.getUrlCapitulo(); //aqui la direccion es el path del video en el dispositivo
+                   //se agrega file:// ya que en ocasiones ocurria un error en el cual exponia que no habia actividad para manejar el Intent
+                    url = "file://" + objEpi.getUrlCapitulo(); //aqui la direccion es el path del video en el dispositivo
                     anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getPreview()); //se usa preview ya que en este campo se guarda la url del anime cuando este proviene del dispositivo
                 } else {
                     url = anime.urlDisponible(objEpi.getUrlCapitulo(), getBaseContext());
@@ -386,15 +449,152 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
         @Override
         protected void onPreExecute() {
-
+            contenedor.setVisibility(View.GONE);
+            bar.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(Void result) {
+            bar.setVisibility(View.GONE);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            intent.setDataAndType(Uri.parse(url), "video/mp4");
+            intent.setDataAndType(Uri.parse(url), "video/*");
+            startActivity(intent);
+            contenedor.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private class ActualizarAplicacion extends AsyncTask<String, Integer, Void> {
+        File outputFile;
+
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+                URL url = new URL(params[0]);
+                HttpURLConnection c = (HttpURLConnection) url.openConnection();
+                c.setRequestMethod("GET");
+                c.setDoOutput(true);
+                c.connect();
+
+                int lenghtOfFile = c.getContentLength();
+
+                String PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+                File file = new File(PATH);
+                file.mkdirs();
+                outputFile = new File(file, "update.mp4");
+                if(outputFile.exists()){
+                    outputFile.delete();
+                }
+                FileOutputStream fos = new FileOutputStream(outputFile);
+
+                InputStream is = c.getInputStream();
+
+                byte[] buffer = new byte[1024];
+                int cont, total = 0;
+                while ((cont = is.read(buffer)) != -1) {
+                    total = total + cont;
+                    publishProgress(((total * 100) / lenghtOfFile));
+                    fos.write(buffer, 0, cont);
+                }
+                fos.close();
+                is.close();
+            } catch (Exception e) {
+                Log.e("UpdateAPP", "Update error! " + e.getMessage());
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            updateAppBar.setProgress(progress[0]);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            updateAppBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            updateAppBar.setVisibility(View.GONE);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.fromFile(outputFile), "application/vnd.android.package-archive" );
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }
     }
+
+    private void actualizarApp(final String urlUpdate) {
+            //check for update
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.mensajeDialog_Central)
+                    .setTitle(R.string.tituloDialog_Central)
+                    .setCancelable(false);
+
+            builder.setPositiveButton(R.string.aceptarDialog_Central, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    new ActualizarAplicacion().execute(urlUpdate);
+                }
+            });
+
+            builder.setNegativeButton(R.string.cancelarDialog_Central, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    deboActualizar = false;
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+    }
+
+    /* Accede a la pagina donde se mantiene la version del codigo y el enlace de descarga */
+    private class CheckForUpdate extends AsyncTask<Void, Void, Void> {
+        List<String> versionAndUrl = new ArrayList<>();
+        @Override
+        protected Void doInBackground(Void... params) {
+            Utilities utilities = new Utilities();
+            Document codigoFuente = utilities.connect(Utilities.URL_APP_UPDATE); //obtiene el codigo fuente de la pagina
+            if (codigoFuente != null) { // si existe
+                //obtiene una lista, en donde el primer item es la version del codigo mientras que el segundo es el enlace de descarga de la apk
+                versionAndUrl = utilities.obtenerEnlaceActualizacion(codigoFuente);
+            } else {// si no existe, entonces declara que no debe actualizar durante el tiempo que la aplicacion se este ejecutando y no se destruya
+                deboActualizar = false;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if (!versionAndUrl.isEmpty()) {
+                int versionCode = BuildConfig.VERSION_CODE;
+                if (versionCode < Integer.parseInt(versionAndUrl.get(0))) {
+                    actualizarApp(versionAndUrl.get(1));
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean(DEBO_ACTUALIZAR, deboActualizar);
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+
+   /*
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        // Always call the superclass so it can restore the view hierarchy
+        super.onRestoreInstanceState(savedInstanceState);
+        deboActualizar = savedInstanceState.getBoolean(DEBO_ACTUALIZAR);
+        Log.d("ACTUALIZAR2", String.valueOf(deboActualizar));
+    }*/
+
 
 }

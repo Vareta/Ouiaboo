@@ -18,6 +18,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,7 +57,7 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
     private RecyclerView list;
     private List<HomeScreenEpi> animeHistorial;
     private TextView noHistorial;
-    private boolean existeHistorial;
+    private Boolean existeHistorial = null;
     private AdHomeScreen adaptador;
     private CoordinatorLayout coordinatorLayout;
     private Tracker mTracker;
@@ -65,6 +66,11 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true); //hace que el fragment se conserve
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,19 +78,36 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_historial, container, false);
         getActivity().setTitle(R.string.historial_drawer_layout);
-
-
-
-        coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
-        list = (RecyclerView)convertView.findViewById(R.id.historial_recyclerview);
-        noHistorial = (TextView)convertView.findViewById(R.id.noHistorial);
-        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
-
-        new GetHistorial().execute(this);
+        iniciaView(convertView);
+        iniciaFragment();
 
         return convertView;
     }
 
+    private void iniciaView(View convertView) {
+        coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
+        list = (RecyclerView)convertView.findViewById(R.id.historial_recyclerview);
+        noHistorial = (TextView)convertView.findViewById(R.id.noHistorial);
+        bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
+    }
+
+    private void iniciaFragment() {
+        if (getAnimeHistorial() == null && existeHistorial == null) { //primera vez que inicia el fragment
+            new GetHistorial().execute(this);
+        } else { //fragment desde una instancia guardada
+            if (!existeHistorial) {
+                noHistorial.setVisibility(View.VISIBLE);
+            } else {
+                adaptador = new AdHomeScreen(getActivity(), animeHistorial);
+                adaptador.setClickListener(this);
+                list.setLayoutManager(new LinearLayoutManager(getActivity()));
+                list.setAdapter(adaptador);
+                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
+                itemTouchHelper.attachToRecyclerView(list); //añade la lista a la escucha
+            }
+
+        }
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -109,6 +132,8 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
     @Override
     public void onDetach() {
         super.onDetach();
+        Log.d("HISTORIAL", "DETACH");
+        setData(animeHistorial, existeHistorial);
         mListener = null;
     }
 
@@ -186,7 +211,6 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
 
         @Override
         protected void onPostExecute(Void result) {
-
             if (!existeHistorial) {
                 noHistorial.setVisibility(View.VISIBLE);
             } else {
@@ -246,7 +270,7 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
                 Bitmap bitmap;
 
                 if (dX > 0) { // swiping right
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.purpura));
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
 
@@ -254,7 +278,7 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
                     c.drawBitmap(bitmap, 96f, (float) itemView.getTop() + height, null);
 
                 } else { // swiping left
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.naranjo));
+                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
 
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
                     float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
@@ -294,5 +318,14 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
             intent.putExtra("url", url);
             startActivity(intent);
         }
+    }
+
+    public void setData(List<HomeScreenEpi> animeHistorial, boolean existeHistorial) {
+        this.animeHistorial = animeHistorial;
+        this.existeHistorial = existeHistorial;
+    }
+
+    public List<HomeScreenEpi> getAnimeHistorial() {
+        return animeHistorial;
     }
 }

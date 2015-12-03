@@ -35,17 +35,18 @@ public class Preferencias extends PreferenceFragmentCompat {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true); //hace que el fragment se conserve
+    }
+
+    @Override
     public void onCreatePreferences(Bundle bundle, String s) {
         getPreferenceManager().setSharedPreferencesName("preferencias");
-
-
         addPreferencesFromResource(R.xml.preferences);
         getActivity().setTitle(R.string.preferencias_drawer_layout);
 
     }
-
-
-
 
     @Override
     public void onAttach(Context context) {

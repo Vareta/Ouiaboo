@@ -25,6 +25,7 @@ import android.widget.ListAdapter;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -51,6 +52,7 @@ public class Utilities {
     public static final String PREFERENCIAS = "preferencias";
     public static final int ANIMEFLV = 0;
     public static final int ANIMEJOY = 1;
+    public static final String URL_APP_UPDATE = "https://aterav.wordpress.com/perro-zapato-camion-corbata/";
 
 
 
@@ -377,4 +379,21 @@ public class Utilities {
         }
 
     }
+
+    /* Obtiene la version del codigo y el enlace de descarga desde el codigo fuente*/
+    public List<String> obtenerEnlaceActualizacion(Document codigoFuente) {
+        List<String> resultado = new ArrayList<>();
+
+        Element objEnlace = codigoFuente.getElementsByClass("entry-content").first();
+        String contenido = objEnlace.select("p").first().text();
+
+        String[] aux = contenido.split(" ");
+        String version = aux[0], enlace = aux[1];
+        resultado.add(version);
+        resultado.add(enlace);
+
+        return resultado;
+    }
+
+
 }
