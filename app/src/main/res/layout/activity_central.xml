@@ -21,7 +21,7 @@
             android:layout_height="20dp"
             android:layout_marginBottom="-8dp"
             android:layout_marginTop="-4dp"
-            android:id="@+id/UpdateAppProgressBar"
+            android:id="@+id/updateAppProgressBar"
             android:layout_below="@+id/toolbar"
             android:visibility="gone"/>
 
@@ -39,7 +39,7 @@
             android:id="@+id/contenedor"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/UpdateAppProgressBar">
+            android:layout_below="@+id/updateAppProgressBar">
 
             <ProgressBar
                 android:id="@+id/progressBar"

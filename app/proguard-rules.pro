@@ -15,3 +15,12 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-dontwarn com.squareup.okhttp.**
+-keep class org.litepal.** { *; }
+-keep class com.ouiaboo.ouiaboo.Tables.** { *; }
+-keep class android.support.v7.widget.SearchView { *; }
+-keep class org.litepal.** { *; }
+-keep class org.jsoup.** { *; }
+-repackageclasses ''
+-allowaccessmodification

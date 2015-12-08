@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Environment;
@@ -32,6 +33,7 @@ import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.DescargadosTable;
+import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
 import com.ouiaboo.ouiaboo.adaptadores.AdEpisodios;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
@@ -139,7 +141,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     @Override
     public void customLongClickListener(View v, int position) {
         final int posAnime = position; //para diferenciar el onclick del listpopup
-
+        Utilities util = new Utilities();
         List<DrawerItemsListUno> items = new ArrayList<>();
         items.add(new DrawerItemsListUno(getActivity().getString(R.string.descargar_PopupWindow), R.drawable.ic_file_download_white_24dp));
         items.add(new DrawerItemsListUno(getActivity().getString(R.string.masTarde_PopupWindow), R.drawable.ic_watch_later_white_24dp));
@@ -150,7 +152,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
         listPopupWindow.setAdapter(adapter);
 
         listPopupWindow.setAnchorView(v.findViewById(R.id.episodios_flv));
-        int width = measureContentWidth(adapter);
+        int width = util.measureContentWidth(adapter, this);
         listPopupWindow.setWidth(width);
         listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

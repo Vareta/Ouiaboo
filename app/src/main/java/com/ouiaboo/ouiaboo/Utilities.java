@@ -9,11 +9,13 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -53,6 +55,17 @@ public class Utilities {
     public static final int ANIMEFLV = 0;
     public static final int ANIMEJOY = 1;
     public static final String URL_APP_UPDATE = "https://aterav.wordpress.com/perro-zapato-camion-corbata/";
+    public static final String URL_REPORTE_ERRORES = "https://ouiaboo.wordpress.com/reporte-de-errores/";
+    public static final String FRAGMENT_HOMESCREEN = "homescreen";
+    public static final String FRAGMENT_VERMASTARDE = "vermastarde";
+    public static final String FRAGMENT_FAVORITOS = "favoritos";
+    public static final String FRAGMENT_DESCARGADAS = "descargadas";
+    public static final String FRAGMENT_HISTORIAL = "historial";
+    public static final String FRAGMENT_GENEROS = "generos";
+    public static final String FRAGMENT_PREFERENCIAS = "preferencias";
+    public static final String FRAGMENT_FAQ = "faq";
+    public static final String FRAGMENT_BUSQUEDA = "busqueda";
+    public static final String FRAGMENT_GENEROSCONTENIDO = "generoscontenido";
 
 
 
@@ -266,6 +279,11 @@ public class Utilities {
             itemView.measure(widthMeasureSpec, heightMeasureSpec);
             maxWidth = Math.max(maxWidth, itemView.getMeasuredWidth());
         }
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
+            maxWidth = (int) (maxWidth * 1.5);
+        }
+
         return maxWidth;
     }
 
@@ -394,6 +412,5 @@ public class Utilities {
 
         return resultado;
     }
-
 
 }

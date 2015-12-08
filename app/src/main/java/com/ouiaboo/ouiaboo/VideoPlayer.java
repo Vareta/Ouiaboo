@@ -384,11 +384,12 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
 
         @Override
         protected void onPreExecute() {
-
+            bar.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(Void result) {
+            bar.setVisibility(View.GONE);
             reproducir(url);
         }
     }

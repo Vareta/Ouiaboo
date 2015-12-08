@@ -1,6 +1,5 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,13 +14,13 @@ import com.ouiaboo.ouiaboo.R;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link AvisoLegal.OnFragmentInteractionListener} interface
+ * {@link ReporteDeErrores.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class AvisoLegal extends android.support.v4.app.Fragment {
+public class ReporteDeErrores extends android.support.v4.app.Fragment {
 
     private OnFragmentInteractionListener mListener;
-    public AvisoLegal() {
+    public ReporteDeErrores() {
         // Required empty public constructor
     }
 
@@ -29,7 +28,7 @@ public class AvisoLegal extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View convertView = inflater.inflate(R.layout.fragment_aviso_legal, container, false);
+        View convertView = inflater.inflate(R.layout.fragment_reporte_de_errores, container, false);
         getActivity().setTitle(R.string.aviso_legal_drawer_layout);
 
         return convertView;

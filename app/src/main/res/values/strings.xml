@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ouiaboo</string>
+    <string name="app_name">Ouiaboo</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -31,7 +31,7 @@
     <string name="generos_drawer_layout">Géneros</string>
     <string name="preferencias_drawer_layout">Preferencias</string>
     <string name="faq_drawer_layout">FAQ</string>
-    <string name="aviso_legal_drawer_layout">Aviso Legal</string>
+    <string name="aviso_legal_drawer_layout">Reportar error</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->

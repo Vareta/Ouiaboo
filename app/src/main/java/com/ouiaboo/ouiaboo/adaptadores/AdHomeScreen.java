@@ -1,6 +1,7 @@
 package com.ouiaboo.ouiaboo.adaptadores;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -13,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.squareup.picasso.Picasso;
 
@@ -31,6 +33,7 @@ public class AdHomeScreen extends RecyclerView.Adapter<AdHomeScreen.AdHoScAnFLVH
     public AdHomeScreen(Context context, List<HomeScreenEpi> items) {
         this.context = context;
         this.items = items;
+
     }
 
     public class AdHoScAnFLVHolder extends RecyclerView.ViewHolder implements OnClickListener, OnLongClickListener{
@@ -93,10 +96,7 @@ public class AdHomeScreen extends RecyclerView.Adapter<AdHomeScreen.AdHoScAnFLVH
         adHoScAnFLVHolder.nombre.setText(Html.fromHtml(items.get(i).getNombre()));
         adHoScAnFLVHolder.informacion.setText(Html.fromHtml(items.get(i).getInformacion()));
         Picasso.with(context).load(items.get(i).getPreview()).resize(250, 150).into(adHoScAnFLVHolder.preview);
-        //Log.d("Nombre", items.get(i).getNombre());
-        //agrega el preview al imageview via url
 
-        // new Utilities.DownloadImageTask(preview).execute(item.getPreview());
 
     }
 

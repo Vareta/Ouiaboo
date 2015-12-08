@@ -52,6 +52,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
     private boolean esFavorito;
     private Context context;
     private Tracker mTracker;
+    ViewPager viewPager;
 
 
     @Override
@@ -103,7 +104,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
     }
 
     private void setupViewPager() {
-        ViewPager viewPager = (ViewPager) findViewById(R.id.tab_viewpager);
+        viewPager = (ViewPager) findViewById(R.id.tab_viewpager);
         setupViewPager(viewPager);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
@@ -267,11 +268,13 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
 
         @Override
         protected void onPreExecute() {
-
+            bar.setVisibility(View.VISIBLE);
+            viewPager.setVisibility(View.GONE);
         }
 
         @Override
         protected void onPostExecute(Void result) {
+            bar.setVisibility(View.GONE);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             intent.setDataAndType(Uri.parse(url), "video/mp4");
             startActivity(intent);
@@ -315,6 +318,9 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
     @Override
     public void onResume() {
         super.onResume();
+        if (viewPager != null) {
+            viewPager.setVisibility(View.VISIBLE);
+        }
     }
 
     /*

@@ -6,23 +6,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.os.EnvironmentCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
@@ -30,17 +24,12 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
-import android.webkit.CookieManager;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
@@ -58,11 +47,8 @@ import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import org.jsoup.nodes.Document;
 import org.litepal.crud.DataSupport;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -90,6 +76,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     private SwipeRefreshLayout swipeRefresh;
     private Tracker mTracker;
     List<BroadcastReceiver> receivers = new ArrayList<>(); //variable que contiene el receiver de descarga
+    private ProgressBar downloadBar;
 
     public HomeScreen() {
         // Required empty public constructor
@@ -129,6 +116,8 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         coordLayout = (CoordinatorLayout) convertView.findViewById(R.id.coord_layout);
         list = (RecyclerView) convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
         bar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
+        downloadBar = (ProgressBar)getActivity().findViewById(R.id.updateAppProgressBar);
+        ((ProgressBar)getActivity().findViewById(R.id.updateAppProgressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.rojo), PorterDuff.Mode.SRC_IN);
         //Cambia el color de la progressbar para versiones anteriores
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
             bar.setIndeterminate(true);
@@ -406,10 +395,12 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
         @Override
         protected void onPreExecute() {
+            downloadBar.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(Void result) {
+            downloadBar.setVisibility(View.GONE);
             Log.d("TERMINE", "termine");
         }
     }

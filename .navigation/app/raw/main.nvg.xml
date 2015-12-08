@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<navigationModel
+  ns = "http://schemas.android.com?import=com.android.tools.idea.editors.navigation.model.*">
+  <locations  
+    class = "java.util.ArrayList">
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.ouiaboo.ouiaboo.MainActivity"/>
+      <point      
+        x = "3308"      
+        y = "216"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.ouiaboo.ouiaboo.Central"/>
+      <point      
+        x = "2352"      
+        y = "220"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.ouiaboo.ouiaboo.VideoPlayer"/>
+      <point      
+        x = "1172"      
+        y = "228"/>
+    </statePointEntry>
+    <statePointEntry>
+      <state      
+        class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
+        className = "com.ouiaboo.ouiaboo.EpisodiosPlusInfo"/>
+      <point      
+        x = "212"      
+        y = "236"/>
+    </statePointEntry>
+  </locations>
+</navigationModel>

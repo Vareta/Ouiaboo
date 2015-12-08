@@ -1,9 +1,6 @@
 package com.ouiaboo.ouiaboo;
 
 
-import android.app.Dialog;
-import android.app.Fragment;
-import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,7 +32,7 @@ import android.widget.Toast;
 
 import com.ouiaboo.ouiaboo.clases.GenerosClass;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
-import com.ouiaboo.ouiaboo.fragmentsFLV.AvisoLegal;
+import com.ouiaboo.ouiaboo.fragmentsFLV.ReporteDeErrores;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Busqueda;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Descargadas;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Faq;
@@ -61,7 +58,7 @@ import java.util.List;
 
 
 public class Central extends AppCompatActivity implements HomeScreen.OnFragmentInteractionListener, Busqueda.OnFragmentInteractionListener,
-                                                        VerMasTarde.OnFragmentInteractionListener, AvisoLegal.OnFragmentInteractionListener,
+                                                        VerMasTarde.OnFragmentInteractionListener, ReporteDeErrores.OnFragmentInteractionListener,
                                                         Favoritos.OnFragmentInteractionListener, Descargadas.OnFragmentInteractionListener,
                                                         Historial.OnFragmentInteractionListener, Generos.OnFragmentInteractionListener,
                                                         Preferencias.OnFragmentInteractionListener, Faq.OnFragmentInteractionListener,
@@ -87,10 +84,10 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout); //el drawerLayout
         contenedor = (RelativeLayout)findViewById(R.id.contenedor);
-        updateAppBar = (ProgressBar)findViewById(R.id.UpdateAppProgressBar);
+        updateAppBar = (ProgressBar)findViewById(R.id.updateAppProgressBar);
         bar =(ProgressBar)findViewById(R.id.progressBarTop);
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
-            ((ProgressBar)findViewById(R.id.UpdateAppProgressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this, R.color.accent_light), PorterDuff.Mode.SRC_IN);
+            ((ProgressBar)findViewById(R.id.updateAppProgressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this, R.color.rojo), PorterDuff.Mode.SRC_IN);
             ((ProgressBar)findViewById(R.id.progressBarTop)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this, R.color.accent_light), PorterDuff.Mode.SRC_IN);
         }
         updateAppBar.setIndeterminate(true);
@@ -104,45 +101,47 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
-                menuItem.setChecked(true);
+                menuItem.setChecked(false);
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
                 switch (menuItem.getItemId()) {
 
                     case R.id.nav_inicio: //inicia fragmento inicio Inicio
-                        ft.replace(R.id.contenedor, new HomeScreen(), "homescreen");
+                        ft.replace(R.id.contenedor, new HomeScreen(), Utilities.FRAGMENT_HOMESCREEN);
                         break;
 
                     case R.id.nav_mas_tarde:
-                        ft.replace(R.id.contenedor, new VerMasTarde(), "vermastarde");
+                        ft.replace(R.id.contenedor, new VerMasTarde(), Utilities.FRAGMENT_VERMASTARDE);
                         break;
 
                     case R.id.nav_favoritos:
-                        ft.replace(R.id.contenedor, new Favoritos(), "favoritos");
+                        ft.replace(R.id.contenedor, new Favoritos(), Utilities.FRAGMENT_FAVORITOS);
                         break;
 
                     case R.id.nav_descargadas:
-                        ft.replace(R.id.contenedor, new Descargadas(), "descargadas");
+                        ft.replace(R.id.contenedor, new Descargadas(), Utilities.FRAGMENT_DESCARGADAS);
                         break;
 
                     case R.id.nav_historial:
-                        ft.replace(R.id.contenedor, new Historial(), "historial");
+                        ft.replace(R.id.contenedor, new Historial(), Utilities.FRAGMENT_HISTORIAL);
                         break;
 
                     case R.id.nav_generos:
-                        ft.replace(R.id.contenedor, new Generos(), "generos");
+                        ft.replace(R.id.contenedor, new Generos(), Utilities.FRAGMENT_GENEROS);
                         break;
 
                     case R.id.nav_preferencias:
-                        ft.replace(R.id.contenedor, new Preferencias(), "preferencias");
+                        ft.replace(R.id.contenedor, new Preferencias(), Utilities.FRAGMENT_PREFERENCIAS);
                         break;
 
                     case R.id.nav_faq:
-                        ft.replace(R.id.contenedor, new Faq(), "faq");
+                        ft.replace(R.id.contenedor, new Faq(), Utilities.FRAGMENT_FAQ);
                         break;
 
                     case R.id.nav_aviso_legal:
-                        ft.replace(R.id.contenedor, new AvisoLegal(), "avisolegal");
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse(Utilities.URL_REPORTE_ERRORES));
+                        startActivity(intent);
                         break;
 
                     default:
@@ -168,7 +167,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
         if (!existeAlgunFragmentGuardado()) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.contenedor, new HomeScreen(), "homescreen");
+            ft.replace(R.id.contenedor, new HomeScreen(), Utilities.FRAGMENT_HOMESCREEN);
             ft.commit();
         }
 
@@ -182,23 +181,23 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
      */
     private boolean existeAlgunFragmentGuardado() {
         FragmentManager fm = getSupportFragmentManager();
-        Busqueda busquedaFragm = (Busqueda) fm.findFragmentByTag("busqueda");
+        Busqueda busquedaFragm = (Busqueda) fm.findFragmentByTag(Utilities.FRAGMENT_BUSQUEDA);
         if (busquedaFragm == null) {
-            Descargadas descargadasFragm = (Descargadas) fm.findFragmentByTag("descargadas");
+            Descargadas descargadasFragm = (Descargadas) fm.findFragmentByTag(Utilities.FRAGMENT_DESCARGADAS);
             if (descargadasFragm == null) {
-                Favoritos favoritosFragm = (Favoritos) fm.findFragmentByTag("favoritos");
+                Favoritos favoritosFragm = (Favoritos) fm.findFragmentByTag(Utilities.FRAGMENT_FAVORITOS);
                 if (favoritosFragm == null) {
-                    Generos generosFragm = (Generos) fm.findFragmentByTag("generos");
+                    Generos generosFragm = (Generos) fm.findFragmentByTag(Utilities.FRAGMENT_GENEROS);
                     if (generosFragm == null) {
-                        GenerosContenido generosContenidoFragm = (GenerosContenido) fm.findFragmentByTag("generoscontenido");
+                        GenerosContenido generosContenidoFragm = (GenerosContenido) fm.findFragmentByTag(Utilities.FRAGMENT_GENEROSCONTENIDO);
                         if (generosContenidoFragm == null) {
-                            Historial historialFragm = (Historial) fm.findFragmentByTag("historial");
+                            Historial historialFragm = (Historial) fm.findFragmentByTag(Utilities.FRAGMENT_HISTORIAL);
                             if (historialFragm == null) {
-                                HomeScreen homeScreenFragm = (HomeScreen) fm.findFragmentByTag("homescreen");
+                                HomeScreen homeScreenFragm = (HomeScreen) fm.findFragmentByTag(Utilities.FRAGMENT_HOMESCREEN);
                                 if (homeScreenFragm == null) {
-                                    Preferencias preferenciasFragm = (Preferencias) fm.findFragmentByTag("preferencias");
+                                    Preferencias preferenciasFragm = (Preferencias) fm.findFragmentByTag(Utilities.FRAGMENT_PREFERENCIAS);
                                     if (preferenciasFragm == null) {
-                                        VerMasTarde verMasTardeFragm = (VerMasTarde) fm.findFragmentByTag("vermastarde");
+                                        VerMasTarde verMasTardeFragm = (VerMasTarde) fm.findFragmentByTag(Utilities.FRAGMENT_VERMASTARDE);
                                         if (verMasTardeFragm == null) {
                                             return false;
                                         }
@@ -239,7 +238,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
     @Override
     public void onResume() {
         super.onResume();
-
+        contenedor.setVisibility(View.VISIBLE);
     }
 
 
@@ -316,7 +315,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
                     //Inicia el fragmente que contiene los resultados de la busqueda
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    ft.replace(R.id.contenedor, search, "busqueda");
+                    ft.replace(R.id.contenedor, search, Utilities.FRAGMENT_BUSQUEDA);
                     ft.addToBackStack(null); //para que se pueda devolver a un fragment anterior
                     ft.commit();
                     searchView.onActionViewCollapsed(); //cierra el teclado
@@ -379,7 +378,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
         //Inicia el fragmente que contiene la url
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.contenedor, generosContenido);
+        ft.replace(R.id.contenedor, generosContenido, Utilities.FRAGMENT_GENEROSCONTENIDO);
         ft.addToBackStack(null); //para que se pueda devolver a un fragment anterior
         ft.commit();
     }
@@ -459,7 +458,6 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             intent.setDataAndType(Uri.parse(url), "video/*");
             startActivity(intent);
-            contenedor.setVisibility(View.VISIBLE);
         }
     }
 

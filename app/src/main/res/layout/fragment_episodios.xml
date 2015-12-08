@@ -8,9 +8,6 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/episodios"
-        android:paddingEnd="9dp"
-        android:paddingRight="9dp"
-        android:paddingLeft="9dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:choiceMode="singleChoice" />

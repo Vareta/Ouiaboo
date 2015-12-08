@@ -12,6 +12,7 @@ import android.graphics.Paint;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Environment;
@@ -19,6 +20,7 @@ import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
@@ -68,7 +70,6 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     private AdDescargadas adaptador;
     private CoordinatorLayout coordinatorLayout;
     private List<String> urlAnimeAux;
-    private Tracker mTracker;
 
 
     public Descargadas() {
@@ -96,7 +97,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
         list = (RecyclerView) convertView.findViewById(R.id.descargados_recyclerview);
         sinDescargados = (TextView) convertView.findViewById(R.id.noDescargados);
         bar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
-        coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coord_layout);
+        coordinatorLayout = (CoordinatorLayout) convertView.findViewById(R.id.coord_layout);
     }
 
     private void iniciaFragment() {
@@ -114,6 +115,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
                 list.setAdapter(adaptador);
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
                 itemTouchHelper.attachToRecyclerView(list); //añade la lista a la escucha
+
             } else {
                 sinDescargados.setVisibility(View.VISIBLE);
             }
@@ -369,11 +371,11 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     public void deleteVideo(String path) {
 
         // Set up the projection (we only need the ID)
-        String[] projection = { MediaStore.Video.Media._ID };
+        String[] projection = {MediaStore.Video.Media._ID};
 
         // Match on the file path
         String selection = MediaStore.Video.Media.DATA + " = ?";
-        String[] selectionArgs = new String[] { path };
+        String[] selectionArgs = new String[]{path};
 
         // Query for the ID of the media matching the file path
         Uri queryUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
