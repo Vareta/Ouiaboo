@@ -23,7 +23,7 @@
             android:layout_width="95dp"
             android:layout_height="120dp"
             android:id="@+id/preview_flv"
-            android:background="@drawable/untitled" />
+            android:background="@drawable/img_back_vertical" />
 
         <RelativeLayout
             android:layout_width="match_parent"

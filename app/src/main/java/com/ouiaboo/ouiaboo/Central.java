@@ -17,6 +17,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -282,7 +284,9 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         getMenuInflater().inflate(R.menu.menu_central, menu);
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager)getSystemService(Context.SEARCH_SERVICE);
-        final SearchView searchView = (SearchView)menu.findItem(R.id.buscar).getActionView();
+
+        final MenuItem searchItem = menu.findItem(R.id.buscar);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
        // searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
@@ -300,12 +304,13 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if (query.length() < 4) {
-                    //Log.d("TextSubmit", "menos o igual de 3");
+                if (query.trim().length() < 4) { //se le quitan los espacios en blanco
+                   // Log.d("MENOS DE 4", query);
                     Toast.makeText(Central.this, getString(R.string.ins_caracteres_menu_central_ES), Toast.LENGTH_SHORT).show();
                     AnalyticsApplication.getInstance().trackEvent("Warning", "Buscar", query);
                 } else {
                     //Envia la query al fragment Busqueda
+                    //Log.d("MAS DE 3", query);
                     Bundle bundle = new Bundle();
                     bundle.putString("query", query);
                     Busqueda search = new Busqueda();
@@ -426,7 +431,6 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         String url;
         @Override
         protected Void doInBackground(HomeScreenEpi... params) {
-            Utilities util = new Utilities();
             Animeflv anime = new Animeflv();
             HomeScreenEpi objEpi = params[0];
             try {

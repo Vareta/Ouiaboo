@@ -237,7 +237,8 @@ public class Utilities {
                 HttpURLConnection urlConn = (HttpURLConnection) urlServer.openConnection();
                 urlConn.setConnectTimeout(3000); //<- 3Seconds Timeout
                 urlConn.connect();
-                if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK || urlConn.getResponseCode() == HttpURLConnection.HTTP_PARTIAL || urlConn.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP) {
+                //no considera el http 200, ya que si bien el url funciona, no existe el archivo de video por lo cual no se puede reproducir
+                if (urlConn.getResponseCode() == HttpURLConnection.HTTP_PARTIAL || urlConn.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP) {
                     return true;
                 } else {
                     return false;

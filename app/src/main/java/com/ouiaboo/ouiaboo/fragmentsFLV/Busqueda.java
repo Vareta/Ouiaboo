@@ -20,6 +20,7 @@ import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
+import com.ouiaboo.ouiaboo.adaptadores.AdGenerosEndless;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
 import org.jsoup.nodes.Document;
@@ -33,7 +34,7 @@ import java.util.List;
  * {@link Busqueda.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class Busqueda extends android.support.v4.app.Fragment implements AdBusquedaFLV.CustomRecyclerListener{
+public class Busqueda extends android.support.v4.app.Fragment implements AdGenerosEndless.CustomRecyclerListener{
 
     public OnFragmentInteractionListener mListener;
     private RecyclerView list;
@@ -41,10 +42,12 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
     private String searchQuery;
     private String queryTemplate = "http://animeflv.net/animes/?buscar=";
     private List<HomeScreenEpi> animesBuscados;
-    private AdBusquedaFLV adaptador;
+    private List<HomeScreenEpi> animesBuscadosSiguiente;
+    private AdGenerosEndless adaptador;
     private Boolean produceResultados = null;
     private TextView sinResultados;
-    private Tracker mTracker;
+    private String urlSiguiente;
+    private boolean tienePaginaSiguiente;
 
     public Busqueda() {
         // Required empty public constructor
@@ -69,6 +72,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
 
     private void iniciaView(View convertView) {
         list = (RecyclerView) convertView.findViewById(R.id.busqueda_list_animeflv); //utiliza la misma que home screen
+        list.setLayoutManager(new LinearLayoutManager(getActivity()));
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         sinResultados = (TextView)convertView.findViewById(R.id.noResultados);
         searchQuery = preparaQuery(getArguments().getString("query")); //prepara la query de busqueda
@@ -79,10 +83,10 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
             new BuscarAnime().execute(this); //ejecuta la busqueda via asynctask
         } else { //el fragment se encontraba guardado en el fragment manager a causa de un cambio en la pantalla (rotacion)
             if (produceResultados) {
-                adaptador = new AdBusquedaFLV(getActivity(), animesBuscados);
+                adaptador = new AdGenerosEndless(getActivity(), animesBuscados, list);
                 adaptador.setClickListener(this);
-                list.setLayoutManager(new LinearLayoutManager(getActivity()));
                 list.setAdapter(adaptador);
+                setOnLoadMoreListener();
             } else {
                 sinResultados.setVisibility(View.VISIBLE);
             }
@@ -154,22 +158,25 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
     }
 
 
-    private class BuscarAnime extends AsyncTask<AdBusquedaFLV.CustomRecyclerListener, Void, Void> {
+    private class BuscarAnime extends AsyncTask<AdGenerosEndless.CustomRecyclerListener, Void, Void> {
 
         @Override
-        protected Void doInBackground(AdBusquedaFLV.CustomRecyclerListener... params) {
+        protected Void doInBackground(AdGenerosEndless.CustomRecyclerListener... params) {
             Animeflv anime = new Animeflv();
             Utilities util = new Utilities();
             try {
                 Document codigoFuente = util.connect(searchQuery);
                 animesBuscados = anime.busquedaFLV(codigoFuente);
-                anime.siguientePagina(codigoFuente);
+
                 if (animesBuscados == null) {
                     produceResultados = false;
                 } else {
                     //  System.out.println("tamaño  " + animesBuscados.size());
                     produceResultados = true;
-                    adaptador = new AdBusquedaFLV(getActivity(), animesBuscados);
+                    urlSiguiente = anime.siguientePagina(codigoFuente);
+                    Log.d("URL", urlSiguiente);
+                    tienePaginaSiguiente = !urlSiguiente.equals(""); //comprueba si tiene pagina siguiente
+                    adaptador = new AdGenerosEndless(getActivity(), animesBuscados, list);
                     adaptador.setClickListener(params[0]);
                 }
                // Log.d("HOLA", "pase despues");
@@ -189,8 +196,8 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
         protected void onPostExecute(Void result) {
 
             if (produceResultados) {
-                list.setLayoutManager(new LinearLayoutManager(getActivity()));
                 list.setAdapter(adaptador);
+                setOnLoadMoreListener();
             } else {
                 sinResultados.setVisibility(View.VISIBLE);
             }
@@ -208,6 +215,52 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdBusqu
 
     private List<HomeScreenEpi> getAnimesBuscados() {
         return animesBuscados;
+    }
+
+    private class GetAnimeSiguiente extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Animeflv anime = new Animeflv();
+            Utilities util = new Utilities();
+            try {
+                Document codigoFuente = util.connect(urlSiguiente);
+                urlSiguiente = anime.siguientePagina(codigoFuente);//comprueba si tiene pagina siguiente
+                tienePaginaSiguiente = !urlSiguiente.equals(""); //si urlSiguiente es igual a "" --> tienePaginaSiguiente = false, de otra manera true
+                animesBuscadosSiguiente = anime.busquedaFLV(codigoFuente); //se ocupa el de busqueda ya que el diseño de la pagina de generos es igual
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            animesBuscados.remove(animesBuscados.size() - 1); //remueve el item null del progress bar
+            adaptador.notifyItemRemoved(animesBuscados.size()); //notifica que removio un item
+            int posFinal = animesBuscados.size(); //tamaño antes de añadir items
+            animesBuscados.addAll(animesBuscadosSiguiente); //añade todos los Anime nuevos
+            adaptador.notifyItemRangeInserted(posFinal, animesBuscados.size()); //notifica que los añadio todos
+            adaptador.setLoaded(); //indica que ya no se esta cargando
+        }
+    }
+
+    private void setOnLoadMoreListener() {
+        adaptador.setOnLoadMoreListener(new AdGenerosEndless.OnLoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                if (tienePaginaSiguiente) {
+                    animesBuscados.add(null); //agrega un item null para activar el view de la progressbar
+                    adaptador.notifyItemInserted(animesBuscados.size() - 1); //notifica que añadio un elemento
+                    new GetAnimeSiguiente().execute(); //recolecta el anime de la pagina siguiente
+                }
+            }
+        });
     }
 
 }

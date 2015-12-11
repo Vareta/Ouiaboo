@@ -45,7 +45,6 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
     private RecyclerView list;
     private ProgressBar bar;
     private boolean tienePaginaSiguiente;
-    private Tracker mTracker;
 
 
     public GenerosContenido() {
@@ -82,7 +81,6 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
         } else {
             adaptador = new AdGenerosEndless(getActivity(), animeByGenero, list);
             adaptador.setClickListener(this);
-            list.setLayoutManager(new LinearLayoutManager(getActivity()));
             list.setAdapter(adaptador);
             setOnLoadMoreListener();
         }
@@ -175,7 +173,6 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
             Animeflv anime = new Animeflv();
             Utilities util = new Utilities();
             try {
-
                 Document codigoFuente = util.connect(urlSiguiente);
                 urlSiguiente = anime.siguientePagina(codigoFuente);//comprueba si tiene pagina siguiente
                 tienePaginaSiguiente = !urlSiguiente.equals(""); //si urlSiguiente es igual a "" --> tienePaginaSiguiente = false, de otra manera true
@@ -207,7 +204,6 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
             @Override
             public void onLoadMore() {
                 if (tienePaginaSiguiente) {
-                    Log.d("PAGSIGUIENTE", "si");
                     animeByGenero.add(null); //agrega un item null para activar el view de la progressbar
                     adaptador.notifyItemInserted(animeByGenero.size() - 1); //notifica que añadio un elemento
                     new GetAnimeSiguiente().execute(); //recolecta el anime de la pagina siguiente

@@ -36,14 +36,15 @@ import com.squareup.picasso.Picasso;
 
 import org.jsoup.nodes.Document;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.OnFragmentInteractionListener, EpisodiosFlv.OnFragmentInteractionListener {
     private ProgressBar bar;
     private AppBarLayout appBar;
-    private ArrayList<Episodios> epi;
-    private ArrayList<Episodios> epiInfo;
+    private List<Episodios> epi;
+    private List<Episodios> epiInfo;
     private ImageView header;
     private FloatingActionButton favorito;
     private Snackbar snackbar;
@@ -51,8 +52,9 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
     private CollapsingToolbarLayout collaToolbar;
     private boolean esFavorito;
     private Context context;
-    private Tracker mTracker;
     ViewPager viewPager;
+    private final String EPISODIOS = "episodios";
+    private final String EPISODISOPLUSINFO = "episodiosplusinfo";
 
 
     @Override
@@ -67,10 +69,12 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         coordLayout = (CoordinatorLayout) findViewById(R.id.coord_layout);
         context = this;
 
-
-        new GetCapitulosData().execute(getIntent().getStringExtra("url"));
-        //new GetCapitulosData().execute("http://animeflv.net/anime/one-piece.html");
-
+        if (savedInstanceState != null) {
+            getSavedData(savedInstanceState);
+        } else {
+            new GetCapitulosData().execute(getIntent().getStringExtra("url"));
+            //new GetCapitulosData().execute("http://animeflv.net/anime/one-piece.html");
+        }
         favorito.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,7 +145,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
 
     private Fragment sendDataCapitulos() {
         Bundle bundle = new Bundle();
-        bundle.putSerializable("episodios", epi);
+        bundle.putSerializable("episodios", (Serializable) epi);
 
         EpisodiosFlv epiFragment = new EpisodiosFlv();
         epiFragment.setArguments(bundle);
@@ -151,7 +155,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
 
     private Fragment sendDataInformacion() {
         Bundle bundle = new Bundle();
-        bundle.putSerializable("informacion", epiInfo);
+        bundle.putSerializable("informacion", (Serializable) epiInfo);
 
         AnimeInfo info = new AnimeInfo();
         info.setArguments(bundle);
@@ -339,5 +343,24 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         // Log.d("TITULO", titulo);
         setTitle(titulo); //setea el titulo de acuerdo a la serie que se seleccionó.
     }*/
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putSerializable(EPISODIOS, (Serializable) epi);
+        savedInstanceState.putSerializable(EPISODISOPLUSINFO, (Serializable) epiInfo);
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    public void getSavedData(Bundle savedInstanceState) {
+        epi = (List<Episodios>) savedInstanceState.getSerializable(EPISODIOS);
+        epiInfo = (List<Episodios>) savedInstanceState.getSerializable(EPISODISOPLUSINFO);
+        setupCollapsingToolbar();
+        setupViewPager();
+        setupToolbar();
+        setupFAB(epiInfo.get(0));
+        setTitle(epiInfo.get(0).getNombreAnime());
+        Picasso.with(getBaseContext()).load(epi.get(0).getUrlImagen()).into(header);
+    }
 
 }

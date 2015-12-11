@@ -304,7 +304,7 @@ public class Animeflv{
 
 
 
-    public ArrayList<Episodios> getEpisodios(String url) {
+    public List<Episodios> getEpisodios(String url) {
         String nombreAnime;
         String urlAnime;
         String urlEp;
@@ -315,7 +315,7 @@ public class Animeflv{
         String estado = "";
         String generos = "";
         String fechaInicio = "";
-        ArrayList<Episodios> capitulos = new ArrayList<Episodios>();
+        List<Episodios> capitulos = new ArrayList<Episodios>();
         Document doc = null;
 
         try {
