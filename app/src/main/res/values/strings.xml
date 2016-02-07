@@ -13,8 +13,10 @@
                                                 momento mediante las opciones de la aplicacion.</string>
     <string-array name="paginas_anime">
         <item>AnimeFLV</item>
+        <item>Reyanime</item>
     </string-array>
     <string-array name="idioma_paginas_anime">
+        <item>Español</item>
         <item>Español</item>
     </string-array>
 
@@ -110,6 +112,11 @@
     <string name="reproductorTittle.Settings">Reproductor</string>
     <string name="reprExterno.Settings">Reproductor externo</string>
     <string name="reprExternoSum.Settings">Si no tienes ninguno, te recomendamos MX Player.</string>
+    <string name="actualizacionTittle.Settings">Actualización</string>
+    <string name="tipoActuali.Settings">Tipo de actualización</string>
+    <string name="tipoActualiEnlaces.Settings">Enlaces externos</string>
+    <string name="tipoActualiAuto.Settings">Automático</string>
+
     <!--********************************************************************************************************************************************************************* -->
     <!-- **********************************************************        PopupWindow    *************************************************************************** -->
     <!--********************************************************************************************************************************************************************* -->

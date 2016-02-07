@@ -17,6 +17,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Utilities;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,7 +46,7 @@ public class Preferencias extends PreferenceFragmentCompat {
         getPreferenceManager().setSharedPreferencesName("preferencias");
         addPreferencesFromResource(R.xml.preferences);
         getActivity().setTitle(R.string.preferencias_drawer_layout);
-
+        tipoActualizacionListener();
     }
 
     @Override
@@ -84,6 +85,32 @@ public class Preferencias extends PreferenceFragmentCompat {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+    }
+
+
+    private void tipoActualizacionListener() {
+        SharedPreferences sharedPref = getActivity().getSharedPreferences(Utilities.PREFERENCIAS, Context.MODE_PRIVATE);
+        String opcActual = sharedPref.getString("tipoUptdate", "enlaces");
+        final Preference tipoActuali = getPreferenceManager().findPreference("tipoUptdate");
+
+        if (opcActual.equals("enlaces")) { //enlaces externos
+            tipoActuali.setSummary(R.string.tipoActualiEnlaces_Settings);
+        } else { //automatico
+            tipoActuali.setSummary(R.string.tipoActualiAuto_Settings);
+        }
+
+
+        tipoActuali.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object value) {
+                if (value.equals("enlaces")) { //enlaces externos
+                    tipoActuali.setSummary(R.string.tipoActualiEnlaces_Settings);
+                } else { //automatico
+                    tipoActuali.setSummary(R.string.tipoActualiAuto_Settings);
+                }
+                return true;
+            }
+        });
     }
 
 }

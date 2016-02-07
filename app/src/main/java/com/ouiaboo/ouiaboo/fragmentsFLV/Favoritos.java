@@ -77,6 +77,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
     private void iniciaView(View convertView) {
         coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
         lista = (RecyclerView)convertView.findViewById(R.id.favoritos_recyclerview);
+        lista.setLayoutManager(new LinearLayoutManager(getActivity()));
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         noFavoritos = (TextView)convertView.findViewById(R.id.noFavoritos);
 
@@ -91,7 +92,6 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
             } else {
                 adaptador = new AdBusquedaFLV(getActivity(), animeFavoritos);
                 adaptador.setClickListener(this);
-                lista.setLayoutManager(new LinearLayoutManager(getActivity()));
                 lista.setAdapter(adaptador);
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
                 itemTouchHelper.attachToRecyclerView(lista); //añade la lista a la escucha
@@ -180,7 +180,6 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
             if (!existenFavoritos) {
                 noFavoritos.setVisibility(View.VISIBLE);
             } else {
-                lista.setLayoutManager(new LinearLayoutManager(getActivity()));
                 lista.setAdapter(adaptador);
 
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);

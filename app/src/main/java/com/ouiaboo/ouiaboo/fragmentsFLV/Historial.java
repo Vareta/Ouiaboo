@@ -88,6 +88,7 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
     private void iniciaView(View convertView) {
         coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
         list = (RecyclerView)convertView.findViewById(R.id.historial_recyclerview);
+        list.setLayoutManager(new LinearLayoutManager(getActivity()));
         noHistorial = (TextView)convertView.findViewById(R.id.noHistorial);
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
     }
@@ -101,7 +102,6 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
             } else {
                 adaptador = new AdHomeScreen(getActivity(), animeHistorial);
                 adaptador.setClickListener(this);
-                list.setLayoutManager(new LinearLayoutManager(getActivity()));
                 list.setAdapter(adaptador);
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
                 itemTouchHelper.attachToRecyclerView(list); //añade la lista a la escucha
@@ -215,7 +215,6 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
             if (!existeHistorial) {
                 noHistorial.setVisibility(View.VISIBLE);
             } else {
-                list.setLayoutManager(new LinearLayoutManager(getActivity()));
                 list.setAdapter(adaptador);
 
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);

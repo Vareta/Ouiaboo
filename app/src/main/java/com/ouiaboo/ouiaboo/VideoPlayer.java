@@ -365,8 +365,13 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
                 } else { //video desde internet
                     esDeInternet = true;
                     Document codigoFuente = util.connect(urlEntrada); //obtiene el codigo fuente en forma de elementos
+                    if (codigoFuente == null) {
+                        Log.d("NULL", "NULL");
+                    }
                     if (util.queProveedorEs(getBaseContext()) == Utilities.ANIMEFLV) {
+                        Log.d("ANIMEFLV", urlEntrada);
                         url = anime.urlDisponible(urlEntrada, getBaseContext());
+                        Log.d("URLLL", url);
                         anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
                         anime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
 
@@ -403,7 +408,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e(TAG, "onResume");
+        Log.d(TAG, "onResume");
         AnalyticsApplication.getInstance().trackScreenView("Video Player");
         Log.d(TAG, String.valueOf(posicionGuardada));
         if (posicionGuardada == 0){

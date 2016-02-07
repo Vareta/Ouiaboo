@@ -10,5 +10,18 @@
             android:summary="@string/reprExternoSum.Settings"
             android:title="@string/reprExterno.Settings" />
 
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="actualizacion"
+        android:title="@string/actualizacionTittle.Settings">
+
+        <ListPreference
+            android:defaultValue="enlaces"
+            android:entries="@array/listTipoActuali"
+            android:entryValues="@array/listTipoActualiValues"
+            android:key="tipoUptdate"
+            android:title="@string/tipoActuali.Settings" />
     </PreferenceCategory>
 </PreferenceScreen>

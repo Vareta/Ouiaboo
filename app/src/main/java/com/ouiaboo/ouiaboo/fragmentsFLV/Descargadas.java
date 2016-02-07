@@ -70,6 +70,8 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     private AdDescargadas adaptador;
     private CoordinatorLayout coordinatorLayout;
     private List<String> urlAnimeAux;
+    private SwipeRefreshLayout swipeRefresh;
+    private AdDescargadas.CustomRecyclerListener listener;
 
 
     public Descargadas() {
@@ -88,16 +90,26 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
         View convertView = inflater.inflate(R.layout.fragment_descargadas, container, false);
         getActivity().setTitle(R.string.descargadas_drawer_layout);
         iniciaView(convertView);
+        listener = this;
         iniciaFragment();
+
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new SwipeRefresh().execute(listener);
+            }
+        });
 
         return convertView;
     }
 
     private void iniciaView(View convertView) {
         list = (RecyclerView) convertView.findViewById(R.id.descargados_recyclerview);
+        list.setLayoutManager(new LinearLayoutManager(getActivity()));
         sinDescargados = (TextView) convertView.findViewById(R.id.noDescargados);
         bar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
         coordinatorLayout = (CoordinatorLayout) convertView.findViewById(R.id.coord_layout);
+        swipeRefresh = (SwipeRefreshLayout) convertView.findViewById(R.id.descargadas_swipe_refresh);
     }
 
     private void iniciaFragment() {
@@ -111,7 +123,6 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
                 }
                 adaptador = new AdDescargadas(getActivity(), animeDescargado);
                 adaptador.setClickListener(this);
-                list.setLayoutManager(new LinearLayoutManager(getActivity()));
                 list.setAdapter(adaptador);
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
                 itemTouchHelper.attachToRecyclerView(list); //añade la lista a la escucha
@@ -276,7 +287,6 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
         @Override
         protected void onPostExecute(Void result) {
             if (existenDescargados) {
-                list.setLayoutManager(new LinearLayoutManager(getActivity()));
                 list.setAdapter(adaptador);
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
                 itemTouchHelper.attachToRecyclerView(list); //añade la lista a la escucha
@@ -431,6 +441,79 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
 
     public List<String> getUrlAnimeAux() {
         return urlAnimeAux;
+    }
+
+    private class SwipeRefresh extends AsyncTask<AdDescargadas.CustomRecyclerListener, Void, Void> {
+
+        @Override
+        protected Void doInBackground(AdDescargadas.CustomRecyclerListener... params) {
+            try {
+                String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Ouiaboo"; //direccion de donde se encuentran los capitulos
+                urlAnimeAux = new ArrayList<>();
+                File carpetaDescargados = new File(path);
+                List<DescargadosTable> completas = DataSupport.where("complete=?", String.valueOf(1)).find(DescargadosTable.class);
+                if (!completas.isEmpty()) {
+                    existenDescargados = true;
+                    animeDescargado = new ArrayList<>();
+                    // setComplete(archivos); //busca si hay archivos y los marca como completos
+                    File thumbnailCarpeta = getActivity().getApplicationContext().getDir("imgThumbnail", Context.MODE_PRIVATE); //direccion de donde se guardaran thumbnails
+                    for (int i = 0; i < completas.size(); i++) {
+                        if (completas.get(i).isComplete() && completas.get(i).getImagenPreview() == null) {//comprueba si existen capitulos y que no tengan preview
+                            Bitmap preview = ThumbnailUtils.createVideoThumbnail(completas.get(i).getDirVideo(), MediaStore.Images.Thumbnails.MINI_KIND);
+                            File nombreImg = new File(thumbnailCarpeta, completas.get(i).getNombre());
+                            FileOutputStream fos;
+                            fos = new FileOutputStream(nombreImg + ".jpg");
+                            preview.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                            fos.close();
+
+                            DescargadosTable descargadosTable = new DescargadosTable();
+                            descargadosTable.setImagenPreview(nombreImg.getAbsolutePath() + ".jpg");
+                            descargadosTable.updateAll("urlCapitulo=?", completas.get(i).getUrlCapitulo());
+                        }
+                    }
+
+                    List<DescargadosTable> enDisco = DataSupport.where("complete=?", String.valueOf(1)).find(DescargadosTable.class);
+                    HomeScreenEpi objeto;
+                    /*
+                    A anime descargado se le agrega la direccion del video en vez de url del anime en el atributo urlCapitulo.
+                    Pero como la url del anime tambien se debe ocupar (para efectos de historial) esta se guarda en una lista auxiliar
+                     */
+                    for (int j = 0; j < enDisco.size(); j++) {
+                        objeto = new HomeScreenEpi(enDisco.get(j).getDirVideo(), enDisco.get(j).getNombre(), enDisco.get(j).getTipo(), enDisco.get(j).getImagenPreview());
+                        animeDescargado.add(objeto);
+                        urlAnimeAux.add(enDisco.get(j).getUrlCapitulo());
+                    }
+
+                    adaptador = new AdDescargadas(getActivity(), animeDescargado);
+                    adaptador.setClickListener(params[0]);
+
+                } else {
+                    existenDescargados = false;
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            sinDescargados.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if (existenDescargados) {
+                list.setAdapter(adaptador);
+                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
+                itemTouchHelper.attachToRecyclerView(list); //añade la lista a la escucha
+            } else {
+                sinDescargados.setVisibility(View.VISIBLE);
+            }
+            swipeRefresh.setRefreshing(false);
+        }
     }
 
 }

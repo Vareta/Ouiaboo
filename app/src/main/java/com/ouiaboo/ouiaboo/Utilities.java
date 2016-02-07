@@ -53,8 +53,9 @@ import java.util.Map;
 public class Utilities {
     public static final String PREFERENCIAS = "preferencias";
     public static final int ANIMEFLV = 0;
-    public static final int ANIMEJOY = 1;
+    public static final int REYANIME = 1;
     public static final String URL_APP_UPDATE = "https://aterav.wordpress.com/perro-zapato-camion-corbata/";
+    public static final String URL_APP_DESCARGA = "https://ouiaboo.wordpress.com/descarga/";
     public static final String URL_REPORTE_ERRORES = "https://ouiaboo.wordpress.com/reporte-de-errores/";
     public static final String FRAGMENT_HOMESCREEN = "homescreen";
     public static final String FRAGMENT_VERMASTARDE = "vermastarde";
@@ -223,7 +224,7 @@ public class Utilities {
         if (animeflv) {
             return ANIMEFLV;
         } else {
-            return ANIMEJOY;
+            return REYANIME;
         }
 
     }
@@ -235,13 +236,18 @@ public class Utilities {
             try {
                 URL urlServer = new URL(url);
                 HttpURLConnection urlConn = (HttpURLConnection) urlServer.openConnection();
-                urlConn.setConnectTimeout(3000); //<- 3Seconds Timeout
+                urlConn.setConnectTimeout(10000); //<- 3Seconds Timeout
                 urlConn.connect();
                 //no considera el http 200, ya que si bien el url funciona, no existe el archivo de video por lo cual no se puede reproducir
                 if (urlConn.getResponseCode() == HttpURLConnection.HTTP_PARTIAL || urlConn.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP) {
                     return true;
                 } else {
-                    return false;
+                    if (url.contains("subidas") && urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) { //si es AFLV como servidor
+                        return true;
+                    } else {
+                        return false;
+                    }
+
                 }
             } catch (MalformedURLException e1) {
                 return false;
@@ -405,7 +411,6 @@ public class Utilities {
 
         Element objEnlace = codigoFuente.getElementsByClass("entry-content").first();
         String contenido = objEnlace.select("p").first().text();
-
         String[] aux = contenido.split(" ");
         String version = aux[0], enlace = aux[1];
         resultado.add(version);

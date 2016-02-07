@@ -87,6 +87,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     private void iniciaView(View convertView) {
         coordinatorLayout = (CoordinatorLayout)convertView.findViewById(R.id.coordinator_layout);
         lista = (RecyclerView)convertView.findViewById(R.id.ver_mas_tarde_recyclerview);
+        lista.setLayoutManager(new LinearLayoutManager(getActivity()));
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
         sinResultados = (TextView)convertView.findViewById(R.id.noResultados);
     }
@@ -100,7 +101,6 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
             } else {
                 adaptador = new AdVerMasTarde(getActivity(), masTardeAnime);
                 adaptador.setClickListener(this);
-                lista.setLayoutManager(new LinearLayoutManager(getActivity()));
                 lista.setAdapter(adaptador);
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
                 itemTouchHelper.attachToRecyclerView(lista); //añade la lista a la escucha
@@ -284,7 +284,6 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
             if (!existeAnimeMastarde) {
                 sinResultados.setVisibility(View.VISIBLE);
             } else {
-                lista.setLayoutManager(new LinearLayoutManager(getActivity()));
                 lista.setAdapter(adaptador);
 
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);

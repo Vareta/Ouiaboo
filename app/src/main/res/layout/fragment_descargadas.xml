@@ -5,11 +5,18 @@
     android:layout_height="match_parent"
     tools:context="com.ouiaboo.ouiaboo.fragmentsFLV.Descargadas">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/descargados_recyclerview"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/descargadas_swipe_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:choiceMode="singleChoice" />
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/descargados_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:choiceMode="singleChoice" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <TextView
         android:id="@+id/noDescargados"

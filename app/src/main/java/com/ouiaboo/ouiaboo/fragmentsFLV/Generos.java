@@ -77,6 +77,7 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
 
     private void iniciarView(View convertView) {
         list = (RecyclerView)convertView.findViewById(R.id.generos);
+        list.setLayoutManager(new LinearLayoutManager(getActivity()));
         bar = (ProgressBar)getActivity().findViewById(R.id.progressBar);
     }
 
@@ -86,7 +87,6 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
         } else {
             adaptador = new AdGeneros(getActivity(), generos);
             adaptador.setClickListener(this);
-            list.setLayoutManager(new LinearLayoutManager(getActivity()));
             list.setAdapter(adaptador);
         }
     }
@@ -164,7 +164,6 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
 
         @Override
         protected void onPostExecute(Void result) {
-            list.setLayoutManager(new LinearLayoutManager(getActivity()));
             list.setAdapter(adaptador);
             bar.setVisibility(View.GONE);
             //

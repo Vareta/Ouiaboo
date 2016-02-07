@@ -17,6 +17,7 @@ import com.ouiaboo.ouiaboo.adaptadores.AdSitiosWeb;
 import com.ouiaboo.ouiaboo.clases.SitiosWeb;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends Activity implements AdapterView.OnItemClickListener{
@@ -37,6 +38,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             Log.d("PREF", "primera");
             SharedPreferences.Editor editor = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE).edit();
             editor.putBoolean("animeflv", true);
+            editor.putBoolean("reyanime", false);
             //editor.putBoolean("animejoy", false);
             editor.apply();
             PreferenceManager.setDefaultValues(this, PREFERENCIAS, MODE_PRIVATE, R.xml.preferences, false);
@@ -52,7 +54,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         String[] paginasWebNombre = getResources().getStringArray(R.array.paginas_anime);
         String[] paginasWebIdioma = getResources().getStringArray(R.array.idioma_paginas_anime);
 
-        ArrayList webList = new ArrayList<SitiosWeb>();
+        List<SitiosWeb> webList = new ArrayList<SitiosWeb>();
 
         for (int i = 0; i < paginasWebNombre.length; i++){
             webList.add(new SitiosWeb(paginasWebNombre[i], paginasWebIdioma[i]));
@@ -89,15 +91,15 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             if (position == 0){ //AnimeFLV
                 editor.putBoolean("animeflv", true);
                 //editor.putBoolean("animejoy", false);
-            }/*else{
-                if (position == 1){ //KissAnime
+            }else{
+                if (position == 1){ //Reyanime
                     editor.putBoolean("animeflv", false);
-                    editor.putBoolean("animejoy", true);
+                    editor.putBoolean("reyanime", true);
                 }
-            }*/
+            }
         editor.apply();
 
-        SharedPreferences prefs = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE);
+        //SharedPreferences prefs = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE);
 
        // Log.d(TAG,  "AnimeFLV  "+prefs.getBoolean("animeflv", false) + "  Animejoy" + prefs.getBoolean("animejoy", false));
 

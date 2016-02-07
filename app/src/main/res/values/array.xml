@@ -1,0 +1,10 @@
+<resources>
+    <string-array name="listTipoActuali">
+        <item>Enlaces externos</item>
+        <item>Automático</item>
+    </string-array>
+    <string-array name="listTipoActualiValues">
+        <item>enlaces</item>
+        <item>automatico</item>
+    </string-array>
+</resources>

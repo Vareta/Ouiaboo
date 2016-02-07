@@ -37,6 +37,7 @@ import com.ouiaboo.ouiaboo.Animejoy;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Reyanime;
 import com.ouiaboo.ouiaboo.Tables.DescargadosTable;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
@@ -57,15 +58,15 @@ import java.util.List;
  * to handle interaction events.
  */
 public class HomeScreen extends android.support.v4.app.Fragment implements AdHomeScreen.CustomRecyclerListener {
-    private String animeFLV = "http://animeflv.net/";
-    private String animeJoy = "http://www.animejoy.tv/";
+    private String animeflvUrl = "http://animeflv.net/";
+    private String reyanimeUrl = "http://reyanime.com/";
     private OnFragmentInteractionListener mListener;
     private AdHomeScreen adaptador;
     private RecyclerView list;
     private ProgressBar bar;
     private List<HomeScreenEpi> animesRecientes;
-    private Animeflv flvAnimes;
-    private Animejoy joyAnimes;
+    private Animeflv animeflv;
+    private Reyanime reyanime;
     private Utilities util;
     private CoordinatorLayout coordLayout;
     private Snackbar snackbar;
@@ -115,6 +116,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     private void iniciaView(View convertView) {
         coordLayout = (CoordinatorLayout) convertView.findViewById(R.id.coord_layout);
         list = (RecyclerView) convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
+        list.setLayoutManager(new LinearLayoutManager(getActivity()));
         bar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
         downloadBar = (ProgressBar)getActivity().findViewById(R.id.updateAppProgressBar);
         ((ProgressBar)getActivity().findViewById(R.id.updateAppProgressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.rojo), PorterDuff.Mode.SRC_IN);
@@ -132,7 +134,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         } else {
             adaptador = new AdHomeScreen(getActivity(), animesRecientes);
             adaptador.setClickListener(this);
-            list.setLayoutManager(new LinearLayoutManager(getActivity()));
             list.setAdapter(adaptador);
         }
     }
@@ -254,7 +255,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
 
     private class GetAnimeHomeScreen extends AsyncTask<AdHomeScreen.CustomRecyclerListener, Void, Void> {
-
         @Override
         protected Void doInBackground(AdHomeScreen.CustomRecyclerListener... params) {
             try {
@@ -262,13 +262,13 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 Document codigoFuente;
                 Log.d("PROVEEDOR", String.valueOf(util.queProveedorEs(getContext())));
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
-                    flvAnimes = new Animeflv();
-                    codigoFuente = util.connect(animeFLV);
-                    animesRecientes = flvAnimes.homeScreenAnimeFlv(codigoFuente, getResources());
+                    animeflv = new Animeflv();
+                    codigoFuente = util.connect(animeflvUrl);
+                    animesRecientes = animeflv.homeScreenAnimeFlv(codigoFuente, getResources());
                 } else {
-                    joyAnimes = new Animejoy();
-                    codigoFuente = util.connect(animeJoy);
-                    animesRecientes = joyAnimes.homeScreenAnimejoy(codigoFuente, getResources());
+                    reyanime = new Reyanime();
+                    codigoFuente = util.connect(reyanimeUrl);
+                    animesRecientes = reyanime.homeScreen(codigoFuente, getResources());
                 }
                /* for (int i = 0; i < animesRecientes.size(); i++){
 
@@ -277,7 +277,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                     Log.d("Informacion", animesRecientes.get(i).getInformacion());
                     Log.d("Preview", animesRecientes.get(i).getPreview());
                 }*/
-
+                listener = params[0];
                 adaptador = new AdHomeScreen(getActivity(), animesRecientes);
                 adaptador.setClickListener(params[0]);
 
@@ -295,7 +295,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
         @Override
         protected void onPostExecute(Void result) {
-            list.setLayoutManager(new LinearLayoutManager(getActivity()));
             list.setAdapter(adaptador);
             bar.setVisibility(View.GONE);
             //
@@ -310,9 +309,9 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
             try {
                 util = new Utilities();
                 Document codigoFuente;
-                flvAnimes = new Animeflv();
-                codigoFuente = util.connect(animeFLV);
-                animesRecientes = flvAnimes.homeScreenAnimeFlv(codigoFuente, getResources());
+                animeflv = new Animeflv();
+                codigoFuente = util.connect(animeflvUrl);
+                animesRecientes = animeflv.homeScreenAnimeFlv(codigoFuente, getResources());
 
                 adaptador = new AdHomeScreen(getActivity(), animesRecientes);
                 adaptador.setClickListener(params[0]);
@@ -329,7 +328,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
         @Override
         protected void onPostExecute(Void result) {
-            list.setLayoutManager(new LinearLayoutManager(getActivity()));
             list.setAdapter(adaptador);
             swipeRefresh.setRefreshing(false);
         }
@@ -343,7 +341,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
         @Override
         protected Void doInBackground(String... params) {
-            url = flvAnimes.urlCapituloToUrlAnime(params[0]);
+            url = animeflv.urlCapituloToUrlAnime(params[0]);
             return null;
         }
 

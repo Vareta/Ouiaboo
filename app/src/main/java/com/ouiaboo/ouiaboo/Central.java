@@ -5,6 +5,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -482,7 +483,7 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
                 String PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
                 File file = new File(PATH);
                 file.mkdirs();
-                outputFile = new File(file, "update.mp4");
+                outputFile = new File(file, "Ouiaboo.apk");
                 if(outputFile.exists()){
                     outputFile.delete();
                 }
@@ -537,7 +538,16 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
             builder.setPositiveButton(R.string.aceptarDialog_Central, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    new ActualizarAplicacion().execute(urlUpdate);
+                    SharedPreferences sharedPref = getSharedPreferences(Utilities.PREFERENCIAS, Context.MODE_PRIVATE);
+                    String opcion = sharedPref.getString("tipoUptdate", "enlaces");
+
+                    if (opcion.equals("enlaces")) { //si esta marcada la opcion de enlaces, envia hacia la pagina
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse(Utilities.URL_APP_DESCARGA));
+                        startActivity(intent);
+                    } else { //Si es automatico, descarga automaticamente la aplicacion
+                        new ActualizarAplicacion().execute(urlUpdate);
+                    }
                 }
             });
 

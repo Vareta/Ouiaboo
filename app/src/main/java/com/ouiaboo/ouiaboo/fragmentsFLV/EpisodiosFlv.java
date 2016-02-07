@@ -232,7 +232,13 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
         @Override
         protected Void doInBackground(Void... params) {
             Animeflv animeflv = new Animeflv();
+            Log.d("URLDOWNLOAD", "hola");
             String url = animeflv.urlDisponible(episodios.get(posicionAnime).getUrlEpisodio(), getActivity()); //consigue la url del video a descargar
+            if (url == null) {
+                Log.d("URLDOWNLOAD", "hola3");
+            }
+            Log.d("URLDOWNLOAD", "hola2");
+            Log.d("URLDOWNLOAD", url);
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setDescription(episodios.get(posicionAnime).getNumero()); //descripcion de la notificacion
             request.setTitle(episodios.get(0).getNombreAnime()); //titulo de la notificacion

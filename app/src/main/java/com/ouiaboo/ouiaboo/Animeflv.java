@@ -605,7 +605,7 @@ public class Animeflv{
                 }
             }
         }
-
+        Log.d("URL", url);
         return url;
     }
 
@@ -625,7 +625,6 @@ public class Animeflv{
             resultado.add(new GenerosClass(nombre, url));
         }
 
-        Log.d("GENEROS", String.valueOf(resultado.size()));
         return resultado;
     }
 
