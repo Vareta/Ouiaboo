@@ -29,6 +29,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -153,7 +154,7 @@ public class Utilities {
             connection.connect();
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "ISO-8859-1"));
             // StringBuilder sb = new StringBuilder();
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) { // Read line by line
                 // sb.append(line);
                // Log.d("STRING", line);
@@ -166,6 +167,31 @@ public class Utilities {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return lista;
+
+    }
+
+    public String getDataFromUrl (String url) {
+
+        String lista;
+        StringBuilder result = new StringBuilder();
+        URL urlPagina;
+        try {
+
+            urlPagina = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection)urlPagina.openConnection();
+
+            InputStream in = new BufferedInputStream(connection.getInputStream());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result.append(line);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        lista = result.toString();
         return lista;
 
     }
@@ -236,17 +262,14 @@ public class Utilities {
             try {
                 URL urlServer = new URL(url);
                 HttpURLConnection urlConn = (HttpURLConnection) urlServer.openConnection();
-                urlConn.setConnectTimeout(10000); //<- 3Seconds Timeout
+                urlConn.setConnectTimeout(20000); //<- 3Seconds Timeout
                 urlConn.connect();
-                //no considera el http 200, ya que si bien el url funciona, no existe el archivo de video por lo cual no se puede reproducir
-                if (urlConn.getResponseCode() == HttpURLConnection.HTTP_PARTIAL || urlConn.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP) {
+
+                Log.d("CODIGO", String.valueOf(urlConn.getResponseCode()));
+                if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     return true;
                 } else {
-                    if (url.contains("subidas") && urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) { //si es AFLV como servidor
-                        return true;
-                    } else {
-                        return false;
-                    }
+                   return false;
 
                 }
             } catch (MalformedURLException e1) {

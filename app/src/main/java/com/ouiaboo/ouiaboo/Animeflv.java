@@ -1,17 +1,14 @@
 package com.ouiaboo.ouiaboo;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.util.Log;
-import android.webkit.CookieManager;
 
-import com.ouiaboo.ouiaboo.Tables.HistorialFlvTable;
-import com.ouiaboo.ouiaboo.Tables.HistorialTable;
+import com.ouiaboo.ouiaboo.Tables.animeflv.HistorialFlvTable;
+import com.ouiaboo.ouiaboo.Tables.animeflv.HistorialTable;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.GenerosClass;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
-import com.ouiaboo.ouiaboo.fragmentsFLV.Historial;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,12 +20,15 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by Vareta on 29-07-2015.
@@ -505,15 +505,25 @@ public class Animeflv{
                     auxUrl = localMatcher.group(1);
                     //System.out.println(aux);
                     try {
-                        url = URLDecoder.decode("http://animeflv.net/video/izanagi.php?key=" + auxUrl, "UTF-8");
+                        url = URLDecoder.decode("https://animeflv.net/embed_izanagi.php?key=" + auxUrl, "UTF-8");
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
                 }
             }
         }
+        //Ahora se procede a obtener la direccion del video (debido a que animeflv actualizo la forma en que se obtiene la url de izanagi
+        Utilities util = new Utilities();
+        List<String> urlResponse = util.downloadWebPageTaskNoAsync(url);
+        for (int j = 0; j < urlResponse.size(); j++) {
+            if (urlResponse.get(j).contains("file")) {
+                String[] dataAux = urlResponse.get(j).split(" "); //elimina los espacios de la linea que contiene: file: 'url',
+                String[] urlAux = dataAux[dataAux.length - 1].split("'"); //elimina los apostrofes (') de: 'url',
 
-
+                url = urlAux[1]; //en el lugar 1 se encuentra la url del video
+            }
+        }
+        Log.d("URLIZANAGI", url);
         return url;
     }
 

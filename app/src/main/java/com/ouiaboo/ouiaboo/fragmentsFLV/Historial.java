@@ -1,15 +1,12 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.CoordinatorLayout;
@@ -27,13 +24,13 @@ import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.R;
-import com.ouiaboo.ouiaboo.Tables.HistorialTable;
+import com.ouiaboo.ouiaboo.Tables.animeflv.HistorialTable;
+import com.ouiaboo.ouiaboo.Tables.reyanime.HistorialTableRey;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
 import com.ouiaboo.ouiaboo.adaptadores.AdHomeScreen;
@@ -182,19 +179,36 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
 
         @Override
         protected Void doInBackground(AdHomeScreen.CustomRecyclerListener... params) {
+            Utilities util = new Utilities();
             try {
-                List<HistorialTable> datos = DataSupport.findAll(HistorialTable.class);
-                if (datos.isEmpty()) {
-                    existeHistorial = false;
-                } else {
-                    existeHistorial = true;
-                    animeHistorial = new ArrayList<>();
-                    for (int i = datos.size() - 1; i >= 0; i--) {
-                        animeHistorial.add(new HomeScreenEpi(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
-                    }
+                if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    List<HistorialTable> datos = DataSupport.findAll(HistorialTable.class);
+                    if (datos.isEmpty()) {
+                        existeHistorial = false;
+                    } else {
+                        existeHistorial = true;
+                        animeHistorial = new ArrayList<>();
+                        for (int i = datos.size() - 1; i >= 0; i--) {
+                            animeHistorial.add(new HomeScreenEpi(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
+                        }
 
-                    adaptador = new AdHomeScreen(getActivity(), animeHistorial);
-                    adaptador.setClickListener(params[0]);
+                        adaptador = new AdHomeScreen(getActivity(), animeHistorial);
+                        adaptador.setClickListener(params[0]);
+                    }
+                } else {
+                    List<HistorialTableRey> datos = DataSupport.findAll(HistorialTableRey.class);
+                    if (datos.isEmpty()) {
+                        existeHistorial = false;
+                    } else {
+                        existeHistorial = true;
+                        animeHistorial = new ArrayList<>();
+                        for (int i = datos.size() - 1; i >= 0; i--) {
+                            animeHistorial.add(new HomeScreenEpi(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
+                        }
+
+                        adaptador = new AdHomeScreen(getActivity(), animeHistorial);
+                        adaptador.setClickListener(params[0]);
+                    }
                 }
 
             }catch(Exception e){

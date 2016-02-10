@@ -1,7 +1,7 @@
 package com.ouiaboo.ouiaboo;
 
-import com.ouiaboo.ouiaboo.Tables.FavoritosTable;
-import com.ouiaboo.ouiaboo.Tables.VerMasTardeTable;
+import com.ouiaboo.ouiaboo.Tables.animeflv.FavoritosTable;
+import com.ouiaboo.ouiaboo.Tables.animeflv.VerMasTardeTable;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 

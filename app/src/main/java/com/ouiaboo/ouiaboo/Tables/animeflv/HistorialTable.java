@@ -1,4 +1,4 @@
-package com.ouiaboo.ouiaboo.Tables;
+package com.ouiaboo.ouiaboo.Tables.animeflv;
 
 import org.litepal.crud.DataSupport;
 

@@ -1,21 +1,21 @@
-package com.ouiaboo.ouiaboo.Tables;
+package com.ouiaboo.ouiaboo.Tables.reyanime;
 
 import org.litepal.crud.DataSupport;
 
 /**
  * Created by Vareta on 03-10-2015.
  */
-public class FavoritosTable extends DataSupport {
+public class HistorialTableRey extends DataSupport {
     private String nombre;
     private String tipo;
     private String urlImagen;
-    private String urlAnime;
+    private String urlCapitulo;
 
-    public FavoritosTable(String nombre, String tipo, String urlImagen, String urlAnime) {
+    public HistorialTableRey(String nombre, String tipo, String urlImagen, String urlCapitulo) {
         this.nombre = nombre;
         this.tipo = tipo;
         this.urlImagen = urlImagen;
-        this.urlAnime = urlAnime;
+        this.urlCapitulo = urlCapitulo;
     }
 
     public void setNombre(String nombre) {
@@ -27,8 +27,8 @@ public class FavoritosTable extends DataSupport {
     public void setUrlImagen(String urlImagen) {
         this.urlImagen = urlImagen;
     }
-    public void setUrlAnime(String urlAnime) {
-        this.urlAnime = urlAnime;
+    public void setUrlCapitulo(String urlAnime) {
+        this.urlCapitulo = urlAnime;
     }
     public String getNombre() {
         return nombre;
@@ -39,7 +39,7 @@ public class FavoritosTable extends DataSupport {
     public String getUrlImagen() {
         return urlImagen;
     }
-    public String getUrlAnime() {
-        return urlAnime;
+    public String getUrlCapitulo() {
+        return urlCapitulo;
     }
 }

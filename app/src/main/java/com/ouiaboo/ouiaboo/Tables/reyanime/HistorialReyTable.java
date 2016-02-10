@@ -1,15 +1,15 @@
-package com.ouiaboo.ouiaboo.Tables;
+package com.ouiaboo.ouiaboo.Tables.reyanime;
 
 import org.litepal.crud.DataSupport;
 
 /**
  * Created by Vareta on 17-11-2015.
  */
-public class HistorialFlvTable extends DataSupport {
+public class HistorialReyTable extends DataSupport {
     private String nombre;
     private String urlEpisodio;
 
-    public HistorialFlvTable(String nombre, String urlEpisodio) {
+    public HistorialReyTable(String nombre, String urlEpisodio) {
         this.nombre = nombre;
         this.urlEpisodio = urlEpisodio;
     }

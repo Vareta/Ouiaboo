@@ -87,10 +87,10 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_video_player);
 
-        bar = (ProgressBar)findViewById(R.id.progressBar);
+        bar = (ProgressBar) findViewById(R.id.progressBar);
         //cambia el color de la barra de progreso circular
-        ((ProgressBar)findViewById(R.id.progressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this, R.color.accent_light), PorterDuff.Mode.SRC_IN);
-        video = (VideoView)findViewById(R.id.videoView);
+        ((ProgressBar) findViewById(R.id.progressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this, R.color.accent_light), PorterDuff.Mode.SRC_IN);
+        video = (VideoView) findViewById(R.id.videoView);
 
         getData();
 
@@ -100,10 +100,10 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
 
         //Botones, seekbar y texfield
 
-        play_pause_button = (ToggleButton)findViewById(R.id.playPauseButton);
-        tiempo_actual = (TextView)findViewById(R.id.tiempoActual);
-        tiempo_total = (TextView)findViewById(R.id.tiempoTotal);
-        barraProgreso = (SeekBar)findViewById(R.id.seekBar);
+        play_pause_button = (ToggleButton) findViewById(R.id.playPauseButton);
+        tiempo_actual = (TextView) findViewById(R.id.tiempoActual);
+        tiempo_total = (TextView) findViewById(R.id.tiempoTotal);
+        barraProgreso = (SeekBar) findViewById(R.id.seekBar);
         barraProgreso.setOnSeekBarChangeListener(this);
 
 
@@ -164,7 +164,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         play_pause_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (play_pause_button.isChecked()){
+                if (play_pause_button.isChecked()) {
                     video.start();
                 } else {
                     video.pause();
@@ -216,8 +216,6 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
             }
         });
     }
-
-
 
 
     @Override
@@ -284,24 +282,25 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
-    private String milliSecondsToTimer(long milliseconds){
+    private String milliSecondsToTimer(long milliseconds) {
         String finalTimerString = "";
         String secondsString = "";
 
         // Convert total duration into time
-        int hours = (int)( milliseconds / (1000*60*60));
-        int minutes = (int)(milliseconds % (1000*60*60)) / (1000*60);
-        int seconds = (int) ((milliseconds % (1000*60*60)) % (1000*60) / 1000);
+        int hours = (int) (milliseconds / (1000 * 60 * 60));
+        int minutes = (int) (milliseconds % (1000 * 60 * 60)) / (1000 * 60);
+        int seconds = (int) ((milliseconds % (1000 * 60 * 60)) % (1000 * 60) / 1000);
         // Add hours if there
-        if(hours > 0){
+        if (hours > 0) {
             finalTimerString = hours + ":";
         }
 
         // Prepending 0 to seconds if it is one digit
-        if(seconds < 10){
+        if (seconds < 10) {
             secondsString = "0" + seconds;
-        }else{
-            secondsString = "" + seconds;}
+        } else {
+            secondsString = "" + seconds;
+        }
 
         finalTimerString = finalTimerString + minutes + ":" + secondsString;
 
@@ -334,7 +333,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
                 if (play_pause_button.isChecked()) { //si esta en pause se desmarca (se muestra play)
                     play_pause_button.setChecked(false);
                 }
-                if (tTotal.equals(tActual)){
+                if (tTotal.equals(tActual)) {
                     finish();
                     Log.d(TAG, "Finish");
                 }
@@ -356,29 +355,32 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         @Override
         protected Void doInBackground(Void... params) {
             Utilities util = new Utilities();
-            Animeflv anime = new Animeflv();
             try {
-                if (objEpi.getInformacion().equals("descargado")) { //video almacenado en el dispositivo
-                    esDeInternet = false;
-                    url = urlEntrada;
-                    anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getPreview()); //se usa preview ya que en este campo se guarda la url del anime cuando este proviene del dispositivo
-                } else { //video desde internet
-                    esDeInternet = true;
-                    Document codigoFuente = util.connect(urlEntrada); //obtiene el codigo fuente en forma de elementos
-                    if (codigoFuente == null) {
-                        Log.d("NULL", "NULL");
-                    }
-                    if (util.queProveedorEs(getBaseContext()) == Utilities.ANIMEFLV) {
+                if (util.queProveedorEs(getBaseContext()) == Utilities.ANIMEFLV) {
+                    Animeflv anime = new Animeflv();
+                    if (objEpi.getInformacion().equals("descargado")) { //video almacenado en el dispositivo
+                        esDeInternet = false;
+                        url = urlEntrada;
+                        anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getPreview()); //se usa preview ya que en este campo se guarda la url del anime cuando este proviene del dispositivo
+                    } else { //video desde internet
+                        esDeInternet = true;
+                        Document codigoFuente = util.connect(urlEntrada); //obtiene el codigo fuente en forma de elementos
+                        if (codigoFuente == null) {
+                            Log.d("NULL", "NULL");
+                        }
                         Log.d("ANIMEFLV", urlEntrada);
                         url = anime.urlDisponible(urlEntrada, getBaseContext());
                         Log.d("URLLL", url);
                         anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
                         anime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
-
-                    } else {
-                        Animejoy joyAnime = new Animejoy();
-                        url = joyAnime.urlVideo(codigoFuente);
                     }
+                } else {
+                    Log.d("REYANIME", urlEntrada);
+                    Reyanime reyanime = new Reyanime();
+                    url = reyanime.urlDisponible(urlEntrada, getBaseContext());
+                    Log.d("URLLL", url);
+                    reyanime.añadirHistorialRey(objEpi.getNombre(), objEpi.getUrlCapitulo());
+                    reyanime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo());
                 }
 
             } catch (Exception e) {
@@ -411,7 +413,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         Log.d(TAG, "onResume");
         AnalyticsApplication.getInstance().trackScreenView("Video Player");
         Log.d(TAG, String.valueOf(posicionGuardada));
-        if (posicionGuardada == 0){
+        if (posicionGuardada == 0) {
             //video.start();
             //reproducir(url);
             //new GetVideoUrlAndPlay().execute();
@@ -429,7 +431,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
                         @Override
                         public void onSeekComplete(MediaPlayer mp) {
                             Log.d(TAG, "onSeeker listener ready");
-                                mHideHandler.postDelayed(mUpdateTimeTask, 100);
+                            mHideHandler.postDelayed(mUpdateTimeTask, 100);
                             video.start();
                             bar.setVisibility(View.GONE);
                             //video.pause();
@@ -443,7 +445,7 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
     }
 
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause");
         posicionGuardada = video.getCurrentPosition();

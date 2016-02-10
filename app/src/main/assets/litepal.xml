@@ -32,10 +32,14 @@
         </list>
     -->
     <list>
-        <mapping class="com.ouiaboo.ouiaboo.Tables.FavoritosTable"></mapping>
-        <mapping class="com.ouiaboo.ouiaboo.Tables.HistorialTable"></mapping>
-        <mapping class="com.ouiaboo.ouiaboo.Tables.VerMasTardeTable"></mapping>
+        <mapping class="com.ouiaboo.ouiaboo.Tables.animeflv.FavoritosTable"></mapping>
+        <mapping class="com.ouiaboo.ouiaboo.Tables.animeflv.HistorialTable"></mapping>
+        <mapping class="com.ouiaboo.ouiaboo.Tables.animeflv.VerMasTardeTable"></mapping>
         <mapping class="com.ouiaboo.ouiaboo.Tables.DescargadosTable"></mapping>
-        <mapping class="com.ouiaboo.ouiaboo.Tables.HistorialFlvTable"></mapping>
+        <mapping class="com.ouiaboo.ouiaboo.Tables.animeflv.HistorialFlvTable"></mapping>
+        <mapping class="com.ouiaboo.ouiaboo.Tables.reyanime.FavoritosTableRey"></mapping>
+        <mapping class="com.ouiaboo.ouiaboo.Tables.reyanime.HistorialTableRey"></mapping>
+        <mapping class="com.ouiaboo.ouiaboo.Tables.reyanime.VerMasTardeTableRey"></mapping>
+        <mapping class="com.ouiaboo.ouiaboo.Tables.reyanime.HistorialReyTable"></mapping>
     </list>
 </litepal>
