@@ -2,4 +2,4 @@ Ouiaboo es una aplicacion en Android que permite la visualizacion de Animeflv.ne
 
 Dentro de las características, se encuentra la reproducción y descarga del contenido, y la nula presencia de publicidad.
 
-[Pagina web ouiaboo](ouiaboo.wordpress.com)
+[Pagina web ouiaboo](https://ouiaboo.wordpress.com/)
