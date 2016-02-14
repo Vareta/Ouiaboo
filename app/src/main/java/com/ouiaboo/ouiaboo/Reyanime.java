@@ -2,6 +2,7 @@ package com.ouiaboo.ouiaboo;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 
 import com.ouiaboo.ouiaboo.Tables.reyanime.HistorialReyTable;
 import com.ouiaboo.ouiaboo.Tables.reyanime.HistorialTableRey;
@@ -165,5 +166,52 @@ public class Reyanime {
                 historial.save();
             }
         }
+    }
+
+    public List<HomeScreenEpi> busqueda(Document codigoFuente){
+        List<HomeScreenEpi> search = new ArrayList<>();
+        String urlAnime, nombre, informacion, informacionAux, preview;
+        Elements objetosBusqueda, objetosEpi;
+        objetosBusqueda = codigoFuente.getElementsByClass("resultado");//contiene los episodios resultantes de la busqueda
+        objetosEpi = objetosBusqueda.select("a"); //contiene los episodios diarios como una lista
+        if (objetosEpi.isEmpty()) {
+            search = null;
+            Log.d("Empty", "busqueda reyanime no produce resultados");
+        } else {
+            Element dirAnime; //primer elemento del objeto objetosEpi que contiene el nombre, link e imagen del anime
+            Element dirAnimeTipo; //elemento que contiene la informacion acerca si es pelicula, ova o serie
+            for (int i = 0; i < objetosEpi.size(); i++) {
+                preview = objetosEpi.get(i).select("img").attr("src");
+                urlAnime = "http://reyanime.com" + objetosEpi.get(i).attr("href");
+                nombre = objetosEpi.get(i).attr("title");
+                informacionAux = objetosEpi.get(i).select("h3").select("i").text(); //si es pelicula, ova o serie
+                informacion = informacionAux.replaceAll("[()]", "");
+                /*System.out.println("url  : " + urlAnime);
+                System.out.println("Nombre  : " + nombre);
+                System.out.println("Imagen  : " + preview);
+                System.out.println("Tipo  : " + informacion);*/
+
+                HomeScreenEpi item = new HomeScreenEpi(urlAnime, nombre, informacion, preview); //crea un item tipo homescreen y le añade los valores
+                search.add(item); //agrega el item a la lista de items
+            }
+        }
+
+        return search;
+    }
+
+    /*verifica si la pagina contiene mas elementos que mostrar en una segunda pagina.
+    * En caso de existir devuelve la url de dicha pagina
+    */
+    public String siguientePagina(Document codigoFuente) {
+        String urlPagina = "";
+
+        Element numPaginas = codigoFuente.getElementsByClass("paginacion").select("div").first();
+        Element pagSiguiente = numPaginas.select("a").last();
+        Element siguiente = pagSiguiente.getElementsByClass("next").first();
+        if (siguiente != null) {
+            urlPagina = "http://reyanime.com" + pagSiguiente.attr("href");
+        }
+
+        return urlPagina;
     }
 }

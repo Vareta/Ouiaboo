@@ -25,10 +25,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Headers;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * Created by Vareta on 29-07-2015.
@@ -268,7 +264,7 @@ public class Animeflv{
         objetosEpi = codigoFuente.getElementsByClass("aboxy_lista");
         if (objetosEpi.isEmpty()){ // si no contiene la clase, es decir la busqueda no produjo resultados
             search = null;
-            Log.d("Empty", "busqueda no produce resultados");
+            Log.d("Empty", "busqueda animeflv no produce resultados");
         } else {
             Element dirAnime; //primer elemento del objeto aboxy_lista(i) que contiene el nombre, link e imagen del anime
             Element dirAnimeTipo; //elemento que contiene la informacion acerca si es pelicula, ova o serie
@@ -550,6 +546,8 @@ public class Animeflv{
         return urlFinal;
     }
 
+
+    /*Servidor eliminado por animeflv*/
     public String urlHyperionServer(List<String> paginaWeb){
         String auxUrl = "", url = "";
 
@@ -572,9 +570,40 @@ public class Animeflv{
             }
         }
 
+        return url;
+    }
 
 
+    public String urlKamiServer(List<String> paginaWeb){
+        String url = "", auxUrl = "";
 
+        int max = paginaWeb.size();
+
+        for (int i = 0; i < max; i++) {
+            if (paginaWeb.get(i).contains("var videos")) {
+                Matcher localMatcher = Pattern.compile("kami.php\\?key=(.*?)\"").matcher(paginaWeb.get(i));
+                //Log.d("URL  ", paginaWeb.get(i));
+                while (localMatcher.find()) {
+                    auxUrl = localMatcher.group(1);
+                    //System.out.println(aux);
+                    try {
+                        url = URLDecoder.decode("https://animeflv.net/video/kami.php?key=" + auxUrl, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        //Ahora se procede a obtener la direccion del video (debido a que animeflv actualizo la forma en que se obtiene la url de izanagi
+        Utilities util = new Utilities();
+        List<String> urlResponse = util.downloadWebPageTaskNoAsync(url);
+        for (int j = 0; j < urlResponse.size(); j++) {
+            if (urlResponse.get(j).contains("file")) {
+                String[] dataAux = urlResponse.get(j).split("\""); //elimina los espacios de la linea que contiene: sources: [{file: "http://2.bp.blogspot.com/au5Dbu69zEyYwuN5H_CctNXFfWrsfFcp79WWwSC1BzWL=m18", label: "360", type: "video/mp4"}],
+                url = dataAux[1]; //en el lugar 1 se encuentra la url del video
+            }
+        }
+        Log.d("URLKAMI", url);
         return url;
     }
 
@@ -586,28 +615,28 @@ public class Animeflv{
         Utilities util = new Utilities();
         List<String> codFuente = util.downloadWebPageTaskNoAsync(urlEpisodio); //obtiene el codigo fuente en forma de una lista de string
         String urlAux;
-        boolean hyperionDisponible = true, izanagiDisponible = false;
+        boolean  izanagiDisponible = true, kamiDisponible = false;
 
-        urlAux = urlHyperionServer(codFuente);
+        urlAux = urlIzanagiServer(codFuente);
         if (!urlAux.equals("")) {
             if (util.isServerReachable(urlAux, context)) {
                 url = urlAux;
             } else {
-                hyperionDisponible = false;
+                izanagiDisponible = false;
             }
         } else {
-            hyperionDisponible = false;
+            izanagiDisponible = false;
         }
-        if (!hyperionDisponible) {
-            urlAux = urlIzanagiServer(codFuente);
+        if (!izanagiDisponible) {
+            urlAux = urlKamiServer(codFuente);
             if (!urlAux.equals("")) { //revisa si existe la url
                 if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible
                     url = urlAux;
-                    izanagiDisponible = true;
+                    kamiDisponible = true;
                 }
             }
         }
-        if (!izanagiDisponible && !hyperionDisponible) {
+        if (!izanagiDisponible && !kamiDisponible) {
             urlAux = urlFLVServer(codFuente);
             if (!urlAux.equals("")) {
                 if (util.isServerReachable(urlAux, context)) {

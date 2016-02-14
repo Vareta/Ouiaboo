@@ -264,12 +264,16 @@ public class Utilities {
                 HttpURLConnection urlConn = (HttpURLConnection) urlServer.openConnection();
                 urlConn.setConnectTimeout(20000); //<- 3Seconds Timeout
                 urlConn.connect();
-
+                int status = urlConn.getResponseCode();
                 Log.d("CODIGO", String.valueOf(urlConn.getResponseCode()));
-                if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                if (status == HttpURLConnection.HTTP_OK) { //servidor izanagi animeflv
                     return true;
                 } else {
-                   return false;
+                    if (url.contains("blogspot") && status == HttpURLConnection.HTTP_MOVED_TEMP) { //servidor kami animeflv
+                        return true;
+                    } else {
+                        return false;
+                    }
 
                 }
             } catch (MalformedURLException e1) {

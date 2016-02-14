@@ -13,19 +13,16 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Reyanime;
 import com.ouiaboo.ouiaboo.Utilities;
-import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
 import com.ouiaboo.ouiaboo.adaptadores.AdGenerosEndless;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
 import org.jsoup.nodes.Document;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,7 +37,8 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdGener
     private RecyclerView list;
     private ProgressBar bar;
     private String searchQuery;
-    private String queryTemplate = "http://animeflv.net/animes/?buscar=";
+    private String queryTemplateFlv = "http://animeflv.net/animes/?buscar=";
+    private String queryTemplateRey = "http://reyanime.com/anime/?title=";
     private List<HomeScreenEpi> animesBuscados;
     private List<HomeScreenEpi> animesBuscadosSiguiente;
     private AdGenerosEndless adaptador;
@@ -152,7 +150,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdGener
             }
         }
 
-        busqueda = queryTemplate + aux;
+        busqueda = aux;
 
         return busqueda;
     }
@@ -162,22 +160,45 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdGener
 
         @Override
         protected Void doInBackground(AdGenerosEndless.CustomRecyclerListener... params) {
-            Animeflv anime = new Animeflv();
+            String urlBusqueda;
             Utilities util = new Utilities();
-            try {
-                Document codigoFuente = util.connect(searchQuery);
-                animesBuscados = anime.busquedaFLV(codigoFuente);
+            Document codigoFuente;
 
-                if (animesBuscados == null) {
-                    produceResultados = false;
-                } else {
-                    //  System.out.println("tamaño  " + animesBuscados.size());
-                    produceResultados = true;
-                    urlSiguiente = anime.siguientePagina(codigoFuente);
-                    Log.d("URL", urlSiguiente);
-                    tienePaginaSiguiente = !urlSiguiente.equals(""); //comprueba si tiene pagina siguiente
-                    adaptador = new AdGenerosEndless(getActivity(), animesBuscados, list);
-                    adaptador.setClickListener(params[0]);
+            try {
+                if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    Animeflv animeflv = new Animeflv();
+                    urlBusqueda = queryTemplateFlv + searchQuery;
+                    codigoFuente = util.connect(urlBusqueda);
+                    animesBuscados = animeflv.busquedaFLV(codigoFuente);
+
+                    if (animesBuscados == null) {
+                        produceResultados = false;
+                    } else {
+                        //  System.out.println("tamaño  " + animesBuscados.size());
+                        produceResultados = true;
+                        urlSiguiente = animeflv.siguientePagina(codigoFuente);
+                        Log.d("URL", urlSiguiente);
+                        tienePaginaSiguiente = !urlSiguiente.equals(""); //comprueba si tiene pagina siguiente
+                        adaptador = new AdGenerosEndless(getActivity(), animesBuscados, list);
+                        adaptador.setClickListener(params[0]);
+                    }
+                } else { //reyanime
+                    Reyanime reyanime = new Reyanime();
+                    urlBusqueda = queryTemplateRey + searchQuery;
+                    codigoFuente = util.connect(urlBusqueda);
+                    animesBuscados = reyanime.busqueda(codigoFuente);
+
+                    if (animesBuscados == null) {
+                        produceResultados = false;
+                    } else {
+                        //  System.out.println("tamaño  " + animesBuscados.size());
+                        produceResultados = true;
+                        urlSiguiente = reyanime.siguientePagina(codigoFuente);
+                        Log.d("URL", urlSiguiente);
+                        tienePaginaSiguiente = !urlSiguiente.equals(""); //comprueba si tiene pagina siguiente*/
+                        adaptador = new AdGenerosEndless(getActivity(), animesBuscados, list);
+                        adaptador.setClickListener(params[0]);
+                    }
                 }
                // Log.d("HOLA", "pase despues");
             } catch (Exception e) {
@@ -221,14 +242,20 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdGener
 
         @Override
         protected Void doInBackground(Void... params) {
-            Animeflv anime = new Animeflv();
             Utilities util = new Utilities();
             try {
                 Document codigoFuente = util.connect(urlSiguiente);
-                urlSiguiente = anime.siguientePagina(codigoFuente);//comprueba si tiene pagina siguiente
-                tienePaginaSiguiente = !urlSiguiente.equals(""); //si urlSiguiente es igual a "" --> tienePaginaSiguiente = false, de otra manera true
-                animesBuscadosSiguiente = anime.busquedaFLV(codigoFuente); //se ocupa el de busqueda ya que el diseño de la pagina de generos es igual
-
+                if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    Animeflv anime = new Animeflv();
+                    urlSiguiente = anime.siguientePagina(codigoFuente);//comprueba si tiene pagina siguiente
+                    tienePaginaSiguiente = !urlSiguiente.equals(""); //si urlSiguiente es igual a "" --> tienePaginaSiguiente = false, de otra manera true
+                    animesBuscadosSiguiente = anime.busquedaFLV(codigoFuente); //se ocupa el de busqueda ya que el diseño de la pagina de generos es igual
+                } else { //reyanime
+                    Reyanime reyanime = new Reyanime();
+                    urlSiguiente = reyanime.siguientePagina(codigoFuente);
+                    tienePaginaSiguiente = !urlSiguiente.equals("");
+                    animesBuscadosSiguiente = reyanime.busqueda(codigoFuente);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

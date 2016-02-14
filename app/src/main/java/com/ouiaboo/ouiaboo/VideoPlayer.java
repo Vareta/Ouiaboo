@@ -370,7 +370,6 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
                         }
                         Log.d("ANIMEFLV", urlEntrada);
                         url = anime.urlDisponible(urlEntrada, getBaseContext());
-                        Log.d("URLLL", url);
                         anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
                         anime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
                     }
@@ -378,7 +377,6 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
                     Log.d("REYANIME", urlEntrada);
                     Reyanime reyanime = new Reyanime();
                     url = reyanime.urlDisponible(urlEntrada, getBaseContext());
-                    Log.d("URLLL", url);
                     reyanime.añadirHistorialRey(objEpi.getNombre(), objEpi.getUrlCapitulo());
                     reyanime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo());
                 }
