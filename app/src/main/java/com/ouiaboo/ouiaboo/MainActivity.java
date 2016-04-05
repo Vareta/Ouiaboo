@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.adaptadores.AdSitiosWeb;
 import com.ouiaboo.ouiaboo.clases.SitiosWeb;
@@ -24,9 +23,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     private static final String TAG = "";
     public static final String PREFERENCIAS = "preferencias";
-    private ListView paginasAnime;
-    private ArrayAdapter adaptador;
-    private Tracker mTracker;
 
 
     @Override
@@ -63,10 +59,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         }
 
         //Instancia del ListView (es por ello que va el id del listview)
-        paginasAnime = (ListView)findViewById(R.id.listView);
+        ListView paginasAnime = (ListView) findViewById(R.id.listView);
 
         //Inicializar el adaptador con la fuente de datos
-        adaptador = new AdSitiosWeb(this, webList);
+        ArrayAdapter adaptador = new AdSitiosWeb(this, webList);
 
         //Relacionando la lista con el adaptador
         paginasAnime.setAdapter(adaptador);

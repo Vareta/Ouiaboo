@@ -1,6 +1,5 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.R;

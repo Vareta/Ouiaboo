@@ -5,7 +5,6 @@ import com.ouiaboo.ouiaboo.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -25,7 +24,6 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 import android.widget.VideoView;
 
-import org.jsoup.nodes.Document;
 
 
 /**

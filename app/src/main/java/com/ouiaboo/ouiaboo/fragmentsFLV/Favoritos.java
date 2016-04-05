@@ -20,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.animeflv.FavoritosTable;

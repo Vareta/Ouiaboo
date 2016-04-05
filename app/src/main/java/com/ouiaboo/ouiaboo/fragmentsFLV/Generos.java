@@ -1,44 +1,26 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Rect;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.os.Environment;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
-import com.ouiaboo.ouiaboo.Animejoy;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Reyanime;
 import com.ouiaboo.ouiaboo.Utilities;
-import com.ouiaboo.ouiaboo.adaptadores.AdEpisodios;
 import com.ouiaboo.ouiaboo.adaptadores.AdGeneros;
-import com.ouiaboo.ouiaboo.adaptadores.AdHomeScreen;
-import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.GenerosClass;
-import com.squareup.picasso.Picasso;
 
 import org.jsoup.nodes.Document;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

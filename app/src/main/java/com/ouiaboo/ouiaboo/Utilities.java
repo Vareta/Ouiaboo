@@ -1,6 +1,5 @@
 package com.ouiaboo.ouiaboo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -12,15 +11,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Adapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 

@@ -3,9 +3,6 @@ package com.ouiaboo.ouiaboo.fragmentsFLV;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.facebook.CallbackManager;
@@ -21,14 +17,10 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.share.Sharer;
 import com.facebook.share.model.ShareLinkContent;
-import com.facebook.share.model.SharePhoto;
 import com.facebook.share.widget.ShareDialog;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.R;
-import com.squareup.picasso.Picasso;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -38,9 +30,6 @@ import java.util.List;
  * to handle interaction events.
  */
 public class Compartir extends Fragment {
-    private ImageView facebookBtn;
-    private ImageView twitterBtn;
-    private ImageView otrosBtn;
     private  CallbackManager callbackManager;
     private ShareDialog shareDialog;
 
@@ -56,9 +45,9 @@ public class Compartir extends Fragment {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_compartir, container, false);
         getActivity().setTitle(R.string.compartir_drawer_layout);
-        facebookBtn = (ImageView)convertView.findViewById(R.id.facebookButton);
-        twitterBtn = (ImageView)convertView.findViewById(R.id.twitterButton);
-        otrosBtn = (ImageView) convertView.findViewById(R.id.otroskButton);
+        ImageView facebookBtn = (ImageView) convertView.findViewById(R.id.facebookButton);
+        ImageView twitterBtn = (ImageView) convertView.findViewById(R.id.twitterButton);
+        ImageView otrosBtn = (ImageView) convertView.findViewById(R.id.otroskButton);
 
         callbackManager = CallbackManager.Factory.create();
         shareDialog = new ShareDialog(this);

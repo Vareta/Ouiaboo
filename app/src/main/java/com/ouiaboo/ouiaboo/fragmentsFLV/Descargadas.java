@@ -13,7 +13,6 @@ import android.graphics.Paint;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Environment;
@@ -34,8 +33,6 @@ import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;

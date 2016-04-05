@@ -1,7 +1,6 @@
 package com.ouiaboo.ouiaboo;
 
 import android.content.Context;
-import android.provider.ContactsContract;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;

@@ -8,12 +8,9 @@ import android.content.Context;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Logger;
 import com.google.android.gms.analytics.StandardExceptionParser;
 import com.google.android.gms.analytics.Tracker;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class AnalyticsApplication extends Application {
     public static final String TAG = AnalyticsApplication.class

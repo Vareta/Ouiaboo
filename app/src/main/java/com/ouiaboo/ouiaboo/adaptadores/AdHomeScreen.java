@@ -1,7 +1,6 @@
 package com.ouiaboo.ouiaboo.adaptadores;
 
 import android.content.Context;
-import android.os.Build;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -14,7 +13,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 
 import com.ouiaboo.ouiaboo.R;
-import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.squareup.picasso.Picasso;
 

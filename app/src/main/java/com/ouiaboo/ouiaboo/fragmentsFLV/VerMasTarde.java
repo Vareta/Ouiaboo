@@ -23,7 +23,6 @@ import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;

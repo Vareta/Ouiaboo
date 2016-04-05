@@ -3,7 +3,6 @@ package com.ouiaboo.ouiaboo.adaptadores;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +10,6 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.clases.GenerosClass;
-import com.ouiaboo.ouiaboo.fragmentsFLV.Generos;
 
 import com.ouiaboo.ouiaboo.R;
 import java.util.List;
