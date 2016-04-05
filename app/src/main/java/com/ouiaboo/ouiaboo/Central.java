@@ -63,11 +63,11 @@ import java.util.List;
 
 
 public class Central extends AppCompatActivity implements HomeScreen.OnFragmentInteractionListener, Busqueda.OnFragmentInteractionListener,
-        VerMasTarde.OnFragmentInteractionListener, ReporteDeErrores.OnFragmentInteractionListener,
-        Favoritos.OnFragmentInteractionListener, Descargadas.OnFragmentInteractionListener,
-        Historial.OnFragmentInteractionListener, Generos.OnFragmentInteractionListener,
-        Preferencias.OnFragmentInteractionListener, Faq.OnFragmentInteractionListener,
-        GenerosContenido.OnFragmentInteractionListener, Compartir.OnFragmentInteractionListener {
+                                                            VerMasTarde.OnFragmentInteractionListener, ReporteDeErrores.OnFragmentInteractionListener,
+                                                            Favoritos.OnFragmentInteractionListener, Descargadas.OnFragmentInteractionListener,
+                                                            Historial.OnFragmentInteractionListener, Generos.OnFragmentInteractionListener,
+                                                            Preferencias.OnFragmentInteractionListener, Faq.OnFragmentInteractionListener,
+                                                            GenerosContenido.OnFragmentInteractionListener, Compartir.OnFragmentInteractionListener {
 
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
