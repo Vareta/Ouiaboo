@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
@@ -39,6 +40,7 @@ import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Reyanime;
 import com.ouiaboo.ouiaboo.Tables.DescargadosTable;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
@@ -46,6 +48,7 @@ import com.ouiaboo.ouiaboo.adaptadores.AdDescargadas;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
+import org.jsoup.nodes.Document;
 import org.litepal.crud.DataSupport;
 
 import java.io.File;
@@ -72,6 +75,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     private List<String> urlAnimeAux;
     private SwipeRefreshLayout swipeRefresh;
     private AdDescargadas.CustomRecyclerListener listener;
+    private Snackbar snackbar;
 
 
     public Descargadas() {
@@ -179,7 +183,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     @Override
     public void customLongClickListener(View v, int position) {
         final int posAnime = position; //para diferenciar el onclick del listpopup
-        Utilities util = new Utilities();
+        final Utilities util = new Utilities();
 
         List<DrawerItemsListUno> items = new ArrayList<>();
         items.add(new DrawerItemsListUno(getString(R.string.irAnime_PopupWindow), R.drawable.ic_forward_white_24dp));
@@ -197,7 +201,28 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 if (position == 0) {
-                    new EpiUrlToAnimeUlr().execute(urlAnimeAux.get(posAnime)); //aqui la url del anime se encuentra en una lista auxiliar
+                    if (urlAnimeAux.get(posAnime).contains("animeflv")) {
+                        if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                            new EpiUrlToAnimeUlr().execute(urlAnimeAux.get(posAnime)); //aqui la url del anime se encuentra en una lista auxiliar
+                        } else {//reyanime
+                            snackbar = Snackbar.make(coordinatorLayout, getString(R.string.animeflvContent_Descargadas), Snackbar.LENGTH_LONG);
+                            View sbView = snackbar.getView();
+                            TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+                            textView.setTextColor(Color.YELLOW);
+                            snackbar.show();
+                        }
+                    } else {
+                        if (util.queProveedorEs(getContext()) == Utilities.REYANIME) {
+                            new EpiUrlToAnimeUlr().execute(urlAnimeAux.get(posAnime)); //aqui la url del anime se encuentra en una lista auxiliar
+                        } else {//animeflv
+                            snackbar = Snackbar.make(coordinatorLayout, getString(R.string.reyanimeContent_Descargadas), Snackbar.LENGTH_LONG);
+                            View sbView = snackbar.getView();
+                            TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+                            textView.setTextColor(Color.YELLOW);
+                            snackbar.show();
+                        }
+                    }
+
                     listPopupWindow.dismiss();
                 }
             }
@@ -298,7 +323,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     }
 
     /*opcion deslizante para eliminar un item*/
-    ItemTouchHelper.SimpleCallback simpleItemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+    ItemTouchHelper.SimpleCallback simpleItemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
@@ -307,7 +332,6 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
 
         @Override
         public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
-
             final int position = viewHolder.getAdapterPosition(); //obtiene la posicion
             final HomeScreenEpi aux = animeDescargado.get(position); //guarda el elemento al cual se le hizo swipe
             animeDescargado.remove(position); //remueve de la lista de capitulos en memoria
@@ -351,15 +375,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
                 Paint paint = new Paint();
                 Bitmap bitmap;
 
-                if (dX > 0) { // swiping right
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
-                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
-                    float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
-
-                    c.drawRect((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom(), paint);
-                    c.drawBitmap(bitmap, 96f, (float) itemView.getTop() + height, null);
-
-                } else { // swiping left
+                if (dX < 0) { // swiping left
                     paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
 
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
@@ -368,10 +384,8 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
 
                     c.drawRect((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom(), paint);
                     c.drawBitmap(bitmap, ((float) itemView.getRight() - bitmapWidth) - 96f, (float) itemView.getTop() + height, null);
-
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-
             }
         }
     };
@@ -408,8 +422,16 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
 
         @Override
         protected Void doInBackground(String... params) {
-            Animeflv animeflv = new Animeflv();
-            url = animeflv.urlCapituloToUrlAnime(params[0]);
+            Utilities util = new Utilities();
+
+            Document codigoFuente = util.connect(params[0]);
+            if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                Animeflv animeflv = new Animeflv();
+                url = animeflv.urlCapituloToUrlAnime(codigoFuente);
+            } else {
+                Reyanime reyanime = new Reyanime();
+                url = reyanime.urlCapituloToUrlAnime(codigoFuente);
+            }
             return null;
         }
 

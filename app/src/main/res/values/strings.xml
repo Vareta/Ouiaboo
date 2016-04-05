@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Ouiaboo</string>
-
+    <string name="facebook_app_id">254890414845237</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
@@ -32,8 +32,11 @@
     <string name="historial_drawer_layout">Historial</string>
     <string name="generos_drawer_layout">Géneros</string>
     <string name="preferencias_drawer_layout">Preferencias</string>
+    <string name="compartir_drawer_layout">Compartir la aplicación</string>
     <string name="faq_drawer_layout">FAQ</string>
     <string name="aviso_legal_drawer_layout">Reportar error</string>
+    <string name="animeflv_drawer_layout">Usted esta utilizando ANIMEFLV</string>
+    <string name="reyanime_drawer_layout">Usted esta utilizando REYANIME</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -109,13 +112,18 @@
     <!--********************************************************************************************************************************************************************* -->
     <!-- **********************************************************        settings    *************************************************************************** -->
     <!--********************************************************************************************************************************************************************* -->
-    <string name="reproductorTittle.Settings">Reproductor</string>
+    <string name="reproductorTitle.Settings">Reproductor</string>
     <string name="reprExterno.Settings">Reproductor externo</string>
     <string name="reprExternoSum.Settings">Si no tienes ninguno, te recomendamos MX Player.</string>
-    <string name="actualizacionTittle.Settings">Actualización</string>
+    <string name="actualizacionTitle.Settings">Actualización</string>
     <string name="tipoActuali.Settings">Tipo de actualización</string>
     <string name="tipoActualiEnlaces.Settings">Enlaces externos</string>
     <string name="tipoActualiAuto.Settings">Automático</string>
+    <string name="proveedorTitle.Settings">Proveedor</string>
+    <string name="proveedor.Settings">Proveedor de anime</string>
+    <string name="proveedorAnimeflv.Settings">AnimeFLV</string>
+    <string name="proveedorReyanime.Settings">Reyanime</string>
+    <string name="actualizandoProveedor.Settings">Actualizando el proveedor</string>
 
     <!--********************************************************************************************************************************************************************* -->
     <!-- **********************************************************        PopupWindow    *************************************************************************** -->
@@ -142,7 +150,7 @@
     <string name="respuesta3Rep.Faq">R: Pues entonces no dudes en reportarnos dicha situación mediante cualquiera de nuestros canales de comunicación disponibles</string>
     <string name="seccionDescargas.Faq">DESCARGAS</string>
     <string name="pregunta1Des.Faq">¿Dónde se encuentran los episodios que descargo?</string>
-    <string name="respuesta1Des.Faq">R: Si por x motivo necesitas conocer la ubicación, estos se encuentran en /Peliculas/Ouiaboo. Desde ya te recomendamos no mover los episodios de esa ubicación, ya que generará problemas en la aplicación</string>
+    <string name="respuesta1Des.Faq">R: Si por algún motivo necesitas conocer la ubicación, estos se encuentran en /Peliculas/Ouiaboo. Desde ya te recomendamos no mover los episodios de esa ubicación, ya que generará problemas en la aplicación</string>
     <string name="pregunta2Des.Faq">Si necesitas borrar un episodio, hazlo mediante la aplicación y no vía la dirección de donde se encuentran descargados</string>
     <string name="pregunta3Des.Faq">He descargado un episodio pero me aparece un mensaje de error en la descarga y ahora no puedo descargar el mismo episodio nuevamente</string>
     <string name="respuesta3Des.Faq">R: Lamentablemente, por el momento, la única solución es borrar los datos de la aplicación (mediante las preferencias de Android, Preferencias --> Aplicaciones --> Ouiaboo --> Borrar datos)</string>
@@ -155,4 +163,27 @@
     <string name="respuesta2Gen.Faq">R: Vuelve a intentarlo, hay veces en que por algún motivo (que desconocemos, estamos trabajando en ello) el ítem no se elimina al primer intento</string>
     <string name="pregunta3Gen.Faq">La aplicación se cierra (mensaje de error que ha dejado de funcionar)</string>
     <string name="respuesta3Gen.Faq">R: Vuelve a ejecutar la aplicación, si es reiterado, pues no dudes en notificarnos de tu problema</string>
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        fragment_descargadas    *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+    <string name="animeflvContent.Descargadas">Debe seleccionar ver anime desde AnimeFLV para ver este contenido</string>
+    <string name="reyanimeContent.Descargadas">Debe seleccionar ver anime desde Reyanime para ver este contenido</string>
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        fragment_compartir    *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+    <string name="textoInicial.Compartir">Si te gustó la aplicación no dudes en compartirla con tus amigos</string>
+    <string name="contentTitleFacebook.Compartir">Aplicación para ver anime online desde tu móvil. Cuenta con una grata interfaz y funcionalidades que facilitarán el proceso de ver tus series favoritas, dejando atrás esos malos momentos que pasaste en paginas llenas de publicidad</string>
+    <!--********************************************************************************************************************************************************************* -->
+    <!-- **********************************************************        Tutorial   *************************************************************************** -->
+    <!--********************************************************************************************************************************************************************* -->
+    <string name="title1.tutorial">Bienvenido a Ouiaboo</string>
+    <string name="info1.tutorial">Antes de empezar, insistimos en que veas lo siguiente</string>
+    <string name="title2.tutorial">Caracteristicas</string>
+    <string name="info2.tutorial">Manten presionado un item y verás que aparecerán distintas opciones para interactuar con él</string>
+    <string name="title3.tutorial">Actualizar</string>
+    <string name="info3.tutorial">Si deslizas tu dedo hacia abajo en la pantalla, podrás actualizar la lista de anime diario </string>
+    <string name="title4.tutorial">Eliminar</string>
+    <string name="info4.tutorial">Puedes eliminar cualquier episodio/anime añadido a la aplicación, sólo basta con deslizar el item hacia la izquierda</string>
+    <string name="title5.tutorial">Configuración</string>
+    <string name="info5.tutorial">Puedes cambiar el reproductor o la página desde donde ves anime en esta sección</string>
 </resources>

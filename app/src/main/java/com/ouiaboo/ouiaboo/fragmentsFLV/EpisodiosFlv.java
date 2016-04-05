@@ -32,6 +32,7 @@ import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Reyanime;
 import com.ouiaboo.ouiaboo.Tables.DescargadosTable;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
@@ -141,7 +142,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     @Override
     public void customLongClickListener(View v, int position) {
         final int posAnime = position; //para diferenciar el onclick del listpopup
-        Utilities util = new Utilities();
+        final Utilities util = new Utilities();
         List<DrawerItemsListUno> items = new ArrayList<>();
         items.add(new DrawerItemsListUno(getActivity().getString(R.string.descargar_PopupWindow), R.drawable.ic_file_download_white_24dp));
         items.add(new DrawerItemsListUno(getActivity().getString(R.string.masTarde_PopupWindow), R.drawable.ic_watch_later_white_24dp));
@@ -158,6 +159,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Funciones fun = new Funciones();
+
                 if (position == 0) {
 
                     posicionAnime = posAnime; //almacena la posicion para asi utilizarla en otros contextos
@@ -184,7 +186,15 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
                     //getNombreAnime y getUrlImagen son en posicion 0 ya que en las demas se encuentran como null
                     HomeScreenEpi episodio = new HomeScreenEpi(episodios.get(posAnime).getUrlEpisodio(), episodios.get(0).getNombreAnime(),
                             episodios.get(posAnime).getNumero(), episodios.get(0).getUrlImagen());
-                    if (!fun.esPosibleverMasTardeHome(episodio)) { //no se pudo
+
+                    boolean esPosibleVerMasTarde;
+                    if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                        esPosibleVerMasTarde = fun.esPosibleverMasTardeHome(episodio, Utilities.ANIMEFLV);
+                    } else {
+                        esPosibleVerMasTarde = fun.esPosibleverMasTardeHome(episodio, Utilities.REYANIME);
+                    }
+
+                    if (!esPosibleVerMasTarde) { //no se pudo
                         snackbar = Snackbar.make(coordLayout, getString(R.string.noti_vermastarde_no), Snackbar.LENGTH_LONG);
                         View sbView = snackbar.getView();
                         TextView textView = (TextView)sbView.findViewById(android.support.design.R.id.snackbar_text);
@@ -231,14 +241,17 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
         String nombreVideo = episodios.get(0).getNombreAnime() + "-" + episodios.get(posicionAnime).getNumero() + ".mp4";
         @Override
         protected Void doInBackground(Void... params) {
-            Animeflv animeflv = new Animeflv();
-            Log.d("URLDOWNLOAD", "hola");
-            String url = animeflv.urlDisponible(episodios.get(posicionAnime).getUrlEpisodio(), getActivity()); //consigue la url del video a descargar
-            if (url == null) {
-                Log.d("URLDOWNLOAD", "hola3");
+            Utilities util = new Utilities();
+            String url;
+
+            if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                Animeflv animeflv = new Animeflv();
+                url = animeflv.urlDisponible(episodios.get(posicionAnime).getUrlEpisodio(), getContext()); //consigue la url del video a descargar
+            } else {//reyanime
+                Reyanime reyanime = new Reyanime();
+                url = reyanime.urlDisponible(episodios.get(posicionAnime).getUrlEpisodio(), getContext());
             }
-            Log.d("URLDOWNLOAD", "hola2");
-            Log.d("URLDOWNLOAD", url);
+
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setDescription(episodios.get(posicionAnime).getNumero()); //descripcion de la notificacion
             request.setTitle(episodios.get(0).getNombreAnime()); //titulo de la notificacion

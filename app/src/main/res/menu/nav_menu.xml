@@ -42,6 +42,11 @@
             android:title="@string/preferencias_drawer_layout"/>
 
         <item
+            android:id="@+id/nav_compartir"
+            android:icon="@drawable/ic_share_white_24dp"
+            android:title="@string/compartir_drawer_layout"/>
+
+        <item
             android:id="@+id/nav_faq"
             android:icon="@drawable/ic_help_white_24dp"
             android:title="@string/faq_drawer_layout"/>

@@ -7,4 +7,12 @@
         <item>enlaces</item>
         <item>automatico</item>
     </string-array>
+    <string-array name="listProveedores">
+        <item>AnimeFLV</item>
+        <item>Reyanime</item>
+    </string-array>
+    <string-array name="listProveedoresValues">
+        <item>animeflv</item>
+        <item>reyanime</item>
+    </string-array>
 </resources>

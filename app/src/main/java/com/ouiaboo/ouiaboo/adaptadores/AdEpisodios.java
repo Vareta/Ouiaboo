@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Reyanime;
+import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import java.util.List;
 
@@ -27,9 +29,13 @@ public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolde
     public Context context;
     public CustomRecyclerListener customRecyclerListener;
     private Animeflv animeflv;
+    private Reyanime reyanime;
+    private Utilities util;
 
     public AdEpisodios (Context context, List<Episodios> items) {
         animeflv = new Animeflv();
+        reyanime = new Reyanime();
+        util = new Utilities();
         this.context = context;
         this.items = items;
     }
@@ -80,10 +86,18 @@ public class AdEpisodios extends RecyclerView.Adapter<AdEpisodios.EpisodiosHolde
     @Override
     public void onBindViewHolder(EpisodiosHolder episodiosHolder, int position) {
         episodiosHolder.capitulo.setText(Html.fromHtml(items.get(position).getNumero()));
-        if (animeflv.seEncuentraEnHistorialFlv(items.get(0).getNombreAnime(), items.get(position).getUrlEpisodio())) {
-            episodiosHolder.capitulo.setTextColor(ContextCompat.getColor(context, R.color.ColorPrimary));
-        } else {
-            episodiosHolder.capitulo.setTextColor(ContextCompat.getColor(context, R.color.primary_text_material_dark));
+        if (util.queProveedorEs(context) == Utilities.ANIMEFLV) {
+            if (animeflv.seEncuentraEnHistorialFlv(items.get(0).getNombreAnime(), items.get(position).getUrlEpisodio())) {
+                episodiosHolder.capitulo.setTextColor(ContextCompat.getColor(context, R.color.ColorPrimary));
+            } else {
+                episodiosHolder.capitulo.setTextColor(ContextCompat.getColor(context, R.color.primary_text_material_dark));
+            }
+        } else { //reyanime
+            if (reyanime.seEncuentraEnHistorialRey(items.get(0).getNombreAnime(), items.get(position).getUrlEpisodio())) {
+                episodiosHolder.capitulo.setTextColor(ContextCompat.getColor(context, R.color.ColorPrimary));
+            } else {
+                episodiosHolder.capitulo.setTextColor(ContextCompat.getColor(context, R.color.primary_text_material_dark));
+            }
         }
     }
 

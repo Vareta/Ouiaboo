@@ -409,21 +409,12 @@ public class Animeflv{
     }
 
 
-    public String urlCapituloToUrlAnime(String url) {
-        Document doc = null;
+    public String urlCapituloToUrlAnime(Document codigoFuente) {
         String urlAnime = null;
-        try {
-            doc = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .referrer("http://www.google.com")
-                    .get();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         Elements objEpisodios;
-        if (doc != null) {
-            objEpisodios = doc.getElementsByClass("episodio_head");
+        if (codigoFuente != null) {
+            objEpisodios = codigoFuente.getElementsByClass("episodio_head");
             if (objEpisodios.isEmpty()) {
                 Log.d("Error", "No se puedo encontrar la url del anime");
             } else {
@@ -432,7 +423,6 @@ public class Animeflv{
                // Log.d("URL", urlAnime);
             }
         }
-
         return urlAnime;
     }
 

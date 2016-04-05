@@ -7,15 +7,9 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceManager;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
+import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
 
@@ -29,8 +23,6 @@ public class Preferencias extends PreferenceFragmentCompat {
 
     private OnFragmentInteractionListener mListener;
     private Preference preferencias;
-    private Tracker mTracker;
-
     public Preferencias() {
         // Required empty public constructor
     }
@@ -43,10 +35,11 @@ public class Preferencias extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
-        getPreferenceManager().setSharedPreferencesName("preferencias");
+        getPreferenceManager().setSharedPreferencesName(Utilities.PREFERENCIAS);
         addPreferencesFromResource(R.xml.preferences);
         getActivity().setTitle(R.string.preferencias_drawer_layout);
         tipoActualizacionListener();
+        proveedorListener();
     }
 
     @Override
@@ -90,15 +83,14 @@ public class Preferencias extends PreferenceFragmentCompat {
 
     private void tipoActualizacionListener() {
         SharedPreferences sharedPref = getActivity().getSharedPreferences(Utilities.PREFERENCIAS, Context.MODE_PRIVATE);
-        String opcActual = sharedPref.getString("tipoUptdate", "enlaces");
-        final Preference tipoActuali = getPreferenceManager().findPreference("tipoUptdate");
+        String opcActual = sharedPref.getString("tipoUpdate", "enlaces");
+        final Preference tipoActuali = getPreferenceManager().findPreference("tipoUpdate");
 
         if (opcActual.equals("enlaces")) { //enlaces externos
             tipoActuali.setSummary(R.string.tipoActualiEnlaces_Settings);
         } else { //automatico
             tipoActuali.setSummary(R.string.tipoActualiAuto_Settings);
         }
-
 
         tipoActuali.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -112,5 +104,52 @@ public class Preferencias extends PreferenceFragmentCompat {
             }
         });
     }
+
+    private void proveedorListener() {
+        SharedPreferences sharedPref = getActivity().getSharedPreferences(Utilities.PREFERENCIAS, Context.MODE_PRIVATE);
+        final String opcActualProveedor = sharedPref.getString("listaProveedores", "animeflv");
+        final Preference tipoProveedor = getPreferenceManager().findPreference("listaProveedores");
+
+        //Muestra la preferencia actual al momento en que se abre el fragmento de preferencias
+        if (opcActualProveedor.equals("animeflv")) { //animeflv
+            tipoProveedor.setSummary(R.string.proveedorAnimeflv_Settings);
+        } else { //reyanime
+            tipoProveedor.setSummary(R.string.proveedorReyanime_Settings);
+        }
+        tipoProveedor.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object value) {
+                SharedPreferences.Editor editor = getActivity().getSharedPreferences(Utilities.PREFERENCIAS, Context.MODE_PRIVATE).edit();
+                if (value.equals("animeflv")) { //animeflv
+                    tipoProveedor.setSummary(R.string.proveedorAnimeflv_Settings);
+                    if (!opcActualProveedor.equals("animeflv")) { //quiere decir que el proveedor era otra pagina y no animeflv
+                        editor.putBoolean("proveedorModificado", true);
+                        AnalyticsApplication.getInstance().trackEvent("Página", "cambió", "animeflv");
+                    }
+                    editor.putBoolean("animeflv", true);
+                    editor.putBoolean("reyanime", false);
+                    editor.putString("listaProveedores", "animeflv");
+
+                } else { //reyanime
+                    tipoProveedor.setSummary(R.string.proveedorReyanime_Settings);
+                    if (!opcActualProveedor.equals("reyanime")) { //quiere decir que el proveedor era otra pagina y no reyanime
+                        editor.putBoolean("proveedorModificado", true);
+                        AnalyticsApplication.getInstance().trackEvent("Página", "cambió", "reyanime");
+                    }
+                    editor.putBoolean("animeflv", false);
+                    editor.putBoolean("reyanime", true);
+                    editor.putString("listaProveedores", "reyanime");
+                }
+                editor.apply();
+                Funciones funciones = new Funciones();
+                funciones.actualizarProveedorNavHeader(getActivity(), getContext());
+
+                return true;
+            }
+        });
+
+    }
+
+
 
 }

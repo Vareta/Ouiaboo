@@ -25,15 +25,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.Tracker;
+
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
-import com.ouiaboo.ouiaboo.Animejoy;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.Funciones;
 import com.ouiaboo.ouiaboo.R;
@@ -71,11 +69,8 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     private CoordinatorLayout coordLayout;
     private Snackbar snackbar;
     private int posicionAnime;
-    private WebView webView;
-    public static final String PREFERENCIAS = "preferencias";
     private AdHomeScreen.CustomRecyclerListener listener;
     private SwipeRefreshLayout swipeRefresh;
-    private Tracker mTracker;
     List<BroadcastReceiver> receivers = new ArrayList<>(); //variable que contiene el receiver de descarga
     private ProgressBar downloadBar;
 
@@ -118,12 +113,12 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         list = (RecyclerView) convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
         list.setLayoutManager(new LinearLayoutManager(getActivity()));
         bar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
-        downloadBar = (ProgressBar)getActivity().findViewById(R.id.updateAppProgressBar);
-        ((ProgressBar)getActivity().findViewById(R.id.updateAppProgressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.rojo), PorterDuff.Mode.SRC_IN);
+        downloadBar = (ProgressBar) getActivity().findViewById(R.id.updateAppProgressBar);
+        ((ProgressBar) getActivity().findViewById(R.id.updateAppProgressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.rojo), PorterDuff.Mode.SRC_IN);
         //Cambia el color de la progressbar para versiones anteriores
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
             bar.setIndeterminate(true);
-            ((ProgressBar)getActivity().findViewById(R.id.progressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.accent_light), PorterDuff.Mode.SRC_IN);
+            ((ProgressBar) getActivity().findViewById(R.id.progressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.accent_light), PorterDuff.Mode.SRC_IN);
         }
         swipeRefresh = (SwipeRefreshLayout) convertView.findViewById(R.id.homeScreen_swipe_refresh);
     }
@@ -187,8 +182,9 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Funciones fun = new Funciones();
+                Utilities util = new Utilities();
 
-                if (position == 0) {
+                if (position == 0) {//descarga
 
                     posicionAnime = posAnime; //almacena la posicion para asi utilizarla en otros contextos
                     List<DescargadosTable> lista = DataSupport.where("urlCapitulo=?", animesRecientes.get(posAnime).getUrlCapitulo()).find(DescargadosTable.class);
@@ -211,7 +207,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 }
 
 
-                if (position == 1) {
+                if (position == 1) {//ir a anime
 
                     new EpiUrlToAnimeUlr().execute(animesRecientes.get(posAnime).getUrlCapitulo());
 
@@ -228,15 +224,21 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                     listPopupWindow.dismiss();
                 }
 
-                if (position == 2) {
+                if (position == 2) {//ver mas tarde
+                    boolean esPosibleMasTarde;
 
-                    if (!fun.esPosibleverMasTardeHome(animesRecientes.get(posAnime))) { //no se pudo
+                    if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                        esPosibleMasTarde = fun.esPosibleverMasTardeHome(animesRecientes.get(posAnime), Utilities.ANIMEFLV);
+                    } else {//reyanime
+                        esPosibleMasTarde = fun.esPosibleverMasTardeHome(animesRecientes.get(posAnime), Utilities.REYANIME);
+                    }
+
+                    if (!esPosibleMasTarde) { //no se pudo
                         snackbar = Snackbar.make(coordLayout, getString(R.string.noti_vermastarde_no), Snackbar.LENGTH_LONG);
                         View sbView = snackbar.getView();
                         TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
                         textView.setTextColor(Color.YELLOW);
                         snackbar.show();
-
                     } else {
                         AnalyticsApplication.getInstance().trackEvent("Anime", "ver mas tarde", animesRecientes.get(posicionAnime).getNombre());
                         snackbar = Snackbar.make(coordLayout, getString(R.string.noti_vermastarde_si), Snackbar.LENGTH_LONG);
@@ -250,8 +252,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         listPopupWindow.setHorizontalOffset(0);
         listPopupWindow.show();
     }
-
-
 
 
     private class GetAnimeHomeScreen extends AsyncTask<AdHomeScreen.CustomRecyclerListener, Void, Void> {
@@ -309,10 +309,15 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
             try {
                 util = new Utilities();
                 Document codigoFuente;
-                animeflv = new Animeflv();
-                codigoFuente = util.connect(animeflvUrl);
-                animesRecientes = animeflv.homeScreenAnimeFlv(codigoFuente, getResources());
-
+                if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    animeflv = new Animeflv();
+                    codigoFuente = util.connect(animeflvUrl);
+                    animesRecientes = animeflv.homeScreenAnimeFlv(codigoFuente, getResources());
+                } else {
+                    reyanime = new Reyanime();
+                    codigoFuente = util.connect(reyanimeUrl);
+                    animesRecientes = reyanime.homeScreen(codigoFuente, getResources());
+                }
                 adaptador = new AdHomeScreen(getActivity(), animesRecientes);
                 adaptador.setClickListener(params[0]);
 
@@ -341,7 +346,13 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
         @Override
         protected Void doInBackground(String... params) {
-            url = animeflv.urlCapituloToUrlAnime(params[0]);
+            Utilities util = new Utilities();
+            Document codigoFuente = util.connect(params[0]);
+            if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                url = animeflv.urlCapituloToUrlAnime(codigoFuente);
+            } else {
+                url = reyanime.urlCapituloToUrlAnime(codigoFuente);
+            }
             return null;
         }
 
@@ -367,9 +378,16 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
         @Override
         protected Void doInBackground(Void... params) {
-            Animeflv animeflv = new Animeflv();
+
             Utilities util = new Utilities();
-            String url = animeflv.urlDisponible(animesRecientes.get(posicionAnime).getUrlCapitulo(), getActivity()); //consigue la url del video a descargar
+            String url;
+            if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                Animeflv animeflv = new Animeflv();
+                url = animeflv.urlDisponible(animesRecientes.get(posicionAnime).getUrlCapitulo(), getContext()); //consigue la url del video a descargar
+            } else {//reyanime
+                Reyanime reyanime = new Reyanime();
+                url = reyanime.urlDisponible(animesRecientes.get(posicionAnime).getUrlCapitulo(), getContext());
+            }
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
             request.setDescription(animesRecientes.get(posicionAnime).getInformacion()); //descripcion de la notificacion
             request.setTitle(animesRecientes.get(posicionAnime).getNombre()); //titulo de la notificacion
@@ -419,8 +437,16 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     @Override
     public void onResume() {
         super.onResume();
+        //Si el usuario cambio de proveedor, se actualiza el fragment
+        Utilities util = new Utilities();
+        if (util.proveedorModificado(getContext())) {
+            snackbar = Snackbar.make(coordLayout, getString(R.string.actualizandoProveedor_Settings), Snackbar.LENGTH_SHORT);
+            snackbar.show();
+            new SwipeRefresh().execute(this);
+        }
         AnalyticsApplication.getInstance().trackScreenView("Home Screen");
     }
+
 
     @Override
     public void onDetach() {
@@ -432,7 +458,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         casos en donde la pantalla rota y el fragment ejecuta sólo onDetach, por lo cual jamas
         registra el receiver. lo cual genera un error
          */
-         if (receivers.contains(onComplete)) {
+        if (receivers.contains(onComplete)) {
             receivers.remove(onComplete);
             getActivity().unregisterReceiver(onComplete);
         }
@@ -477,6 +503,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         }
     };
 
+    /* deprecado
     private class GetVideoUrlAndPlay extends AsyncTask<Integer, Void, Void> {
         String url;
 
@@ -512,7 +539,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
             intent.setDataAndType(Uri.parse(url), "video/x-msvideo");
             startActivity(intent);
         }
-    }
+    }*/
 
     public void setData(List<HomeScreenEpi> animesRecientes) {
         this.animesRecientes = animesRecientes;

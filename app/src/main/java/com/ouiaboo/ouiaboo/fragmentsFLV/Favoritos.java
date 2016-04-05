@@ -24,6 +24,8 @@ import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Tables.animeflv.FavoritosTable;
+import com.ouiaboo.ouiaboo.Tables.reyanime.FavoritosTableRey;
+import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.adaptadores.AdBusquedaFLV;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
@@ -48,7 +50,6 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
     private Boolean existenFavoritos = null;
     private AdBusquedaFLV adaptador;
     private CoordinatorLayout coordinatorLayout;
-    private Tracker mTracker;
 
     public Favoritos() {
         // Required empty public constructor
@@ -143,18 +144,33 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
 
         @Override
         protected Void doInBackground(AdBusquedaFLV.CustomRecyclerListener... params) {
+            Utilities util = new Utilities();
             try {
                 animeFavoritos = new ArrayList<>();
-                List<FavoritosTable> datos = DataSupport.findAll(FavoritosTable.class);
-                if (datos.isEmpty()) {
-                    existenFavoritos = false;
-                } else {
-                    existenFavoritos = true;
-                    for (int i = 0; i < datos.size(); i++) {
-                        animeFavoritos.add(new HomeScreenEpi(datos.get(i).getUrlAnime(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
+                if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    List<FavoritosTable> datos = DataSupport.findAll(FavoritosTable.class);
+                    if (datos.isEmpty()) {
+                        existenFavoritos = false;
+                    } else {
+                        existenFavoritos = true;
+                        for (int i = 0; i < datos.size(); i++) {
+                            animeFavoritos.add(new HomeScreenEpi(datos.get(i).getUrlAnime(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
+                        }
+                        adaptador = new AdBusquedaFLV(getActivity(), animeFavoritos);
+                        adaptador.setClickListener(params[0]);
                     }
-                    adaptador = new AdBusquedaFLV(getActivity(), animeFavoritos);
-                    adaptador.setClickListener(params[0]);
+                } else { //reyanime
+                    List<FavoritosTableRey> datos = DataSupport.findAll(FavoritosTableRey.class);
+                    if (datos.isEmpty()) {
+                        existenFavoritos = false;
+                    } else {
+                        existenFavoritos = true;
+                        for (int i = 0; i < datos.size(); i++) {
+                            animeFavoritos.add(new HomeScreenEpi(datos.get(i).getUrlAnime(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
+                        }
+                        adaptador = new AdBusquedaFLV(getActivity(), animeFavoritos);
+                        adaptador.setClickListener(params[0]);
+                    }
                 }
 
             }catch(Exception e){
@@ -168,27 +184,24 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
         protected void onPreExecute() {
             noFavoritos.setVisibility(View.GONE);
             bar.setVisibility(View.VISIBLE);
-            // Log.d("HOLA", "PREEXECUTE 333");
         }
 
         @Override
         protected void onPostExecute(Void result) {
-
             if (!existenFavoritos) {
                 noFavoritos.setVisibility(View.VISIBLE);
+                lista.setVisibility(View.GONE);
             } else {
                 lista.setAdapter(adaptador);
-
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
                 itemTouchHelper.attachToRecyclerView(lista); //añade la lista a la escucha
             }
             bar.setVisibility(View.GONE);
-            //
         }
     }
 
     /*opcion deslizante para eliminar un item*/
-    ItemTouchHelper.SimpleCallback simpleItemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+    ItemTouchHelper.SimpleCallback simpleItemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
@@ -214,7 +227,12 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
                         public void onDismissed(Snackbar snackbar, int event) { //para cuando la snackbar desapara, se toman todos los casos en donde esto puede ocurrir
                             super.onDismissed(snackbar, event);
                             if (event != DISMISS_EVENT_ACTION && event != DISMISS_EVENT_MANUAL) { //excluye la accion ya que choca con onclick, haciendo que al clickear undo se ejecutara esta accion
-                                DataSupport.deleteAll(FavoritosTable.class, "nombre =? and tipo =?", aux.getNombre(), aux.getInformacion());
+                                Utilities util = new Utilities();
+                                if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                                    DataSupport.deleteAll(FavoritosTable.class, "nombre =? and tipo =?", aux.getNombre(), aux.getInformacion());
+                                } else { //reyanime
+                                    DataSupport.deleteAll(FavoritosTableRey.class, "nombre=? and tipo=?", aux.getNombre(), aux.getInformacion());
+                                }
                             }
                         }
                     });
@@ -231,15 +249,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
                 Paint paint = new Paint();
                 Bitmap bitmap;
 
-                if (dX > 0) { // swiping right
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
-                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
-                    float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
-
-                    c.drawRect((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom(), paint);
-                    c.drawBitmap(bitmap, 96f, (float) itemView.getTop() + height, null);
-
-                } else { // swiping left
+                if (dX < 0) {// swiping left
                     paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
 
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);

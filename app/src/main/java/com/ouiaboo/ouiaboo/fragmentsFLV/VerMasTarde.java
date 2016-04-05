@@ -28,13 +28,16 @@ import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Reyanime;
 import com.ouiaboo.ouiaboo.Tables.animeflv.VerMasTardeTable;
+import com.ouiaboo.ouiaboo.Tables.reyanime.VerMasTardeTableRey;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
 import com.ouiaboo.ouiaboo.adaptadores.AdVerMasTarde;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
+import org.jsoup.nodes.Document;
 import org.litepal.crud.DataSupport;
 
 import java.util.ArrayList;
@@ -54,9 +57,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     private Boolean existeAnimeMastarde = null;
     private CoordinatorLayout coordinatorLayout;
     private TextView sinResultados;
-    private View convertView;
     private OnFragmentInteractionListener mListener;
-    private Tracker mTracker;
 
     public VerMasTarde() {
         // Required empty public constructor
@@ -69,10 +70,9 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        convertView = inflater.inflate(R.layout.fragment_ver_mas_tarde, container, false);
+        View convertView = inflater.inflate(R.layout.fragment_ver_mas_tarde, container, false);
         getActivity().setTitle(R.string.mas_tarde_drawer_layout);
         iniciaView(convertView);
         iniciaFragment();
@@ -105,7 +105,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     }
 
     /*opcion deslizante para eliminar un item*/
-    ItemTouchHelper.SimpleCallback simpleItemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+    ItemTouchHelper.SimpleCallback simpleItemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
@@ -131,7 +131,12 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                         public void onDismissed(Snackbar snackbar, int event) { //para cuando la snackbar desapara, se toman todos los casos en donde esto puede ocurrir
                             super.onDismissed(snackbar, event);
                             if (event != DISMISS_EVENT_ACTION && event != DISMISS_EVENT_MANUAL) { //excluye la accion ya que choca con onclick, haciendo que al clickear undo se ejecutara esta accion
-                                DataSupport.deleteAll(VerMasTardeTable.class, "nombre=? and tipo=?", aux.getNombre(), aux.getInformacion());
+                                Utilities util = new Utilities();
+                                if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                                    DataSupport.deleteAll(VerMasTardeTable.class, "nombre=? and tipo=?", aux.getNombre(), aux.getInformacion());
+                                } else { //reyanime
+                                    DataSupport.deleteAll(VerMasTardeTableRey.class, "nombre=? and tipo=?", aux.getNombre(), aux.getInformacion());
+                                }
                             }
                         }
                     });
@@ -148,15 +153,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                 Paint paint = new Paint();
                 Bitmap bitmap;
 
-                if (dX > 0) { // swiping right
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
-                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
-                    float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
-
-                    c.drawRect((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom(), paint);
-                    c.drawBitmap(bitmap, 96f, (float) itemView.getTop() + height, null);
-
-                } else { // swiping left
+                if (dX < 0) {  // swiping left
                     paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
 
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
@@ -225,7 +222,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 if (position == 0) {
-                    new EpiUrlToAnimeUlr().execute(masTardeAnime.get(posAnime).getUrlCapitulo());
+                    new EpiUrlToAnimeUrl().execute(masTardeAnime.get(posAnime).getUrlCapitulo());
                     listPopupWindow.dismiss();
                 }
             }
@@ -245,19 +242,36 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
 
         @Override
         protected Void doInBackground(AdVerMasTarde.CustomRecyclerListener... params) {
+            Utilities util = new Utilities();
             try {
-                masTardeAnime = new ArrayList<>();
-                List<VerMasTardeTable> datos = DataSupport.findAll(VerMasTardeTable.class);
-                if (datos.isEmpty()) {
-                    existeAnimeMastarde = false;
-                } else {
-                    existeAnimeMastarde = true;
-                    for (int i = 0; i < datos.size(); i++) {
-                        masTardeAnime.add(new HomeScreenEpi(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(),datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
-                    }
 
-                    adaptador = new AdVerMasTarde(getActivity(), masTardeAnime);
-                    adaptador.setClickListener(params[0]);
+                masTardeAnime = new ArrayList<>();
+                if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    List<VerMasTardeTable> datos = DataSupport.findAll(VerMasTardeTable.class);
+                    if (datos.isEmpty()) {
+                        existeAnimeMastarde = false;
+                    } else {
+                        existeAnimeMastarde = true;
+                        for (int i = 0; i < datos.size(); i++) {
+                            masTardeAnime.add(new HomeScreenEpi(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
+                        }
+
+                        adaptador = new AdVerMasTarde(getActivity(), masTardeAnime);
+                        adaptador.setClickListener(params[0]);
+                    }
+                } else { //reyanime
+                    List<VerMasTardeTableRey> datos = DataSupport.findAll(VerMasTardeTableRey.class);
+                    if (datos.isEmpty()) {
+                        existeAnimeMastarde = false;
+                    } else {
+                        existeAnimeMastarde = true;
+                        for (int i = 0; i < datos.size(); i++) {
+                            masTardeAnime.add(new HomeScreenEpi(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
+                        }
+
+                        adaptador = new AdVerMasTarde(getActivity(), masTardeAnime);
+                        adaptador.setClickListener(params[0]);
+                    }
                 }
 
             }catch(Exception e){
@@ -279,6 +293,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
 
             if (!existeAnimeMastarde) {
                 sinResultados.setVisibility(View.VISIBLE);
+                lista.setVisibility(View.GONE);
             } else {
                 lista.setAdapter(adaptador);
 
@@ -293,13 +308,21 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     }
 
     /*Obtiene la url de un anime mediante el url del capitulo de manera asincrona*/
-    private class EpiUrlToAnimeUlr extends AsyncTask<String, Void, Void> {
+    private class EpiUrlToAnimeUrl extends AsyncTask<String, Void, Void> {
         private String url;
 
         @Override
         protected Void doInBackground(String... params) {
-            Animeflv animeflv = new Animeflv();
-            url = animeflv.urlCapituloToUrlAnime(params[0]);
+            Utilities util = new Utilities();
+
+            Document codigoFuente = util.connect(params[0]);
+            if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                Animeflv animeflv = new Animeflv();
+                url = animeflv.urlCapituloToUrlAnime(codigoFuente);
+            } else {
+                Reyanime reyanime = new Reyanime();
+                url = reyanime.urlCapituloToUrlAnime(codigoFuente);
+            }
             return null;
         }
 

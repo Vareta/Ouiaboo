@@ -29,6 +29,7 @@ import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.EpisodiosPlusInfo;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Reyanime;
 import com.ouiaboo.ouiaboo.Tables.animeflv.HistorialTable;
 import com.ouiaboo.ouiaboo.Tables.reyanime.HistorialTableRey;
 import com.ouiaboo.ouiaboo.Utilities;
@@ -37,6 +38,7 @@ import com.ouiaboo.ouiaboo.adaptadores.AdHomeScreen;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
+import org.jsoup.nodes.Document;
 import org.litepal.crud.DataSupport;
 
 import java.util.ArrayList;
@@ -58,7 +60,6 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
     private Boolean existeHistorial = null;
     private AdHomeScreen adaptador;
     private CoordinatorLayout coordinatorLayout;
-    private Tracker mTracker;
 
     public Historial() {
         // Required empty public constructor
@@ -71,8 +72,7 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View convertView = inflater.inflate(R.layout.fragment_historial, container, false);
         getActivity().setTitle(R.string.historial_drawer_layout);
@@ -228,6 +228,7 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
         protected void onPostExecute(Void result) {
             if (!existeHistorial) {
                 noHistorial.setVisibility(View.VISIBLE);
+                list.setVisibility(View.GONE);//se agrego ya que cuando se actualizaba el proveedor desde x->animeflv y la busqueda era nula o de menos de 4 caracteres, la lista de busqueda del proveedor anterior seguia visible
             } else {
                 list.setAdapter(adaptador);
 
@@ -240,7 +241,7 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
     }
 
     /*opcion deslizante para eliminar un item*/
-    ItemTouchHelper.SimpleCallback simpleItemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+    ItemTouchHelper.SimpleCallback simpleItemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
@@ -283,15 +284,7 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
                 Paint paint = new Paint();
                 Bitmap bitmap;
 
-                if (dX > 0) { // swiping right
-                    paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
-                    bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
-                    float height = (itemView.getHeight() / 2) - (bitmap.getHeight() / 2);
-
-                    c.drawRect((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom(), paint);
-                    c.drawBitmap(bitmap, 96f, (float) itemView.getTop() + height, null);
-
-                } else { // swiping left
+                if (dX < 0) { // swiping left
                     paint.setColor(ContextCompat.getColor(getContext(), R.color.ColorPrimaryDark));
 
                     bitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.ic_delete_white_36dp);
@@ -313,8 +306,16 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
 
         @Override
         protected Void doInBackground(String... params) {
-            Animeflv animeflv = new Animeflv();
-            url = animeflv.urlCapituloToUrlAnime(params[0]);
+            Utilities util = new Utilities();
+
+            Document codigoFuente = util.connect(params[0]);
+            if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                Animeflv animeflv = new Animeflv();
+                url = animeflv.urlCapituloToUrlAnime(codigoFuente);
+            } else {
+                Reyanime reyanime = new Reyanime();
+                url = reyanime.urlCapituloToUrlAnime(codigoFuente);
+            }
             return null;
         }
 

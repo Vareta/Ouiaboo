@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         android:key="reproductor"
-        android:title="@string/reproductorTittle.Settings">
+        android:title="@string/reproductorTitle.Settings">
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -15,13 +15,26 @@
 
     <PreferenceCategory
         android:key="actualizacion"
-        android:title="@string/actualizacionTittle.Settings">
+        android:title="@string/actualizacionTitle.Settings">
 
         <ListPreference
             android:defaultValue="enlaces"
             android:entries="@array/listTipoActuali"
             android:entryValues="@array/listTipoActualiValues"
-            android:key="tipoUptdate"
+            android:key="tipoUpdate"
             android:title="@string/tipoActuali.Settings" />
     </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="proveedor"
+        android:title="@string/proveedorTitle.Settings">
+
+        <ListPreference
+            android:defaultValue="animeflv"
+            android:entries="@array/listProveedores"
+            android:entryValues="@array/listProveedoresValues"
+            android:key="listaProveedores"
+            android:title="@string/proveedor.Settings" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

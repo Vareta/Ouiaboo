@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Environment;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -25,6 +26,7 @@ import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.Animejoy;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Reyanime;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.adaptadores.AdEpisodios;
 import com.ouiaboo.ouiaboo.adaptadores.AdGeneros;
@@ -52,7 +54,6 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
     private ProgressBar bar;
     private List<GenerosClass> generos;
     private AdGeneros adaptador;
-    private Tracker mTracker;
 
     public Generos() {
         // Required empty public constructor
@@ -133,11 +134,14 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
             try {
                 Utilities util = new Utilities();
                 Document codigoFuente;
-                Log.d("PROVEEDOR", String.valueOf(util.queProveedorEs(getContext())));
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
-                    Animeflv flvAnime = new Animeflv();
+                    Animeflv animeflv = new Animeflv();
                     codigoFuente = util.connect("http://animeflv.net/animes/");
-                    generos = flvAnime.generosDisponibles(codigoFuente);
+                    generos = animeflv.generosDisponibles(codigoFuente);
+                } else {
+                    Reyanime reyanime = new Reyanime();
+                    codigoFuente = util.connect("http://reyanime.com/genero/accion");
+                    generos = reyanime.generosDisponibles(codigoFuente);
                 }
                /* for (int i = 0; i < animesRecientes.size(); i++){
 
@@ -159,14 +163,12 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
         @Override
         protected void onPreExecute() {
             bar.setVisibility(View.VISIBLE);
-            // Log.d("HOLA", "PREEXECUTE 333");
         }
 
         @Override
         protected void onPostExecute(Void result) {
             list.setAdapter(adaptador);
             bar.setVisibility(View.GONE);
-            //
         }
     }
 

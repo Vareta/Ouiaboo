@@ -79,9 +79,14 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
             @Override
             public void onClick(View v) {
                 Funciones fun = new Funciones();
+                Utilities util = new Utilities();
                 if (esFavorito) { //se encuentra en favoritos --> se elimina
                     esFavorito = false;
-                    fun.eliminarFavorito(epiInfo.get(0)); //elimina de favoritos
+                    if (util.queProveedorEs(context) == Utilities.ANIMEFLV) {
+                        fun.eliminarFavorito(epiInfo.get(0), Utilities.ANIMEFLV); //elimina de favoritos
+                    } else { //reyanime
+                        fun.eliminarFavorito(epiInfo.get(0), Utilities.REYANIME);
+                    }
                     favorito.setImageResource(R.drawable.ic_favorite_border_white_24dp); //cambia el icono por el correspondiente (no favorito)
                     snackbar = Snackbar.make(coordLayout, getString(R.string.noti_favoritos_no), Snackbar.LENGTH_LONG);
                     View sbView = snackbar.getView();
@@ -91,7 +96,11 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
                 } else { //no se encuentra en favoritos --> se añade
                     esFavorito = true;
                     AnalyticsApplication.getInstance().trackEvent("Favorito", "añadir", epiInfo.get(0).getNombreAnime());
-                    fun.añadirFavorito(epiInfo.get(0));
+                    if (util.queProveedorEs(context) == Utilities.ANIMEFLV) {
+                        fun.añadirFavorito(epiInfo.get(0), Utilities.ANIMEFLV);
+                    } else { //reyanime
+                        fun.añadirFavorito(epiInfo.get(0), Utilities.REYANIME);
+                    }
                     favorito.setImageResource(R.drawable.ic_favorite_white_24dp);
                     snackbar = Snackbar.make(coordLayout, getString(R.string.noti_favoritos_si), Snackbar.LENGTH_LONG);
                     snackbar.show();
@@ -126,12 +135,18 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
 
     private void setupFAB(Episodios epiInfo) {
         Funciones fun = new Funciones();
-        if (fun.estaEnFavoritos(epiInfo)) { //si esta en favoritos
+        Utilities util = new Utilities();
+        //Verifica si se encuentra en favoritos y asigna el valor a esfavorito (primera vez dentro de la funcion)
+        if (util.queProveedorEs(context) == Utilities.ANIMEFLV) {
+            esFavorito = fun.estaEnFavoritos(epiInfo, Utilities.ANIMEFLV);
+        } else {
+            esFavorito = fun.estaEnFavoritos(epiInfo, Utilities.REYANIME);
+        }
+        //setea el FAB de favoritos segun sea el caso
+        if (esFavorito) { //si esta en favoritos
             favorito.setImageResource(R.drawable.ic_favorite_white_24dp);
-            esFavorito = true;
         } else { //caso contrario
             favorito.setImageResource(R.drawable.ic_favorite_border_white_24dp);
-            esFavorito = false;
         }
     }
 
@@ -214,15 +229,24 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         @Override
         protected Void doInBackground(String... params) {
             String url = params[0];
-
+            Utilities util = new Utilities();
             try {
-                Animeflv ani = new Animeflv();
-                epi = ani.getEpisodios(url); //contiene los episodios y la info
-                epiInfo = new ArrayList<>(); //inicializa
-                epiInfo.add(new Episodios(epi.get(0).getNombreAnime(), epi.get(0).getUrlAnime(), epi.get(0).getUrlEpisodio(), epi.get(0).getNumero(), epi.get(0).getUrlImagen(),
-                        epi.get(0).getInformacion(), epi.get(0).getTipo(), epi.get(0).getEstado(), epi.get(0).getGeneros(),
-                        epi.get(0).getFechaInicio())); //agrega el primero elemento que contiene la informacion del espisodio
-
+                if (util.queProveedorEs(context) == Utilities.ANIMEFLV) { //animeflv
+                    Animeflv animeflv = new Animeflv();
+                    epi = animeflv.getEpisodios(url); //contiene los episodios y la info
+                    epiInfo = new ArrayList<>(); //inicializa
+                    epiInfo.add(new Episodios(epi.get(0).getNombreAnime(), epi.get(0).getUrlAnime(), epi.get(0).getUrlEpisodio(), epi.get(0).getNumero(), epi.get(0).getUrlImagen(),
+                            epi.get(0).getInformacion(), epi.get(0).getTipo(), epi.get(0).getEstado(), epi.get(0).getGeneros(),
+                            epi.get(0).getFechaInicio())); //agrega el primer elemento, ya que este contiene la informacion del espisodio
+                } else {
+                    Reyanime reyanime = new Reyanime();
+                    Document codigoFuente = util.connect(url);
+                    epi = reyanime.getEpisodios(codigoFuente, url);
+                    epiInfo = new ArrayList<>(); //inicializa
+                    epiInfo.add(new Episodios(epi.get(0).getNombreAnime(), epi.get(0).getUrlAnime(), epi.get(0).getUrlEpisodio(), epi.get(0).getNumero(), epi.get(0).getUrlImagen(),
+                            epi.get(0).getInformacion(), epi.get(0).getTipo(), epi.get(0).getEstado(), epi.get(0).getGeneros(),
+                            epi.get(0).getFechaInicio())); //agrega el primer elemento, ya que este contiene la informacion del espisodio
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -255,15 +279,23 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         @Override
         protected Void doInBackground(HomeScreenEpi... params) {
             Utilities util = new Utilities();
-            Animeflv anime = new Animeflv();
             HomeScreenEpi objEpi = params[0];
+            Document codigoFuente;
             try {
-                url = anime.urlDisponible(objEpi.getUrlCapitulo(), getBaseContext());
-                Document codigoFuente = util.connect(objEpi.getUrlCapitulo());
-                String preview = anime.getMiniImage(codigoFuente); //preview estilo homeScreen
-                anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
-                anime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), preview, objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
-
+                if (util.queProveedorEs(getBaseContext()) == Utilities.ANIMEFLV) {
+                    Animeflv animeflv = new Animeflv();
+                    url = animeflv.urlDisponible(objEpi.getUrlCapitulo(), getBaseContext());
+                    codigoFuente = util.connect(objEpi.getUrlCapitulo());
+                    String preview = animeflv.getMiniImage(codigoFuente); //preview estilo homeScreen
+                    animeflv.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
+                    animeflv.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), preview, objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
+                } else {
+                    Reyanime reyanime = new Reyanime();
+                    url = reyanime.urlDisponible(objEpi.getUrlCapitulo(), getBaseContext());
+                    //PARA REYANIME SE PASA LA MISMA IMAGEN DEL ANIME COMO IMAGEN DE EPISODIO
+                    reyanime.añadirHistorialRey(objEpi.getNombre(), objEpi.getUrlCapitulo());
+                    reyanime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo());
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -287,19 +319,23 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
 
     /*De esta manera pasa el preview correspondiente al episodio y no al anime en si*/
     private class ReproductorInterno extends AsyncTask<HomeScreenEpi, Void, Void> {
-        String url;
         HomeScreenEpi objEpi;
 
         @Override
         protected Void doInBackground(HomeScreenEpi... params) {
             Utilities util = new Utilities();
-            Animeflv anime = new Animeflv();
             objEpi = params[0];
             try {
-                Document codigoFuente = util.connect(objEpi.getUrlCapitulo());
-                String preview = anime.getMiniImage(codigoFuente); //preview estilo homeScreen
-                objEpi.setPreview(preview);
-
+                if (util.queProveedorEs(context) == Utilities.ANIMEFLV) {
+                    Animeflv animeflv = new Animeflv();
+                    Document codigoFuente = util.connect(objEpi.getUrlCapitulo());
+                    String preview = animeflv.getMiniImage(codigoFuente); //preview estilo homeScreen
+                    objEpi.setPreview(preview);
+                }
+                /* PARA REYANIME SE PASA LA MISMA IMAGEN DEL ANIME COMO IMAGEN DE EPISODIO
+                else { //reyanime
+                }
+                */
             } catch (Exception e) {
                 e.printStackTrace();
             }

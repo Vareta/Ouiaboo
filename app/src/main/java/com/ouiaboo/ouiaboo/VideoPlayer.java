@@ -355,30 +355,42 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
         @Override
         protected Void doInBackground(Void... params) {
             Utilities util = new Utilities();
+            Animeflv animeflv = new Animeflv();
+            Reyanime reyanime = new Reyanime();
             try {
                 if (util.queProveedorEs(getBaseContext()) == Utilities.ANIMEFLV) {
-                    Animeflv anime = new Animeflv();
+
                     if (objEpi.getInformacion().equals("descargado")) { //video almacenado en el dispositivo
                         esDeInternet = false;
                         url = urlEntrada;
-                        anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getPreview()); //se usa preview ya que en este campo se guarda la url del anime cuando este proviene del dispositivo
+                        if (objEpi.getPreview().contains("animeflv")) {
+                            animeflv.añadirHistorialFlv(objEpi.getNombre(), objEpi.getPreview()); //se usa preview ya que en este campo se guarda la url del anime cuando este proviene del dispositivo
+                        } else {
+                            reyanime.añadirHistorialRey(objEpi.getNombre(), objEpi.getPreview());
+                        }
                     } else { //video desde internet
                         esDeInternet = true;
-                        Document codigoFuente = util.connect(urlEntrada); //obtiene el codigo fuente en forma de elementos
-                        if (codigoFuente == null) {
-                            Log.d("NULL", "NULL");
-                        }
                         Log.d("ANIMEFLV", urlEntrada);
-                        url = anime.urlDisponible(urlEntrada, getBaseContext());
-                        anime.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
-                        anime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
+                        url = animeflv.urlDisponible(urlEntrada, getBaseContext());
+                        animeflv.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
+                        animeflv.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
                     }
-                } else {
-                    Log.d("REYANIME", urlEntrada);
-                    Reyanime reyanime = new Reyanime();
-                    url = reyanime.urlDisponible(urlEntrada, getBaseContext());
-                    reyanime.añadirHistorialRey(objEpi.getNombre(), objEpi.getUrlCapitulo());
-                    reyanime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo());
+                } else {//reyanime
+                    if (objEpi.getInformacion().equals("descargado")) {
+                        esDeInternet = false;
+                        url = urlEntrada;
+                        if (objEpi.getPreview().contains("animeflv")) {
+                            animeflv.añadirHistorialFlv(objEpi.getNombre(), objEpi.getPreview()); //se usa preview ya que en este campo se guarda la url del anime cuando este proviene del dispositivo
+                        } else {
+                            reyanime.añadirHistorialRey(objEpi.getNombre(), objEpi.getPreview());
+                        }
+                    } else {
+                        Log.d("REYANIME", urlEntrada);
+                        esDeInternet = true;
+                        url = reyanime.urlDisponible(urlEntrada, getBaseContext());
+                        reyanime.añadirHistorialRey(objEpi.getNombre(), objEpi.getUrlCapitulo());
+                        reyanime.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo());
+                    }
                 }
 
             } catch (Exception e) {

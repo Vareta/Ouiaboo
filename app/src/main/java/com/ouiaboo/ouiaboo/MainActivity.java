@@ -34,18 +34,20 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         super.onCreate(savedInstanceState);
 
         SharedPreferences sharedPreferences = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE); //se cargan las preferencias
-        if (!sharedPreferences.contains("animeflv")){//si no tiene el string, quiere decir que es primera vez que se crean las preferencias
+        if (!sharedPreferences.getBoolean("tutorialCompletado", false)){//si no tiene el string, quiere decir que es primera vez que se crean las preferencias
             Log.d("PREF", "primera");
             SharedPreferences.Editor editor = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE).edit();
             editor.putBoolean("animeflv", true);
             editor.putBoolean("reyanime", false);
+            editor.putBoolean("tutorialCompletado", false);
+            editor.putBoolean("proveedorModificado", false);
             //editor.putBoolean("animejoy", false);
             editor.apply();
             PreferenceManager.setDefaultValues(this, PREFERENCIAS, MODE_PRIVATE, R.xml.preferences, false);
         } else {
-            Intent intent = new Intent(getBaseContext(), Central.class);
-            startActivity(intent); //pasa a la nueva actividad
-            finish(); //cierra la actividad actual, para no poder volver con el boton back
+                Intent intent = new Intent(getBaseContext(), Central.class);
+                startActivity(intent); //pasa a la nueva actividad
+                finish(); //cierra la actividad actual, para no poder volver con el boton back
         }
 
         setContentView(R.layout.activity_main);
@@ -90,20 +92,19 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
             if (position == 0){ //AnimeFLV
                 editor.putBoolean("animeflv", true);
+                editor.putString("listaProveedores", "animeflv");
                 //editor.putBoolean("animejoy", false);
             }else{
                 if (position == 1){ //Reyanime
                     editor.putBoolean("animeflv", false);
                     editor.putBoolean("reyanime", true);
+                    editor.putString("listaProveedores", "reyanime");
                 }
             }
         editor.apply();
 
-        //SharedPreferences prefs = getSharedPreferences(PREFERENCIAS, MODE_PRIVATE);
-
-       // Log.d(TAG,  "AnimeFLV  "+prefs.getBoolean("animeflv", false) + "  Animejoy" + prefs.getBoolean("animejoy", false));
-
-        Intent intent = new Intent(getBaseContext(), Central.class);
+        //inicia tutorial
+        Intent intent = new Intent(getBaseContext(), Tutorial.class);
         startActivity(intent);
         finish();
     }

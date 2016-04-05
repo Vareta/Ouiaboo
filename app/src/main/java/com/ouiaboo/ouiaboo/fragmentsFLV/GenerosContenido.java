@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,6 +20,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Reyanime;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.adaptadores.AdGenerosEndless;
 import com.ouiaboo.ouiaboo.clases.GenerosClass;
@@ -134,14 +137,23 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
 
         @Override
         protected Void doInBackground(AdGenerosEndless.CustomRecyclerListener... params) {
-            Animeflv anime = new Animeflv();
             Utilities util = new Utilities();
             try {
                 Document codigoFuente = util.connect(url);
-                urlSiguiente = anime.siguientePagina(codigoFuente);
-                Log.d("URL", urlSiguiente);
-                tienePaginaSiguiente = !urlSiguiente.equals(""); //comprueba si tiene pagina siguiente
-                animeByGenero = anime.busquedaFLV(codigoFuente); //se ocupa el de busqueda ya que el diseño de la pagina de generos es igual
+                if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    Animeflv animeflv = new Animeflv();
+                    urlSiguiente = animeflv.siguientePagina(codigoFuente);
+                    Log.d("URL", urlSiguiente);
+                    tienePaginaSiguiente = !urlSiguiente.equals(""); //comprueba si tiene pagina siguiente
+                    animeByGenero = animeflv.busquedaFLV(codigoFuente); //se ocupa el de busqueda ya que el diseño de la pagina de generos es igual
+                } else { //reyanime
+                    Reyanime reyanime = new Reyanime();
+                    urlSiguiente = reyanime.siguientePaginaGenero(codigoFuente, url);
+                    Log.d("URL", urlSiguiente);
+                    tienePaginaSiguiente = !urlSiguiente.equals("");
+                    animeByGenero = reyanime.animePorGenero(codigoFuente);
+                }
+
                 adaptador = new AdGenerosEndless(getActivity(), animeByGenero, list);
                 adaptador.setClickListener(params[0]);
 
@@ -159,7 +171,6 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
 
         @Override
         protected void onPostExecute(Void result) {
-
             list.setAdapter(adaptador);
             bar.setVisibility(View.GONE);
             setOnLoadMoreListener();
@@ -170,14 +181,20 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
 
         @Override
         protected Void doInBackground(Void... params) {
-            Animeflv anime = new Animeflv();
             Utilities util = new Utilities();
             try {
                 Document codigoFuente = util.connect(urlSiguiente);
-                urlSiguiente = anime.siguientePagina(codigoFuente);//comprueba si tiene pagina siguiente
-                tienePaginaSiguiente = !urlSiguiente.equals(""); //si urlSiguiente es igual a "" --> tienePaginaSiguiente = false, de otra manera true
-                animeSiguiente = anime.busquedaFLV(codigoFuente); //se ocupa el de busqueda ya que el diseño de la pagina de generos es igual
-
+                if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    Animeflv animeflv = new Animeflv();
+                    urlSiguiente = animeflv.siguientePagina(codigoFuente);//comprueba si tiene pagina siguiente
+                    tienePaginaSiguiente = !urlSiguiente.equals(""); //si urlSiguiente es igual a "" --> tienePaginaSiguiente = false, de otra manera true
+                    animeSiguiente = animeflv.busquedaFLV(codigoFuente); //se ocupa el de busqueda ya que el diseño de la pagina de generos es igual
+                } else {
+                    Reyanime reyanime = new Reyanime();
+                    urlSiguiente = reyanime.siguientePaginaGenero(codigoFuente, url);
+                    tienePaginaSiguiente = !urlSiguiente.equals("");
+                    animeSiguiente = reyanime.animePorGenero(codigoFuente);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

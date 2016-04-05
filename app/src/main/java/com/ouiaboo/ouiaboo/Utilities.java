@@ -65,6 +65,7 @@ public class Utilities {
     public static final String FRAGMENT_HISTORIAL = "historial";
     public static final String FRAGMENT_GENEROS = "generos";
     public static final String FRAGMENT_PREFERENCIAS = "preferencias";
+    public static final String FRAGMENT_COMPARTIR = "compartir";
     public static final String FRAGMENT_FAQ = "faq";
     public static final String FRAGMENT_BUSQUEDA = "busqueda";
     public static final String FRAGMENT_GENEROSCONTENIDO = "generoscontenido";
@@ -143,7 +144,6 @@ public class Utilities {
 
 
     public List<String> downloadWebPageTaskNoAsync (String url) {
-
         List<String> lista = new ArrayList<String>();
         URL urlPagina;
         try {
@@ -157,7 +157,7 @@ public class Utilities {
             String line;
             while ((line = reader.readLine()) != null) { // Read line by line
                 // sb.append(line);
-               // Log.d("STRING", line);
+                //Log.d("STRING", line);
                 lista.add(line);
                 //lista.add(line); // Result is here
                 //  sb = null;
@@ -252,8 +252,24 @@ public class Utilities {
         } else {
             return REYANIME;
         }
-
     }
+
+    /*Consulta en las preferencias si acaso el proveedor fue modifcado, en caso de haber sido modificado vuelve el valor
+    a falso, ya que este al momento de ser consultado verdadero, debe ser cambiado a falso inmediatamente
+         */
+    public boolean proveedorModificado(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(PREFERENCIAS, Context.MODE_PRIVATE);
+        if (preferences.getBoolean("proveedorModificado", false)) {
+            SharedPreferences.Editor editor = context.getSharedPreferences(PREFERENCIAS, Context.MODE_PRIVATE).edit();
+            editor.putBoolean("proveedorModificado", false);
+            editor.apply();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
     /*http://stackoverflow.com/questions/25805580/how-to-quickly-check-if-url-server-is-available*/
     public boolean isServerReachable(String url, Context context) {
         ConnectivityManager connMan = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -265,16 +281,20 @@ public class Utilities {
                 urlConn.setConnectTimeout(20000); //<- 3Seconds Timeout
                 urlConn.connect();
                 int status = urlConn.getResponseCode();
-                Log.d("CODIGO", String.valueOf(urlConn.getResponseCode()));
-                if (status == HttpURLConnection.HTTP_OK) { //servidor izanagi animeflv
-                    return true;
-                } else {
-                    if (url.contains("blogspot") && status == HttpURLConnection.HTTP_MOVED_TEMP) { //servidor kami animeflv
+                if (queProveedorEs(context) == Utilities.ANIMEFLV) {
+                    Log.d("CODIGO", String.valueOf(status));
+                    if (status == HttpURLConnection.HTTP_OK || status == HttpURLConnection.HTTP_MOVED_TEMP) { //servidor izanagi animeflv
                         return true;
                     } else {
                         return false;
                     }
-
+                } else {
+                    Log.d("CODIGO", String.valueOf(status));
+                    if (status == HttpURLConnection.HTTP_OK || status == HttpURLConnection.HTTP_PARTIAL || status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_NOT_MODIFIED) { //servidor izanagi animeflv
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             } catch (MalformedURLException e1) {
                 return false;
@@ -445,5 +465,7 @@ public class Utilities {
 
         return resultado;
     }
+
+
 
 }
