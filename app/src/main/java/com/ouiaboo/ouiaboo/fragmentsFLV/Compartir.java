@@ -109,7 +109,7 @@ public class Compartir extends Fragment {
             public void onClick(View v) {
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, "Viendo anime desde mi A ndroid vía Ouiaboo http://ouiaboo.wordpress.com/");
+                sendIntent.putExtra(Intent.EXTRA_TEXT, "Viendo anime desde mi Android vía Ouiaboo http://ouiaboo.wordpress.com/");
                 sendIntent.setType("text/plain");
                 startActivity(sendIntent);
             }
