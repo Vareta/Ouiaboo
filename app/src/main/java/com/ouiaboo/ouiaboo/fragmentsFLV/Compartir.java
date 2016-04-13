@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
 import com.facebook.share.Sharer;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
@@ -48,7 +49,7 @@ public class Compartir extends Fragment {
         ImageView facebookBtn = (ImageView) convertView.findViewById(R.id.facebookButton);
         ImageView twitterBtn = (ImageView) convertView.findViewById(R.id.twitterButton);
         ImageView otrosBtn = (ImageView) convertView.findViewById(R.id.otroskButton);
-
+        FacebookSdk.sdkInitialize(getActivity().getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
         shareDialog = new ShareDialog(this);
         shareDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
@@ -70,16 +71,21 @@ public class Compartir extends Fragment {
                 AnalyticsApplication.getInstance().trackEvent("Compartir", "Error", "Facebook");
             }
         });
+
+
         facebookBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ShareLinkContent content = new ShareLinkContent.Builder()
-                        .setImageUrl(Uri.parse("http://i.imgur.com/cMD1lVy.png"))
-                        .setContentTitle("Ouiaboo")
-                        .setContentDescription(getResources().getString(R.string.contentTitleFacebook_Compartir))
-                        .setContentUrl(Uri.parse("https://ouiaboo.wordpress.com/"))
-                        .build();
-                shareDialog.show(content);
+                if (ShareDialog.canShow(ShareLinkContent.class)) {
+                    ShareLinkContent content = new ShareLinkContent.Builder()
+                            .setImageUrl(Uri.parse("http://i.imgur.com/cMD1lVy.png"))
+                            .setContentTitle("Ouiaboo")
+                            .setContentDescription(getResources().getString(R.string.contentTitleFacebook_Compartir))
+                            .setContentUrl(Uri.parse("https://ouiaboo.wordpress.com/"))
+                            .build();
+                    shareDialog.show(content);
+                }
+
             }
         });
 
