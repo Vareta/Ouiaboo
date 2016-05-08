@@ -66,7 +66,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     private List<HomeScreenEpi> animeDescargado;
     private TextView sinDescargados;
     private RecyclerView list;
-    private Boolean existenDescargados = null;
+    private Boolean existenDescargados;
     private AdDescargadas adaptador;
     private CoordinatorLayout coordinatorLayout;
     private List<String> urlAnimeAux;

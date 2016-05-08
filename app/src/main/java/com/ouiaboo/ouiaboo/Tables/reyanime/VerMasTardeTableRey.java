@@ -18,6 +18,10 @@ public class VerMasTardeTableRey extends DataSupport {
         this.urlCapitulo = urlCapitulo;
     }
 
+    public VerMasTardeTableRey(){
+
+    }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }

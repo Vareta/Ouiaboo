@@ -14,6 +14,10 @@ public class HistorialFlvTable extends DataSupport {
         this.urlEpisodio = urlEpisodio;
     }
 
+    public HistorialFlvTable() {
+
+    }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }

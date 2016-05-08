@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.FacebookSdk;
+import com.ouiaboo.ouiaboo.Tables.animeflv.VerMasTardeTable;
 import com.ouiaboo.ouiaboo.clases.GenerosClass;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.ouiaboo.ouiaboo.fragmentsFLV.Compartir;
@@ -51,6 +52,7 @@ import com.ouiaboo.ouiaboo.fragmentsFLV.VerMasTarde;
 
 import org.jsoup.nodes.Document;
 import org.litepal.LitePalApplication;
+import org.litepal.crud.DataSupport;
 import org.litepal.tablemanager.Connector;
 
 import java.io.File;
@@ -87,7 +89,6 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_central);
         LitePalApplication.initialize(this);
-
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout); //el drawerLayout
         contenedor = (RelativeLayout) findViewById(R.id.contenedor);
         updateAppBar = (ProgressBar) findViewById(R.id.updateAppProgressBar);

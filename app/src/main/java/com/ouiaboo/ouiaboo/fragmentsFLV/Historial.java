@@ -56,7 +56,7 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
     private RecyclerView list;
     private List<HomeScreenEpi> animeHistorial;
     private TextView noHistorial;
-    private Boolean existeHistorial = null;
+    private Boolean existeHistorial;
     private AdHomeScreen adaptador;
     private CoordinatorLayout coordinatorLayout;
 

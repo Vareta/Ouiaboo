@@ -16,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 
 import org.jsoup.nodes.Document;
+import org.litepal.LitePalApplication;
 import org.litepal.crud.DataSupport;
 
 import java.util.ArrayList;
@@ -53,7 +55,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     private ProgressBar bar;
     private List<HomeScreenEpi> masTardeAnime;
     private AdVerMasTarde adaptador;
-    private Boolean existeAnimeMastarde = null;
+    private Boolean existeAnimeMastarde;
     private CoordinatorLayout coordinatorLayout;
     private TextView sinResultados;
     private OnFragmentInteractionListener mListener;
@@ -65,6 +67,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LitePalApplication.initialize(getActivity().getApplicationContext());
         setRetainInstance(true); //hace que el fragment se conserve
     }
 
@@ -89,6 +92,7 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
 
     public void iniciaFragment() {
         if (getMasTardeAnime() == null && existeAnimeMastarde == null) { //primera vez que inicia el fragment
+            Log.d("TARDE", "inicia fragment");
             new ListarAnimeMasTarde().execute(this);
         } else { //inicia desde un punto guardado
             if (!existeAnimeMastarde) {
@@ -243,22 +247,24 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
         protected Void doInBackground(AdVerMasTarde.CustomRecyclerListener... params) {
             Utilities util = new Utilities();
             try {
-
                 masTardeAnime = new ArrayList<>();
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    Log.d("HOLA", "1");
                     List<VerMasTardeTable> datos = DataSupport.findAll(VerMasTardeTable.class);
-                    if (datos.isEmpty()) {
+                    if (datos == null || datos.isEmpty()) {
+                        Log.d("HOLA", "1.1");
                         existeAnimeMastarde = false;
                     } else {
+                        Log.d("HOLA", "1.2");
                         existeAnimeMastarde = true;
                         for (int i = 0; i < datos.size(); i++) {
                             masTardeAnime.add(new HomeScreenEpi(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
                         }
-
                         adaptador = new AdVerMasTarde(getActivity(), masTardeAnime);
                         adaptador.setClickListener(params[0]);
                     }
                 } else { //reyanime
+                    Log.d("HOLA", "2");
                     List<VerMasTardeTableRey> datos = DataSupport.findAll(VerMasTardeTableRey.class);
                     if (datos.isEmpty()) {
                         existeAnimeMastarde = false;
@@ -289,13 +295,12 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
 
         @Override
         protected void onPostExecute(Void result) {
-
+            Log.d("VALOR", String.valueOf(existeAnimeMastarde));
             if (!existeAnimeMastarde) {
                 sinResultados.setVisibility(View.VISIBLE);
                 lista.setVisibility(View.GONE);
             } else {
                 lista.setAdapter(adaptador);
-
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallBack);
                 itemTouchHelper.attachToRecyclerView(lista); //añade la lista a la escucha
 

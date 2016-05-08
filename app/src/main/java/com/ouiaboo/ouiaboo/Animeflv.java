@@ -19,6 +19,7 @@ import org.litepal.crud.DataSupport;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -491,7 +492,7 @@ public class Animeflv{
                     auxUrl = localMatcher.group(1);
                     //System.out.println(aux);
                     try {
-                        url = URLDecoder.decode("https://animeflv.net/embed_izanagi.php?key=" + auxUrl, "UTF-8");
+                        url = "https://animeflv.net/servers/izanagi.php?id=" + URLEncoder.encode(auxUrl, "UTF-8"); //luego de la ultima actualizacion de animeflv, parte de la url esta encodeada (la key basicamente)
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
@@ -503,16 +504,45 @@ public class Animeflv{
         List<String> urlResponse = util.downloadWebPageTaskNoAsync(url);
         for (int j = 0; j < urlResponse.size(); j++) {
             if (urlResponse.get(j).contains("file")) {
-                String[] dataAux = urlResponse.get(j).split(" "); //elimina los espacios de la linea que contiene: file: 'url',
-                String[] urlAux = dataAux[dataAux.length - 1].split("'"); //elimina los apostrofes (') de: 'url',
-
-                url = urlAux[1]; //en el lugar 1 se encuentra la url del video
+                String[] dataAux = urlResponse.get(j).split("\""); //elimina los " de la linea que contiene: {file:"url"}
+                url = dataAux[dataAux.length - 2].replace("\\", "" ); //en el penultimo lugar se encuentra la url del video
             }
         }
-        Log.d("URLIZANAGI", url);
         return url;
     }
 
+    public String urlYottaServer(List<String> paginaWeb){
+        String url = "", auxUrl = "";
+        int max = paginaWeb.size();
+
+        for (int i = 0; i < max; i++) {
+            if (paginaWeb.get(i).contains("var videos")) {
+                Matcher localMatcher = Pattern.compile("embed_yotta.php\\?key=(.*?)\"").matcher(paginaWeb.get(i));
+                while (localMatcher.find()) {
+                    auxUrl = localMatcher.group(1);
+                    //System.out.println(aux);
+                    url = "http://s1.animeflv.net/yotta.php?id=" + auxUrl;
+                }
+            }
+        }
+
+        //Ahora se procede a obtener la direccion del video (debido a que animeflv actualizo la forma en que se obtiene la url de izanagi
+        Utilities util = new Utilities();
+        List<String> urlResponse = util.downloadWebPageTaskNoAsync(url);
+        for (int j = 0; j < urlResponse.size(); j++) {
+            if (urlResponse.get(j).contains("file")) {
+                Matcher localMatcher = Pattern.compile("\"file\":\"(.*?)\"").matcher(urlResponse.get(j)); //obtiene la url del video en hd
+                while (localMatcher.find()) {
+                    auxUrl = localMatcher.group(1);
+                    url = auxUrl.replace("\\", ""); // Elimina los caracteres \
+                }
+            }
+        }
+        Log.d("YOTAURL", url);
+        return url;
+    }
+
+    /*Servidor eliminado por animeflv*/
     public String urlFLVServer(List<String> paginaWeb){
         String auxUrl = "", urlFinal = "";
 
@@ -535,7 +565,6 @@ public class Animeflv{
 
         return urlFinal;
     }
-
 
     /*Servidor eliminado por animeflv*/
     public String urlHyperionServer(List<String> paginaWeb){
@@ -627,7 +656,7 @@ public class Animeflv{
             }
         }
         if (!izanagiDisponible && !kamiDisponible) {
-            urlAux = urlFLVServer(codFuente);
+            urlAux = urlYottaServer(codFuente);
             if (!urlAux.equals("")) {
                 if (util.isServerReachable(urlAux, context)) {
                     url = urlAux;

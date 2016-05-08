@@ -46,7 +46,7 @@ public class Favoritos extends android.support.v4.app.Fragment implements AdBusq
     private ProgressBar bar;
     private List<HomeScreenEpi> animeFavoritos;
     private TextView noFavoritos;
-    private Boolean existenFavoritos = null;
+    private Boolean existenFavoritos;
     private AdBusquedaFLV adaptador;
     private CoordinatorLayout coordinatorLayout;
 
