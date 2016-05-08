@@ -18,6 +18,9 @@ public class VerMasTardeTable extends DataSupport {
         this.urlCapitulo = urlCapitulo;
     }
 
+    public VerMasTardeTable() {
+    }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }

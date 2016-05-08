@@ -18,6 +18,10 @@ public class HistorialTableRey extends DataSupport {
         this.urlCapitulo = urlCapitulo;
     }
 
+    public HistorialTableRey(){
+
+    }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }

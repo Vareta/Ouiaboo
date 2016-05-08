@@ -14,6 +14,9 @@ public class HistorialReyTable extends DataSupport {
         this.urlEpisodio = urlEpisodio;
     }
 
+    HistorialReyTable() {
+    }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }

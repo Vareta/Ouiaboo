@@ -42,7 +42,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdGener
     private List<HomeScreenEpi> animesBuscados;
     private List<HomeScreenEpi> animesBuscadosSiguiente;
     private AdGenerosEndless adaptador;
-    private Boolean produceResultados = null;
+    private Boolean produceResultados;
     private TextView sinResultados;
     private String urlSiguiente;
     private boolean tienePaginaSiguiente;

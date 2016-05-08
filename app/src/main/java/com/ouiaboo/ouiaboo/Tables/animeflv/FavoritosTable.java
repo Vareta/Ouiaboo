@@ -18,6 +18,10 @@ public class FavoritosTable extends DataSupport {
         this.urlAnime = urlAnime;
     }
 
+    public FavoritosTable() {
+
+    }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
