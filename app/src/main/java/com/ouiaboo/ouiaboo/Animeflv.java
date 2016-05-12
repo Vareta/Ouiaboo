@@ -492,7 +492,7 @@ public class Animeflv{
                     auxUrl = localMatcher.group(1);
                     //System.out.println(aux);
                     try {
-                        url = "https://animeflv.net/servers/izanagi.php?id=" + URLEncoder.encode(auxUrl, "UTF-8"); //luego de la ultima actualizacion de animeflv, parte de la url esta encodeada (la key basicamente)
+                        auxUrl = "https://animeflv.net/servers/izanagi.php?id=" + URLEncoder.encode(auxUrl, "UTF-8"); //luego de la ultima actualizacion de animeflv, parte de la url esta encodeada (la key basicamente)
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
@@ -501,13 +501,14 @@ public class Animeflv{
         }
         //Ahora se procede a obtener la direccion del video (debido a que animeflv actualizo la forma en que se obtiene la url de izanagi
         Utilities util = new Utilities();
-        List<String> urlResponse = util.downloadWebPageTaskNoAsync(url);
+        List<String> urlResponse = util.downloadWebPageTaskNoAsync(auxUrl);
         for (int j = 0; j < urlResponse.size(); j++) {
             if (urlResponse.get(j).contains("file")) {
                 String[] dataAux = urlResponse.get(j).split("\""); //elimina los " de la linea que contiene: {file:"url"}
                 url = dataAux[dataAux.length - 2].replace("\\", "" ); //en el penultimo lugar se encuentra la url del video
             }
         }
+
         return url;
     }
 
@@ -521,20 +522,20 @@ public class Animeflv{
                 while (localMatcher.find()) {
                     auxUrl = localMatcher.group(1);
                     //System.out.println(aux);
-                    url = "http://s1.animeflv.net/yotta.php?id=" + auxUrl;
+                    auxUrl = "http://s1.animeflv.net/yotta.php?id=" + auxUrl;
                 }
             }
         }
 
         //Ahora se procede a obtener la direccion del video (debido a que animeflv actualizo la forma en que se obtiene la url de izanagi
         Utilities util = new Utilities();
-        List<String> urlResponse = util.downloadWebPageTaskNoAsync(url);
+        List<String> urlResponse = util.downloadWebPageTaskNoAsync(auxUrl);
         for (int j = 0; j < urlResponse.size(); j++) {
             if (urlResponse.get(j).contains("file")) {
                 Matcher localMatcher = Pattern.compile("\"file\":\"(.*?)\"").matcher(urlResponse.get(j)); //obtiene la url del video en hd
                 while (localMatcher.find()) {
-                    auxUrl = localMatcher.group(1);
-                    url = auxUrl.replace("\\", ""); // Elimina los caracteres \
+                    String dataAux = localMatcher.group(1);
+                    url = dataAux.replace("\\", ""); // Elimina los caracteres \
                 }
             }
         }
@@ -606,7 +607,7 @@ public class Animeflv{
                     auxUrl = localMatcher.group(1);
                     //System.out.println(aux);
                     try {
-                        url = URLDecoder.decode("https://animeflv.net/video/kami.php?key=" + auxUrl, "UTF-8");
+                        auxUrl = URLDecoder.decode("https://animeflv.net/video/kami.php?key=" + auxUrl, "UTF-8");
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
@@ -615,7 +616,7 @@ public class Animeflv{
         }
         //Ahora se procede a obtener la direccion del video (debido a que animeflv actualizo la forma en que se obtiene la url de izanagi
         Utilities util = new Utilities();
-        List<String> urlResponse = util.downloadWebPageTaskNoAsync(url);
+        List<String> urlResponse = util.downloadWebPageTaskNoAsync(auxUrl);
         for (int j = 0; j < urlResponse.size(); j++) {
             if (urlResponse.get(j).contains("file")) {
                 String[] dataAux = urlResponse.get(j).split("\""); //elimina los espacios de la linea que contiene: sources: [{file: "http://2.bp.blogspot.com/au5Dbu69zEyYwuN5H_CctNXFfWrsfFcp79WWwSC1BzWL=m18", label: "360", type: "video/mp4"}],
