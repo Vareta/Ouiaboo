@@ -26,8 +26,9 @@ import java.util.regex.Pattern;
  * Created by Vareta on 07-02-2016.
  */
 public class Reyanime {
+    private final String TAG = "Reyanime";
 
-    public List<HomeScreenEpi> homeScreen(Document codigoFuente, Resources resources){
+    public List<HomeScreenEpi> homeScreen(Document codigoFuente, Resources resources) {
         List<HomeScreenEpi> home = new ArrayList<>();
         String urlAnime, nombre, informacion, informacionAux, preview;
         Elements objetosHome, objetosEpi;
@@ -61,11 +62,12 @@ public class Reyanime {
     public String urlDisponible(String urlEpisodio, Context context) {
         String url = "";
         Utilities util = new Utilities();
-        List<String> codFuente = util.downloadWebPageTaskNoAsync(urlEpisodio); //obtiene el codigo fuente en forma de una lista de string
+        String urlDeServidores = urlsReproductor(urlEpisodio); //obtiene las urls de los servidores disponibles para el episodio
         String urlAux;
-        boolean zeroDisponible = true, ichiDisponible = false, amzzDisponible = false; //nombre de los servidores
+        boolean zeroDisponible = true, ichiDisponible = false, amzDisponible = false; //nombre de los servidores
 
-        urlAux = urlZeroServer(codFuente);
+        urlAux = urlZeroServer(urlDeServidores);
+        Log.d(TAG, "inicio zero server");
         if (!urlAux.equals("")) {
             if (util.isServerReachable(urlAux, context)) {
                 url = urlAux;
@@ -78,7 +80,8 @@ public class Reyanime {
         }
 
         if (!zeroDisponible) {
-            urlAux = urlIchiServer(codFuente);
+            Log.d(TAG, "inicio ichi server");
+            urlAux = urlIchiServer(urlDeServidores);
             if (!urlAux.equals("")) {
                 System.out.println(urlAux);
                 if (util.isServerReachable(urlAux, context)) {
@@ -89,136 +92,230 @@ public class Reyanime {
             }
         }
 
-        if (!zeroDisponible && !ichiDisponible) { //amzz server
-            urlAux = urlAmzzServer(codFuente);
+
+        if (!zeroDisponible && !ichiDisponible) { //amz server
+            Log.d(TAG, "inicio amz server");
+            urlAux = urlAmzServer(urlDeServidores);
             if (!urlAux.equals("")) {
                 if (util.isServerReachable(urlAux, context)) {
                     url = urlAux;
-                    amzzDisponible = true;
-                    Log.d("urlDisponible", "amzz server");
+                    amzDisponible = true;
+                    Log.d("urlDisponible", "amz server");
                 }
             }
         }
 
-        if (!zeroDisponible && !ichiDisponible && !amzzDisponible) { //picasa server
-            urlAux = urlPicasaServer(codFuente);
+        if (!zeroDisponible && !ichiDisponible && !amzDisponible) { //amzcl server
+            Log.d(TAG, "inicio amzcl server");
+            urlAux = urlAmzclServer(urlDeServidores);
             if (!urlAux.equals("")) {
                 if (util.isServerReachable(urlAux, context)) {
                     url = urlAux;
-                    Log.d("urlDisponible", "picasa server");
+                    Log.d("urlDisponible", "amzcl server");
                 }
             }
         }
-
+        Log.d("url final", url);
         return url;
     }
 
-    private String urlZeroServer(List<String> codFuente) {
-        String auxUrl = "", url = "";
-        int max = codFuente.size();
-
-        for (int i = 0; i < max; i++) {
-            if (codFuente.get(i).contains("az?v")) {
-                Matcher localMatcher = Pattern.compile("repro-rc\\/az\\?v=(.*?)\"").matcher(codFuente.get(i));
-                while (localMatcher.find()) {
-                    auxUrl = localMatcher.group(1);
-                    try {
-                        url = URLDecoder.decode("http://larata.in/amz/filerey/" + auxUrl + ".mp4", "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
+    /**
+     * Obtiene todas las urls de los servidores disponibles para un episodio.
+     *
+     * @param urlEpisodio URL del episodio
+     * @return Un string que contiene las urls de los servidores disponibles para un episodios. En caso de error devuelve
+     * un string en blanco
+     */
+    private String urlsReproductor(String urlEpisodio) {
+        String urls = "";
+        Utilities util = new Utilities();
+        Document cod = util.connect(urlEpisodio);
+        Element reproductor = cod.getElementsByClass("conten-box").first(); //obtienen el elemento que contiene el reproductor
+        if (reproductor == null) {
+            Log.d(TAG, "No se puede conseguir el elemento que contiene la informacion del reproductor");
+        } else {
+            Elements scripts = reproductor.select("script");
+            if (scripts == null) {
+                Log.d(TAG, "No se puede conseguir el script que contiene las url de video del episodio");
+            } else {
+                for (Element s : scripts) {
+                    if (s.toString().contains("tabsArray")) {
+                        urls = s.toString();
+                        break;
                     }
                 }
+            }
+        }
 
-                break; //para no seguir buscando hasta el final del codigo fuente
+        return urls;
+    }
+
+    private String urlZeroServer(String codFuente) {
+        String auxUrl = "", url = "";
+        boolean seEcuentraUrl = false;
+
+        if (codFuente.contains("az?v")) {
+            Matcher localMatcher = Pattern.compile("repro-rc\\/az\\?v=(.*?)\"").matcher(codFuente);
+            while (localMatcher.find()) {
+                auxUrl = localMatcher.group(1);
+                auxUrl = "http://ozhe.larata.in/repro-rc/az?v=" + auxUrl; //url completa
+                seEcuentraUrl = true;
+            }
+        }
+
+        if (seEcuentraUrl) {
+            Utilities util = new Utilities();
+            List<String> urlResponse = util.downloadWebPageTaskNoAsync(auxUrl);
+            for (int j = 0; j < urlResponse.size(); j++) {
+                if (urlResponse.get(j).contains("<script type='text/javascript'>")) { //linea donde se encuentra la url del video
+                    Matcher localMatcher = Pattern.compile("file: \"(.*?)\"").matcher(urlResponse.get(j)); //obtiene la url del video completa
+                    while (localMatcher.find()) {
+                        auxUrl = localMatcher.group(1);
+                        try {
+                            url = URLDecoder.decode(auxUrl, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         }
 
         return url;
     }
 
-    private String urlIchiServer(List<String> codFuente) {
+    private String urlIchiServer(String codFuente) {
         String auxUrl = "", url = "";
-        int max = codFuente.size();
         boolean seEncuentraUrl = false;
 
-        for (int i = 0; i < max; i++) {
-            if (codFuente.get(i).contains("send?v")) {
-                Matcher localMatcher = Pattern.compile("send\\?v=(.*?)\"").matcher(codFuente.get(i));
-                while (localMatcher.find()) {
-                    auxUrl = localMatcher.group(1);
-                    try {
-                        url = URLDecoder.decode("http://my.mp4link.com/embed/sendvid/code=" + auxUrl, "UTF-8");
-                        seEncuentraUrl = true;
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break; //para no seguir buscando hasta el final del codigo fuente
+        if (codFuente.contains("send?v")) {
+            Matcher localMatcher = Pattern.compile("send\\?v=(.*?)\"").matcher(codFuente);
+            while (localMatcher.find()) {
+                auxUrl = localMatcher.group(1);
+                auxUrl = "http://my.mp4link.com/embed/sendvid/code=" + auxUrl;
+                seEncuentraUrl = true;
             }
         }
+
         //ahora obtiene
-       if (seEncuentraUrl) {
-           Utilities util = new Utilities();
-           List<String> urlResponse = util.downloadWebPageTaskNoAsync(url);
-           for (int j = 0; j < urlResponse.size(); j++) {
-               if (urlResponse.get(j).contains("<script type='text/javascript'> var jwPlayer")) { //linea donde se encuentra la url del video
-                   Matcher localMatcher = Pattern.compile("file: \"(.*?)\"").matcher(urlResponse.get(j)); //obtiene la url del video completa
-                   while (localMatcher.find()) {
-                       auxUrl = localMatcher.group(1);
-                       try {
-                           url = URLDecoder.decode(auxUrl, "UTF-8");
-                       } catch (UnsupportedEncodingException e) {
-                           e.printStackTrace();
-                       }
-                   }
-               }
-           }
-       }
-
-        return url;
-    }
-
-    private String urlAmzzServer(List<String> codFuente) {
-        String auxUrl = "", url = "";
-        int max = codFuente.size();
-
-        for (int i = 0; i < max; i++) {
-            if (codFuente.get(i).contains("amzz?v")) {
-                Matcher localMatcher = Pattern.compile("amzz\\?v=(.*?)\"").matcher(codFuente.get(i));
-                while (localMatcher.find()) {
-                    auxUrl = localMatcher.group(1);
-                    try {
-                        url = URLDecoder.decode("http://larata.in/amz/filerey/" + auxUrl + ".mp4", "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
+        if (seEncuentraUrl) {
+            Utilities util = new Utilities();
+            List<String> urlResponse = util.downloadWebPageTaskNoAsync(auxUrl);
+            for (int j = 0; j < urlResponse.size(); j++) {
+                if (urlResponse.get(j).contains("<script type='text/javascript'> var jwPlayer")) { //linea donde se encuentra la url del video
+                    Matcher localMatcher = Pattern.compile("file: \"(.*?)\"").matcher(urlResponse.get(j)); //obtiene la url del video completa
+                    while (localMatcher.find()) {
+                        auxUrl = localMatcher.group(1);
+                        try {
+                            url = URLDecoder.decode(auxUrl, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-                break; //para no seguir buscando hasta el final del codigo fuente
             }
         }
+
         return url;
     }
 
-    private String urlPicasaServer(List<String> codFuente) {
+    /**
+     * Obtiene la url del video del episodios para el servidor amz
+     * @param codFuente String que contiene las urls disponibles
+     * @return la url del video
+     */
+    private String urlAmzServer(String codFuente) {
         String auxUrl = "", url = "";
-        int max = codFuente.size();
+
+        if (codFuente.contains("amz?v")) {
+            Matcher localMatcher = Pattern.compile("amz\\?v=(.*?)\"").matcher(codFuente);
+            while (localMatcher.find()) {
+                auxUrl = localMatcher.group(1);
+                url = "https://www.amazon.com/gp/drive/share?s=" + auxUrl;
+            }
+        }
+
+        return url;
+    }
+
+    /**
+     * Obtiene la url del video del episodios para el servidor amzcl
+     * @param codFuente String que contiene las urls disponibles
+     * @return la url del video
+     */
+    private String urlAmzclServer(String codFuente) {
+        String auxUrl = "", url = "";
         boolean seEncuentraUrl = false;
 
-        for (int i = 0; i < max; i++) {
-            if (codFuente.get(i).contains("picasa?v")) {
-                Matcher localMatcher = Pattern.compile("picasa\\?v=(.*?)\"").matcher(codFuente.get(i));
-                while (localMatcher.find()) {
-                    auxUrl = localMatcher.group(1);
-                    try {
-                        url = URLDecoder.decode("http://my.mp4link.com/embed/picasa/code=" + auxUrl, "UTF-8");
-                        seEncuentraUrl = true;
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break; //para no seguir buscando hasta el final del codigo fuente
+        if (codFuente.contains("amzcl?v")) {
+            Matcher localMatcher = Pattern.compile("amzcl\\?v=(.*?)\"").matcher(codFuente);
+            while (localMatcher.find()) {
+                auxUrl = localMatcher.group(1);
+                auxUrl = "http://ozhe.larata.in/repro-rc/amzcl?v=" + auxUrl;
+                seEncuentraUrl = true;
             }
         }
+
+        //ahora obtiene la url del video
+        if (seEncuentraUrl) {
+            Utilities util = new Utilities();
+            List<String> urlResponse = util.downloadWebPageTaskNoAsync(auxUrl);
+            for (int j = 0; j < urlResponse.size(); j++) {
+                if (urlResponse.get(j).contains("<script type='text/javascript'>")) { //linea donde se encuentra la url del video
+                    Matcher localMatcher = Pattern.compile("file: \"(.*?)\"").matcher(urlResponse.get(j)); //obtiene la url del video completa
+                    while (localMatcher.find()) {
+                        auxUrl = localMatcher.group(1);
+                        try {
+                            url = URLDecoder.decode(auxUrl, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+
+        return url;
+    }
+
+    /** DEPRECADO*/
+    private String urlAmzzServer(String codFuente) {
+        String auxUrl = "", url = "";
+
+        if (codFuente.contains("amzz?v")) {
+            Matcher localMatcher = Pattern.compile("amzz\\?v=(.*?)\"").matcher(codFuente);
+            while (localMatcher.find()) {
+                auxUrl = localMatcher.group(1);
+                try {
+                    url = URLDecoder.decode("http://larata.in/amz/filerey/" + auxUrl + ".mp4", "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return url;
+    }
+
+    /** DEPRECADO*/
+    private String urlPicasaServer(String codFuente) {
+        String auxUrl = "", url = "";
+        boolean seEncuentraUrl = false;
+
+
+        if (codFuente.contains("picasa?v")) {
+            Matcher localMatcher = Pattern.compile("picasa\\?v=(.*?)\"").matcher(codFuente);
+            while (localMatcher.find()) {
+                auxUrl = localMatcher.group(1);
+                try {
+                    url = URLDecoder.decode("http://my.mp4link.com/embed/picasa/code=" + auxUrl, "UTF-8");
+                    seEncuentraUrl = true;
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         //ahora obtiene
         if (seEncuentraUrl) {
             Utilities util = new Utilities();
@@ -252,7 +349,7 @@ public class Reyanime {
 
     public void añadirHistorial(String nombre, String tipo, String urlImagen, String urlCapitulo) {
         List<HistorialTableRey> lista = DataSupport.where("nombre=? and urlCapitulo=?", nombre, urlCapitulo).find(HistorialTableRey.class);
-        if (lista.isEmpty()){ //si la lista no contiene el capitulo que se quiere añadir
+        if (lista.isEmpty()) { //si la lista no contiene el capitulo que se quiere añadir
             int tamaño = DataSupport.count(HistorialTableRey.class);
             if (tamaño < 20) {
                 HistorialTableRey historial = new HistorialTableRey(nombre, tipo, urlImagen, urlCapitulo);
@@ -277,7 +374,7 @@ public class Reyanime {
         }
     }
 
-    public List<HomeScreenEpi> busqueda(Document codigoFuente){
+    public List<HomeScreenEpi> busqueda(Document codigoFuente) {
         List<HomeScreenEpi> search = new ArrayList<>();
         String urlAnime, nombre, informacion, informacionAux, preview;
         Elements objetosBusqueda, objetosEpi;
@@ -393,7 +490,7 @@ public class Reyanime {
         System.out.println("urlanime   " + urlAnime);
         System.out.println("tipo   " + tipo);*/
 
-        return  episodios;
+        return episodios;
     }
 
     public String urlCapituloToUrlAnime(Document codigoFuente) {
