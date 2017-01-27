@@ -636,21 +636,21 @@ public class Animeflv{
         Utilities util = new Utilities();
         List<String> codFuente = util.downloadWebPageTaskNoAsync(urlEpisodio); //obtiene el codigo fuente en forma de una lista de string
         String urlAux;
-        boolean  izanagiDisponible = true;
+        boolean  yottaDisponible = true;
 
-        urlAux = urlIzanagiServer(codFuente);
+        urlAux = urlYottaServer(codFuente);
         if (!urlAux.equals("")) {
             if (util.isServerReachable(urlAux, context)) {
                 url = urlAux;
                 Log.d("izanagi", url);
             } else {
-                izanagiDisponible = false;
+                yottaDisponible = false;
             }
         } else {
-            izanagiDisponible = false;
+            yottaDisponible = false;
         }
-        if (!izanagiDisponible) {
-            urlAux = urlYottaServer(codFuente);
+        if (!yottaDisponible) {
+            urlAux = urlIzanagiServer(codFuente);
             if (!urlAux.equals("")) { //revisa si existe la url
                 if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible
                     url = urlAux;
