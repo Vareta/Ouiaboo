@@ -636,9 +636,9 @@ public class Animeflv{
         Utilities util = new Utilities();
         List<String> codFuente = util.downloadWebPageTaskNoAsync(urlEpisodio); //obtiene el codigo fuente en forma de una lista de string
         String urlAux;
-        boolean  izanagiDisponible = false;
+        boolean  izanagiDisponible = true;
 
-        /*urlAux = urlIzanagiServer(codFuente);
+        urlAux = urlIzanagiServer(codFuente);
         if (!urlAux.equals("")) {
             if (util.isServerReachable(urlAux, context)) {
                 url = urlAux;
@@ -648,7 +648,7 @@ public class Animeflv{
             }
         } else {
             izanagiDisponible = false;
-        }*/
+        }
         if (!izanagiDisponible) {
             urlAux = urlYottaServer(codFuente);
             if (!urlAux.equals("")) { //revisa si existe la url
@@ -659,7 +659,6 @@ public class Animeflv{
             }
         }
 
-        Log.d("URL", url);
         return url;
     }
 

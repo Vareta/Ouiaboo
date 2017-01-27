@@ -369,7 +369,6 @@ public class VideoPlayer extends Activity implements SeekBar.OnSeekBarChangeList
                     if (util.queProveedorEs(getBaseContext()) == Utilities.ANIMEFLV) {
                         Log.d("ANIMEFLV", urlEntrada);
                         url = animeflv.urlDisponible(urlEntrada, getBaseContext());
-                        Log.d("url", url);
                         animeflv.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
                         animeflv.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
                     } else {
