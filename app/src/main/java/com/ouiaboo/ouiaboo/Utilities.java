@@ -141,6 +141,7 @@ public class Utilities {
         List<String> lista = new ArrayList<String>();
         URL urlPagina;
         try {
+            Log.d("urldownloadwe", url);
             urlPagina = new URL(url);
             HttpURLConnection connection = (HttpURLConnection)urlPagina.openConnection();
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.6) Gecko/20100625 Firefox/3.6.6");

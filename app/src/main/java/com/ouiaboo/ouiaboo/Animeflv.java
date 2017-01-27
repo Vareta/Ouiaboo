@@ -492,7 +492,8 @@ public class Animeflv{
                     auxUrl = localMatcher.group(1);
                     //System.out.println(aux);
                     try {
-                        auxUrl = "https://animeflv.net/servers/izanagi.php?id=" + URLEncoder.encode(auxUrl, "UTF-8"); //luego de la ultima actualizacion de animeflv, parte de la url esta encodeada (la key basicamente)
+                        Log.d("auxurl", auxUrl);
+                        auxUrl = "https://s2.animeflv.com/izanagi.php?id=" + URLEncoder.encode(auxUrl, "UTF-8"); //luego de la ultima actualizacion de animeflv, parte de la url esta encodeada (la key basicamente)
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
@@ -638,9 +639,11 @@ public class Animeflv{
         boolean  izanagiDisponible = true, kamiDisponible = false;
 
         urlAux = urlIzanagiServer(codFuente);
+        Log.d("izanagi", urlAux);
         if (!urlAux.equals("")) {
             if (util.isServerReachable(urlAux, context)) {
                 url = urlAux;
+                Log.d("izanagi", url);
             } else {
                 izanagiDisponible = false;
             }
@@ -652,6 +655,7 @@ public class Animeflv{
             if (!urlAux.equals("")) { //revisa si existe la url
                 if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible
                     url = urlAux;
+                    Log.d("kami", url);
                     kamiDisponible = true;
                 }
             }
@@ -661,6 +665,7 @@ public class Animeflv{
             if (!urlAux.equals("")) {
                 if (util.isServerReachable(urlAux, context)) {
                     url = urlAux;
+                    Log.d("yotta", url);
                 }
             }
         }
