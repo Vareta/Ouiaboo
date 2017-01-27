@@ -523,7 +523,7 @@ public class Animeflv{
                 while (localMatcher.find()) {
                     auxUrl = localMatcher.group(1);
                     //System.out.println(aux);
-                    auxUrl = "http://s1.animeflv.net/yotta.php?id=" + auxUrl;
+                    auxUrl = "https://s1.animeflv.com/gdrive.php?id=" + auxUrl;
                 }
             }
         }
@@ -594,7 +594,7 @@ public class Animeflv{
         return url;
     }
 
-
+    /* se elimino de animeflv */
     public String urlKamiServer(List<String> paginaWeb){
         String url = "", auxUrl = "";
 
@@ -636,10 +636,9 @@ public class Animeflv{
         Utilities util = new Utilities();
         List<String> codFuente = util.downloadWebPageTaskNoAsync(urlEpisodio); //obtiene el codigo fuente en forma de una lista de string
         String urlAux;
-        boolean  izanagiDisponible = true, kamiDisponible = false;
+        boolean  izanagiDisponible = false;
 
-        urlAux = urlIzanagiServer(codFuente);
-        Log.d("izanagi", urlAux);
+        /*urlAux = urlIzanagiServer(codFuente);
         if (!urlAux.equals("")) {
             if (util.isServerReachable(urlAux, context)) {
                 url = urlAux;
@@ -649,26 +648,17 @@ public class Animeflv{
             }
         } else {
             izanagiDisponible = false;
-        }
+        }*/
         if (!izanagiDisponible) {
-            urlAux = urlKamiServer(codFuente);
+            urlAux = urlYottaServer(codFuente);
             if (!urlAux.equals("")) { //revisa si existe la url
                 if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible
-                    url = urlAux;
-                    Log.d("kami", url);
-                    kamiDisponible = true;
-                }
-            }
-        }
-        if (!izanagiDisponible && !kamiDisponible) {
-            urlAux = urlYottaServer(codFuente);
-            if (!urlAux.equals("")) {
-                if (util.isServerReachable(urlAux, context)) {
                     url = urlAux;
                     Log.d("yotta", url);
                 }
             }
         }
+
         Log.d("URL", url);
         return url;
     }
