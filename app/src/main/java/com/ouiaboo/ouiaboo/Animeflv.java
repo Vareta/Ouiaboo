@@ -642,7 +642,7 @@ public class Animeflv{
         if (!urlAux.equals("")) {
             if (util.isServerReachable(urlAux, context)) {
                 url = urlAux;
-                Log.d("izanagi", url);
+                Log.d("yotta", url);
             } else {
                 yottaDisponible = false;
             }
@@ -654,7 +654,7 @@ public class Animeflv{
             if (!urlAux.equals("")) { //revisa si existe la url
                 if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible
                     url = urlAux;
-                    Log.d("yotta", url);
+                    Log.d("izanagi", url);
                 }
             }
         }

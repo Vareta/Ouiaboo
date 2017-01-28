@@ -16,7 +16,12 @@ import org.jsoup.select.Elements;
 import org.litepal.crud.DataSupport;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -37,11 +42,13 @@ public class Reyanime {
 
         Element nombreEpi; //elemento que contiene el nombre del episodio
         Element dirAnimeTipo; //elemento que contiene la informacion acerca si es pelicula, ova o serie
+
+        URI urlAux; //almacena el correcto valor de la url de imagen
         for (int i = 0; i < objetosEpi.size(); i++) {
             nombreEpi = objetosEpi.get(i).getElementsByClass("sobre").first();
             nombre = nombreEpi.select("name").text(); //nombre anime
             urlAnime = "http://reyanime.com" + objetosEpi.get(i).attr("href");
-            preview = objetosEpi.get(i).select("img").attr("src"); //url imagen
+            preview = urlImagenPreview(objetosEpi.get(i).select("img").attr("src")); //url imagen
             informacionAux = objetosEpi.get(i).select("sombra").text(); //numero capitulo
             String[] aux = informacionAux.split(" ");
             informacion = resources.getString(R.string.numero_episodio_menu_central_ES) + " " + aux[aux.length - 1];
@@ -553,5 +560,24 @@ public class Reyanime {
         } else {
             return true;
         }
+    }
+
+    /**
+     * Recibe parte de la url y la transforma a una url correcta, Ej:
+     * recibe anime/Minami Kamakura Koukou Joshi Jitensha-bu.jpg
+     * retorna http://reyanime.com/anime/Minami%20Kamakura%20Koukou%20Joshi%20Jitensha-bu.jpg
+     * @param urlParcial String que conforma parte de la url
+     * @return String que representa la url real de la imangen
+     */
+    private String urlImagenPreview(String urlParcial) {
+        String url = "";
+        URI urlAux;
+        try {
+            urlAux = new URI("http", "reyanime.com", urlParcial, null);
+            url = urlAux.toString();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return url;
     }
 }

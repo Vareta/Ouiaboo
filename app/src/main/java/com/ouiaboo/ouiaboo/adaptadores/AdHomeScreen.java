@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,8 +95,6 @@ public class AdHomeScreen extends RecyclerView.Adapter<AdHomeScreen.AdHoScAnFLVH
         adHoScAnFLVHolder.nombre.setText(Html.fromHtml(items.get(i).getNombre()));
         adHoScAnFLVHolder.informacion.setText(Html.fromHtml(items.get(i).getInformacion()));
         Picasso.with(context).load(items.get(i).getPreview()).resize(250, 150).into(adHoScAnFLVHolder.preview);
-
-
     }
 
     @Override
