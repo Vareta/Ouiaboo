@@ -37,7 +37,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdGener
     private RecyclerView list;
     private ProgressBar bar;
     private String searchQuery;
-    private String queryTemplateFlv = "http://animeflv.net/animes/?buscar=";
+    private String queryTemplateFlv = "http://animeflv.net/search?q=";
     private String queryTemplateRey = "http://reyanime.com/anime/?title=";
     private List<HomeScreenEpi> animesBuscados;
     private List<HomeScreenEpi> animesBuscadosSiguiente;
