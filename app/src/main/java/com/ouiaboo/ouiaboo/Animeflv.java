@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
  */
 public class Animeflv{
     private String animeflv = "http://animeflv.net"; //sitio web
+    private String TAG = "Animeflv";
 
 
     public ArrayList<HomeScreenEpi> homeScreenAnimeflv(List<String> codigoFuente, Resources resources){
@@ -298,129 +299,118 @@ public class Animeflv{
         return search;
     }
 
-
-
-
+    /**
+     * Obtiene toda la informacion que corresponde al anime y a los capitulos que este contiene.
+     * Se utiliza para recopilar los datos que iran en la vista de informacion del anime
+     * @param url String con la url de la pagina principal del anime
+     * @return Lista que contiene todos los elementos recopilados
+     */
     public List<Episodios> getEpisodios(String url) {
-        String nombreAnime;
-        String urlAnime;
-        String urlEp;
-        String numero;
-        String urlImagen = null;
-        String informacion = null;
-        String tipo = "";
-        String estado = "";
-        String generos = "";
-        String fechaInicio = "";
-        List<Episodios> capitulos = new ArrayList<Episodios>();
-        Document doc = null;
+        List<Episodios> capitulos = new ArrayList<>();
+        String nombreAnime, urlAnime, urlEp, numero, urlImagen, informacion, tipo, estado, generos, fechaInicio;
+        Document document;
+        Utilities util = new Utilities();
 
-        try {
-            doc = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .referrer("http://www.google.com")
-                    .get();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        document = util.connect(url);
 
-        Elements objEpisodios;
-        if (doc != null) {
-            objEpisodios = doc.getElementsByClass("anime_episodios"); //clase que contiene los capitulos
-            if (objEpisodios.isEmpty()) {
-                Log.d("Error", "Episodios inexistentes (null)");
-            } else {
-
-
-                /********      SLECCION DE EPISODIOS  **************/
-                Elements epiIndividuales = objEpisodios.select("ul");
-                Elements episodiosFocus = epiIndividuales.get(0).select("a");
-                for (int i = 0; i < episodiosFocus.size(); i++) {
-                    Episodios epi;
-                    if (i == 0) {
-                        nombreAnime = doc.select("h1").first().text();
-                        Element sinopsis = doc.getElementsByClass("sinopsis").first();
-                        informacion = sinopsis.text();
-                        Element img = doc.getElementsByClass("portada").first();
-                        urlImagen = img.attr("src");
-                        Element info = doc.getElementsByClass("ainfo").first();
-                        Elements infoDetallada = info.select("li");
-                        // se hace de esta manera, debido a que existen casos en que ciertos argumentos (que son 4) no aparecen por lo que se genera un error
-                        for (int j = 0; j < infoDetallada.size(); j++) {
-                           // System.out.println("Hola   " + infoDetallada.get(j).select("b").first().toString());
-                            if (infoDetallada.get(j).select("b").first().toString().equals("<b>Tipo:</b>")) {
-                                tipo = adaptaInfoTipoEstadoGenerosFecha(infoDetallada.get(j).text());
-                            }
-                            if (infoDetallada.get(j).select("b").first().toString().equals("<b>Estado:</b>")) {
-                                estado = adaptaInfoTipoEstadoGenerosFecha(infoDetallada.get(j).text());
-                            }
-                            if (infoDetallada.get(j).select("b").first().toString().equals("<b>Generos:</b>")) {
-                                generos = adaptaInfoTipoEstadoGenerosFecha(infoDetallada.get(j).text());
-                            }
-                            if (infoDetallada.get(j).select("b").first().toString().equals("<b>Fecha de Inicio:</b>")) {
-                                fechaInicio = adaptaInfoTipoEstadoGenerosFecha(infoDetallada.get(j).text());
-                            }
-                        }
-                        urlAnime = url;
-                        urlEp = "http://animeflv.net" + episodiosFocus.get(i).attr("href");
-                        numero = episodiosFocus.get(i).text();
-                        epi = new Episodios(nombreAnime, urlAnime, urlEp, numero, urlImagen, informacion, tipo, estado, generos, fechaInicio);
-
-                    } else {
-                        urlEp = "http://animeflv.net" + episodiosFocus.get(i).attr("href");
-                        numero = episodiosFocus.get(i).text();
-                        epi = new Episodios(null, null, urlEp, numero, null, null, null, null, null, null);
-                    }
-                    /*System.out.println("url  " + urlEp);
-                    System.out.println("numero  " + numero);
-                    System.out.println("portada  " + urlImagen);
-                    System.out.println("info   " + informacion);
-                    System.out.println("tipo    " + tipo);
-                    System.out.println("Estado   " + estado);
-                    System.out.println("generos  " + generos);
-                    System.out.println("fechaInicio   " + fechaInicio);*/
-                    capitulos.add(epi);
+        if (document != null) {
+            urlImagen = animeflv + document.getElementsByClass("Image").select("figure").first().select("img").attr("src");
+            Elements elementosGenero = document.getElementsByClass("Categories").select("a"); //contiene todos los generos del anime, los cuales estan contenidos en divisiones 'a'
+            generos = adaptaGeneros(elementosGenero);
+            estado = document.getElementsByClass("AnimStat On fa-check").text();
+            estado = adaptaEstado(estado);
+            nombreAnime = document.getElementsByClass("Container").select("h1").first().text();;//contiene el nombre del anime y el tipo (pelicula, anime u ova)
+            tipo = document.getElementsByClass("Type tv").text();
+            urlAnime = url;
+            fechaInicio = " "; //desde el cambio de la nueva pagina, este atributo ya no existe. No se decide aun que hacer con el
+            informacion = document.getElementsByClass("Sect Descrtn").first().select("p").first().text();
+            Elements listaEpisodios = document.getElementsByClass("ListEpisodes").select("li");
+            Element aux;
+            Episodios episodio;
+            for (int i = 0; i < listaEpisodios.size(); i++) {
+                aux = listaEpisodios.get(i).select("a").first();
+                urlEp = animeflv + aux.attr("href");
+                numero = aux.text();
+                if (i == 0) {
+                    episodio = new Episodios(nombreAnime, urlAnime, urlEp, numero, urlImagen, informacion, tipo, estado, generos, fechaInicio);
+                } else {
+                    episodio = new Episodios(null, null, urlEp, numero, null, null, null, null, null, null);
                 }
-
+                capitulos.add(episodio);
             }
+            /*Log.d("urlImagen", urlImagen);
+            Log.d("generos", generos);
+            Log.d("estado", estado);
+            Log.d("nombreAnime", nombreAnime);
+            Log.d("urlAnime", urlAnime);
+            Log.d("tipo", tipo);
+            Log.d("informacion", informacion);
+            Log.d("urlEp", urlEp);
+            Log.d("numero", numero);*/
+        } else {
+            Log.d(TAG, "Error al obtener la página del anime");
         }
 
         return capitulos;
     }
 
-    //entrega el valor: Episodio número "x"
-    /****************Deprecado*************************/
-    private String numeroEpisodio(String episodio, Resources resources) {
-        String epi;
 
-        String[] aux = episodio.split(":");
-        String[] aux2 = aux[0].split(" ");
-        epi = resources.getString(R.string.numero_episodio_menu_central_ES) + " " + aux2[aux2.length - 1];
+    /**
+     * Recibe el string de estado y lo adapta para que solo diga lo requerido, es decir, elimina
+     * la palabra anime que se ubica al principio
+     * @param estado String que contiene el estado
+     * @return String modificado con el estado en su formato final
+     */
+    private String adaptaEstado(String estado) {
+        String estadoFinal = "";
 
-        return epi;
+        String[] aux = estado.split(" ");
+        for (int i = 1; i < aux.length; i++) { //parte desde 1 ya que en la primera posicion se encuentra la variable que se quiere eliminar
+            if (i == 1) {
+                estadoFinal = aux[i];
+            } else {
+                estadoFinal = estadoFinal + " " + aux[i];
+            }
+        }
+
+        return estadoFinal;
     }
 
-    private String adaptaInfoTipoEstadoGenerosFecha(String info) {
-        String data;
+    /**
+     * Recibe los elementos de genero y los convierte a un unico string
+     * @param elementosGenero Contiene los generos encontrados
+     * @return String que contiene los generos
+     */
+    private String adaptaGeneros(Elements elementosGenero) {
+        String generos = "";
+        int i = 0;
+        for (Element cadaGenero : elementosGenero) { //recorre los generos para entregar un string unificado
+            if (i == 0) {
+                generos = cadaGenero.text();
+            } else {
+                generos = generos + " - " + cadaGenero.text();
+            }
+            i++;
+        }
 
-        String[] aux = info.split(": ");
-        data = aux[aux.length - 1];
-
-        return data;
+        return generos;
     }
 
-
+    /**
+     * Desde la pagina del capitulo de un anime, consigue la url a la pagina principal del anime
+     * @param codigoFuente Codigo fuente de la pagina del capitulo del anime
+     * @return String con el url de la página principal del anime
+     */
     public String urlCapituloToUrlAnime(Document codigoFuente) {
         String urlAnime = null;
 
         Elements objEpisodios;
         if (codigoFuente != null) {
-            objEpisodios = codigoFuente.getElementsByClass("episodio_head");
+            objEpisodios = codigoFuente.getElementsByClass("CapiList");
             if (objEpisodios.isEmpty()) {
-                Log.d("Error", "No se puedo encontrar la url del anime");
+                Log.d("Error", "No se pudo encontrar la url del anime");
             } else {
-                Element titulo = objEpisodios.select("a").first();
-                urlAnime = "http://animeflv.net" + titulo.attr("href");
+                urlAnime = animeflv + objEpisodios.select("li").first().select("a").attr("href");
                // Log.d("URL", urlAnime);
             }
         }

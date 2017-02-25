@@ -28,6 +28,7 @@
                 android:paddingRight="16dp"
                 android:paddingStart="16dp"
                 android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:text="@string/tipo.AnimeInfo"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -39,9 +40,8 @@
                 android:layout_alignParentTop="true"
                 android:layout_toEndOf="@+id/tipo"
                 android:layout_toRightOf="@+id/tipo"
-                android:paddingEnd="16dp"
-                android:paddingRight="16dp"
                 android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:text="Anime" />
 
             <TextView
@@ -51,8 +51,7 @@
                 android:layout_below="@+id/tipo"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
-                android:paddingStart="16dp"
-                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:text="@string/estado.AnimeInfo"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -64,9 +63,7 @@
                 android:layout_below="@+id/tipo_data"
                 android:layout_toEndOf="@+id/estado"
                 android:layout_toRightOf="@+id/estado"
-                android:paddingEnd="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:text="En emision" />
 
             <TextView
@@ -77,7 +74,7 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingStart="16dp"
-                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:text="@string/genero.AnimeInfo"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -86,10 +83,9 @@
                 android:id="@+id/generos_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:text="Accion, comedia, humo"
+                android:layout_below="@+id/estado_data"
                 android:layout_above="@+id/fecha_inicio"
                 android:layout_toRightOf="@+id/generos"
                 android:layout_toEndOf="@+id/generos" />
@@ -102,7 +98,7 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingStart="16dp"
-                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:text="@string/fecha.AnimeInfo"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -111,9 +107,7 @@
                 android:id="@+id/fecha_inicio_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingEnd="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:text="23-23-2323"
                 android:layout_below="@+id/generos_data"
                 android:layout_toRightOf="@+id/fecha_inicio"
@@ -128,7 +122,7 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingStart="16dp"
-                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
                 android:text="@string/sinopsis.AnimeInfo"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -144,7 +138,6 @@
                 android:paddingRight="16dp"
                 android:paddingLeft="16dp"
                 android:paddingStart="16dp"
-                android:paddingTop="16dp"
                 android:paddingBottom="16dp"
                 android:text="Este anime cuenta la historia de un niño que no podia crear buenos layouts, por lo que salio a buscar aventuras en el mundo y aprender mas de los layouts" />
 
