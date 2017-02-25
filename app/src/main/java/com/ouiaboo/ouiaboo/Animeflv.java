@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  * Created by Vareta on 29-07-2015.
  */
 public class Animeflv{
-    private String animeflv = "http://animeflv.net/"; //sitio web
+    private String animeflv = "http://animeflv.net"; //sitio web
 
 
     public ArrayList<HomeScreenEpi> homeScreenAnimeflv(List<String> codigoFuente, Resources resources){
@@ -427,50 +427,27 @@ public class Animeflv{
         return urlAnime;
     }
 
+    /**
+     * Escanea la pagina de inicio de animeflv y retorna todos los datos que corresponden a los animes diarios
+     * @param codigoFuente Codigo fuente de la página de inicio
+     * @param resources Recursos de la aplicación (para utilizar "getstring()")
+     * @return
+     */
     public ArrayList<HomeScreenEpi> homeScreenAnimeFlv(Document codigoFuente, Resources resources) {
         ArrayList<HomeScreenEpi> home = new ArrayList<>();
-        String urlCapitulo, nombre, informacion, preview, aux;
+        String urlCapitulo, nombre, informacion, preview;
+        Element objHome = codigoFuente.getElementsByClass("ListEpisodios AX Rows A06 C04 D03").first(); //contiene los episodios recientes
+        Elements objEpisodios = objHome.select("li"); //contiene los episodios recientes pero como una lista
+        Element episodioAux;
+        for (Element episodio : objEpisodios) {
+            episodioAux = episodio.select("a").first();
+            urlCapitulo = animeflv + episodioAux.attr("href");
+            nombre = episodioAux.getElementsByClass("Title").text();
+            informacion = episodioAux.getElementsByClass("Capi").text();
+            preview = animeflv + episodioAux.getElementsByClass("Image").select("img").first().attr("src");
 
-        Element objHome = codigoFuente.getElementsByClass("ultimos_epis").first(); //contiene los episodios recientes
-        Elements objEpisodios = objHome.select("a"); //contiene los episodios recientes pero como una lista
-        Elements objEpiTipo = objHome.getElementsByClass("not"); //contiene los episodios mas el tipo (ova, pelicula, anime)
-        Element img;
-        Element auxElement;
-        for (int i = 0; i < objEpisodios.size(); i++) {
-            //Obtiene url del capitulo
-            aux = objEpisodios.get(i).attr("href");
-            urlCapitulo = "http://animeflv.net" + aux;
-            //Obtiene nombre Anime
-            nombre = objEpisodios.get(i).attr("title");
-            //Obtiene informacion capitulo, Ej; capitulo numero x, Ova, pelicula
-            String[] div = nombre.split(" ");
-            auxElement = objEpiTipo.get(i).getElementsByClass("tova").first(); //es ova? (probable)
-           // Log.d("AUX", String.valueOf(auxElement.size()));
-            if (auxElement != null) {
-                informacion = resources.getString(R.string.ova_menu_central_ES);
-            } else {
-                auxElement = objEpiTipo.get(i).getElementsByClass("tpeli").first(); //es pelicula? (poco probable)
-                if (auxElement != null) {
-                    informacion = resources.getString(R.string.pelicula_menu_central_ES);
-                } else { //entonces es anime (mas probable)
-                    String nombreAux = "";
-                    for (int j = 0; j < div.length - 1; j++) { // consigue sólo el nombre del anime
-                        if (j < div.length - 2) {
-                            nombreAux = nombreAux + div[j] + " ";
-                        } else {
-                            nombreAux = nombreAux + div[j]; //ultima palabra y asi no queda con un espacio al final
-                        }
-                    }
-                    nombre = nombreAux; //agrega el nombre de la serie
-                    informacion = resources.getString(R.string.numero_episodio_menu_central_ES) + " " + div[div.length - 1]; //info, Ej: Capitulo numero x
-                }
-            }
-            //Obtiene url de la imagen del episodio
-            img = objEpisodios.get(i).select("img").first();
-            preview = img.attr("src");
             home.add(new HomeScreenEpi(urlCapitulo, nombre, informacion, preview)); //agrega el nuevo objeto al array
-
-           /* Log.d("URLCAPITULO", urlCapitulo);
+            /*Log.d("URLCAPITULO", urlCapitulo);
             Log.d("NOMBRE", nombre);
             Log.d("CAPITULO", informacion);
             Log.d("PREVIEW", preview);*/
@@ -478,6 +455,7 @@ public class Animeflv{
 
         return home;
     }
+
 
     public String urlIzanagiServer(List<String> paginaWeb){
         String url = "", auxUrl = "";
