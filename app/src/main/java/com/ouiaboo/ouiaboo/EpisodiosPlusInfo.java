@@ -188,7 +188,9 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
             new ReproductorExterno().execute(objEpi);
         } else {
             AnalyticsApplication.getInstance().trackEvent("Reproductor Interno", "ver", objEpi.getNombre());
-            new ReproductorInterno().execute(objEpi);
+            Intent intent = new Intent(context, VideoPlayer.class);
+            intent.putExtra("episodio", objEpi);
+            startActivity(intent);
         }
     }
 
@@ -283,10 +285,10 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
                 if (util.queProveedorEs(getBaseContext()) == Utilities.ANIMEFLV) {
                     Animeflv animeflv = new Animeflv();
                     url = animeflv.urlDisponible(objEpi.getUrlCapitulo(), getBaseContext());
-                    codigoFuente = util.connect(objEpi.getUrlCapitulo());
-                    String preview = animeflv.getMiniImage(codigoFuente); //preview estilo homeScreen
+                   // codigoFuente = util.connect(objEpi.getUrlCapitulo()); Animeflv cambion, por lo que ya no guarda este tipo de imagen en series antiguas
+                   // String preview = animeflv.getMiniImage(codigoFuente); //preview estilo homeScreen
                     animeflv.añadirHistorialFlv(objEpi.getNombre(), objEpi.getUrlCapitulo()); //añade al historial (en la vista de capitulos)
-                    animeflv.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), preview, objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
+                    animeflv.añadirHistorial(objEpi.getNombre(), objEpi.getInformacion(), objEpi.getPreview(), objEpi.getUrlCapitulo()); //añade al historial (el historial interno, vease fragment Historial)
                 } else {
                     Reyanime reyanime = new Reyanime();
                     url = reyanime.urlDisponible(objEpi.getUrlCapitulo(), getBaseContext());
