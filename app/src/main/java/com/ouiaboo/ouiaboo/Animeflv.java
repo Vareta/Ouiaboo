@@ -265,7 +265,6 @@ public class Animeflv{
         List<HomeScreenEpi> search = new ArrayList<>();
         String urlAnime, nombre, informacion, preview;
         HomeScreenEpi item;
-
         Elements animesEncontrados = codigoFuente.getElementsByClass("ListAnimes AX Rows A03 C02 D02").select("li");
         if (animesEncontrados.size() == 0) {
             search = null;
@@ -276,7 +275,10 @@ public class Animeflv{
                 preview = animeflv + cadaAnime.getElementsByClass("Image").select("img").attr("src");
                 informacion = cadaAnime.getElementsByClass("Image").select("span").text();
                 nombre = cadaAnime.getElementsByClass("Title").text();
-
+                /*Log.d("urlAnime", urlAnime);
+                Log.d("nombre", nombre);
+                Log.d("informacion", informacion);
+                Log.d("preview", preview);*/
                 item = new HomeScreenEpi(urlAnime, nombre, informacion, preview); //crea un item tipo homescreen y le añade los valores
                 search.add(item);
             }
@@ -302,10 +304,13 @@ public class Animeflv{
             urlImagen = animeflv + document.getElementsByClass("Image").select("figure").first().select("img").attr("src");
             Elements elementosGenero = document.getElementsByClass("Categories").select("a"); //contiene todos los generos del anime, los cuales estan contenidos en divisiones 'a'
             generos = adaptaGeneros(elementosGenero);
-            estado = document.getElementsByClass("AnimStat On fa-check").text();
+            estado = document.getElementsByClass("AnimStat On fa-check").text(); //estado = en emision
+            if (estado.length() == 0) { //estado = finalizado
+                estado = document.getElementsByClass("AnimStat Off fa-hourglass-end").text();
+            }
             estado = adaptaEstado(estado);
             nombreAnime = document.getElementsByClass("Container").select("h1").first().text();;//contiene el nombre del anime y el tipo (pelicula, anime u ova)
-            tipo = document.getElementsByClass("Type tv").text();
+            tipo = identificarTipo(document);
             urlAnime = url;
             fechaInicio = " "; //desde el cambio de la nueva pagina, este atributo ya no existe. No se decide aun que hacer con el
             informacion = document.getElementsByClass("Sect Descrtn").first().select("p").first().text();
@@ -339,6 +344,24 @@ public class Animeflv{
         return capitulos;
     }
 
+    /**
+     * Identifica el tipo de anime, ya sea anime, ova o pelicula. Esto para el caso
+     * de la pagina principal del anime, ya que es la unica forma de hacerlo (hasta el momento)
+     * @param codigoFuente Codigo fuente de la página de anime
+     * @return EL tipo de anime
+     */
+    private String identificarTipo(Document codigoFuente) {
+        String tipo;
+        tipo = codigoFuente.getElementsByClass("Type tv").text();
+        Log.d(TAG, String.valueOf(tipo.length()));
+        if (tipo.length() == 0) {
+            tipo = codigoFuente.getElementsByClass("Type ova").text();
+            if (tipo.length() == 0) {
+                tipo = codigoFuente.getElementsByClass("Type movie").text();
+            }
+        }
+        return tipo;
+    }
 
     /**
      * Recibe el string de estado y lo adapta para que solo diga lo requerido, es decir, elimina
@@ -615,19 +638,21 @@ public class Animeflv{
         return url;
     }
 
+    /**
+     * Verifica cuales son los generos disponibles. Obteniendo el nombre y la url a estos
+     * @param codigoFuente Codigo fuente de la pagina en donde estan contenidos los generos
+     * @return Lista con los generos encontrados
+     */
     public List<GenerosClass> generosDisponibles(Document codigoFuente) {
         List<GenerosClass> resultado = new ArrayList<>();
         String nombre, url;
-        Element objGeneros;
         Elements generos;
 
-        objGeneros = codigoFuente.getElementsByClass("generos_box").first();
-        generos = objGeneros.select("a");
+        generos = codigoFuente.getElementsByClass("filters").first().getElementById("genre_select").select("option");
 
-        for (int i = 0; i < generos.size(); i++) {
-            nombre = generos.get(i).text();
-            url = "http://animeflv.net" + generos.get(i).attr("href");
-
+        for (Element cadaGenero : generos) {
+            nombre = cadaGenero.text();
+            url = "http://animeflv.net/browse?genre[]=" + cadaGenero.attr("value") + "&order=title";
             resultado.add(new GenerosClass(nombre, url));
         }
 
@@ -643,12 +668,17 @@ public class Animeflv{
      */
     public String siguientePagina(Document codigoFuente) {
         String urlPagina = "";
-
         Elements numPaginas = codigoFuente.getElementsByClass("pagination").select("li"); //paginas. Pueden ser 1 o mas
+
         if (numPaginas.size() > 1) { //para cuando son mas de 1 pagina
             Element paginaSiguiente = numPaginas.last();
-            if (paginaSiguiente.getElementsByClass("disabled").first() != null) { //si no es la ultima pagina
+            if (paginaSiguiente.getElementsByClass("disabled").first() == null) { //si no es la ultima pagina
                 urlPagina = animeflv + paginaSiguiente.select("a").first().attr("href");
+                try {
+                    urlPagina = URLDecoder.decode(urlPagina, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
