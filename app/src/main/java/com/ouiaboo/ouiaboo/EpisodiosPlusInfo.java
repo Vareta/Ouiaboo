@@ -26,11 +26,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.ouiaboo.ouiaboo.fragmentsFLV.AnimeInfo;
 import com.ouiaboo.ouiaboo.fragmentsFLV.EpisodiosFlv;
-import com.squareup.picasso.Picasso;
 
 import org.jsoup.nodes.Document;
 
@@ -267,7 +268,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
             setupToolbar();
             setupFAB(epiInfo.get(0));
             setTitle(epiInfo.get(0).getNombreAnime());
-            Picasso.with(getBaseContext()).load(epi.get(0).getUrlImagen()).into(header);
+            Glide.with(getBaseContext()).load(epi.get(0).getUrlImagen()).into(header);
             bar.setVisibility(View.GONE);
             appBar.setVisibility(View.VISIBLE);
         }
@@ -396,7 +397,8 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         setupToolbar();
         setupFAB(epiInfo.get(0));
         setTitle(epiInfo.get(0).getNombreAnime());
-        Picasso.with(getBaseContext()).load(epi.get(0).getUrlImagen()).into(header);
+        Glide.with(getBaseContext()).load(epi.get(0).getUrlImagen()).into(header);
+
     }
 
 }

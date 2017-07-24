@@ -19,13 +19,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestOptions;
-import com.jakewharton.picasso.OkHttp3Downloader;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
-import com.squareup.picasso.LruCache;
-import com.squareup.picasso.OkHttpDownloader;
-import com.squareup.picasso.Picasso;
 
 
 import java.io.IOException;

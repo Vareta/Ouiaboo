@@ -17,7 +17,6 @@ import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.Episodios;
-import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.List;

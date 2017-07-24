@@ -16,7 +16,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.List;
