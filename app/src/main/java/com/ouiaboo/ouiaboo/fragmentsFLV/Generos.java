@@ -118,7 +118,11 @@ public class Generos extends android.support.v4.app.Fragment implements AdGenero
                 Document codigoFuente;
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
                     Animeflv animeflv = new Animeflv();
-                    codigoFuente = util.connect("http://animeflv.net/browse");
+                    if (util.existenCookies(getContext())) {
+                        codigoFuente = util.connect("http://animeflv.net/browse", util.getCookiesEnSharedPreferences(getContext()));
+                    } else {
+                        codigoFuente = util.connect("http://animeflv.net/browse");
+                    }
                     generos = animeflv.generosDisponibles(codigoFuente);
                 } else {
                     Reyanime reyanime = new Reyanime();

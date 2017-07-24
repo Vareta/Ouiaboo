@@ -12,6 +12,8 @@ import android.widget.TextView;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.ouiaboo.ouiaboo.R;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
 import com.squareup.picasso.Picasso;
@@ -93,7 +95,7 @@ public class AdDescargadas extends RecyclerView.Adapter<AdDescargadas.AdDescarga
 
         adHoScAnFLVHolder.nombre.setText(Html.fromHtml(items.get(i).getNombre()));
         adHoScAnFLVHolder.informacion.setText(Html.fromHtml(items.get(i).getInformacion()));
-        Picasso.with(context).load(new File(items.get(i).getPreview())).resize(250, 150).into(adHoScAnFLVHolder.preview); //para imagenes guardadas dentro de la sd
+        Glide.with(context).load(new File(items.get(i).getPreview())).apply(RequestOptions.overrideOf(250, 150)).apply(RequestOptions.centerCropTransform()).into(adHoScAnFLVHolder.preview);//para imagenes guardadas dentro de la sd
     }
 
     @Override

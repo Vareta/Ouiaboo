@@ -39,6 +39,7 @@
                 android:layout_height="wrap_content"
                 android:text="New Text"
                 android:id="@+id/nombre_flv"
+                android:maxLines="3"
                 android:gravity="center"
                 android:textSize="16dp" />
 

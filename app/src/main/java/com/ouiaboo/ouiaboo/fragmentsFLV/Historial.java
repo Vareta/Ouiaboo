@@ -309,6 +309,9 @@ public class Historial extends android.support.v4.app.Fragment implements AdHome
 
             Document codigoFuente = util.connect(params[0]);
             if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                if (util.existenCookies(getContext())) {
+                    codigoFuente = util.connect(params[0], util.getCookiesEnSharedPreferences(getContext()));
+                }
                 Animeflv animeflv = new Animeflv();
                 url = animeflv.urlCapituloToUrlAnime(codigoFuente);
             } else {

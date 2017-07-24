@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -25,6 +26,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -56,7 +61,7 @@ import java.util.List;
  * to handle interaction events.
  */
 public class HomeScreen extends android.support.v4.app.Fragment implements AdHomeScreen.CustomRecyclerListener {
-    private String animeflvUrl = "http://animeflv.net/";
+    private String animeflvUrl = "https://animeflv.net/";
     private String reyanimeUrl = "http://reyanime.com/";
     private OnFragmentInteractionListener mListener;
     private AdHomeScreen adaptador;
@@ -73,6 +78,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     private SwipeRefreshLayout swipeRefresh;
     List<BroadcastReceiver> receivers = new ArrayList<>(); //variable que contiene el receiver de descarga
     private ProgressBar downloadBar;
+    private WebView webView;
 
     public HomeScreen() {
         // Required empty public constructor
@@ -110,6 +116,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
     private void iniciaView(View convertView) {
         coordLayout = (CoordinatorLayout) convertView.findViewById(R.id.coord_layout);
+        webView = (WebView) getActivity().findViewById(R.id.webView);
         list = (RecyclerView) convertView.findViewById(R.id.home_screen_list_animeflv); //lista fragment
         list.setLayoutManager(new LinearLayoutManager(getActivity()));
         bar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
@@ -255,6 +262,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
 
     private class GetAnimeHomeScreen extends AsyncTask<AdHomeScreen.CustomRecyclerListener, Void, Void> {
+        boolean sonNecesariasCookies = false;
         @Override
         protected Void doInBackground(AdHomeScreen.CustomRecyclerListener... params) {
             try {
@@ -264,7 +272,14 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
                     animeflv = new Animeflv();
                     codigoFuente = util.connect(animeflvUrl);
+                    if (animeflv.estaCloudflareActivado(codigoFuente) && !util.existenCookies(getContext())) {
+                        sonNecesariasCookies = true;
+                    }
+                    if (util.existenCookies(getContext())) {
+                        codigoFuente = util.connect(animeflvUrl, util.getCookiesEnSharedPreferences(getContext()));
+                    }
                     animesRecientes = animeflv.homeScreenAnimeFlv(codigoFuente, getResources());
+
                 } else {
                     reyanime = new Reyanime();
                     codigoFuente = util.connect(reyanimeUrl);
@@ -295,6 +310,9 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
         @Override
         protected void onPostExecute(Void result) {
+            if (sonNecesariasCookies) {
+                getCookies();
+            }
             list.setAdapter(adaptador);
             bar.setVisibility(View.GONE);
             //
@@ -302,8 +320,51 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
     }
 
-    private class SwipeRefresh extends AsyncTask<AdHomeScreen.CustomRecyclerListener, Void, Void> {
+    /**
+     * Obtiene las cookies de animeflv para cuando este tiene activado el cloudflare
+     */
+    public void getCookies() {
+        Log.d("cookies", "1");
+        CookieManager.getInstance().setAcceptCookie(true);
+        String agent = "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6";
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+        webView.getSettings().setUserAgentString(agent);
+        webView.setWebViewClient(new WebViewClient() {
+            boolean respondioACloudflare = true;
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                // Loading started for URL.
+                webView.clearCache(true);
+                webView.clearHistory();
+                Log.d("url", url);
+                /*
+                ********* Por algun motivo ya no muestra la url direccionada, asi que se deshabilita por el momento*******/
+                /*if (url.contains("cdn-cgi")) { //es la url que envia la respuesta al script de cloudflare
+                    Log.d("cloud", "1");
+                    respondioACloudflare = true;
+                }*/
+                if (url.contains(animeflvUrl) && respondioACloudflare) {
+                    Log.d("cloud", "2");
+                    System.out.println("cookies   " + CookieManager.getInstance().getCookie(url)); //carga las cookies
+                    util.setCookiesEnSharedPreferences(CookieManager.getInstance().getCookie(url), getContext());
+                    util.setCookiesBoolean(true, getContext());
+                    webView.destroy();
+                    new GetAnimeHomeScreen().execute(listener);
+                }
 
+            }
+
+
+        });
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webView.loadUrl(animeflvUrl);
+
+    }
+
+    private class SwipeRefresh extends AsyncTask<AdHomeScreen.CustomRecyclerListener, Void, Void> {
+        boolean sonNecesariasCookies = false;
         @Override
         protected Void doInBackground(AdHomeScreen.CustomRecyclerListener... params) {
             try {
@@ -312,6 +373,12 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
                     animeflv = new Animeflv();
                     codigoFuente = util.connect(animeflvUrl);
+                    if (animeflv.estaCloudflareActivado(codigoFuente) && !util.existenCookies(getContext())) {
+                        sonNecesariasCookies = true;
+                    }
+                    if (util.existenCookies(getContext())) {
+                        codigoFuente = util.connect(animeflvUrl, util.getCookiesEnSharedPreferences(getContext()));
+                    }
                     animesRecientes = animeflv.homeScreenAnimeFlv(codigoFuente, getResources());
                 } else {
                     reyanime = new Reyanime();
@@ -333,6 +400,9 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
         @Override
         protected void onPostExecute(Void result) {
+            if (sonNecesariasCookies) {
+                getCookies();
+            }
             list.setAdapter(adaptador);
             swipeRefresh.setRefreshing(false);
         }
@@ -349,6 +419,9 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
             Utilities util = new Utilities();
             Document codigoFuente = util.connect(params[0]);
             if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                if (util.existenCookies(getContext())) {
+                    codigoFuente = util.connect(params[0], util.getCookiesEnSharedPreferences(getContext()));
+                }
                 url = animeflv.urlCapituloToUrlAnime(codigoFuente);
             } else {
                 url = reyanime.urlCapituloToUrlAnime(codigoFuente);
@@ -548,5 +621,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     public List<HomeScreenEpi> getAnimesRecientes() {
         return animesRecientes;
     }
+
 
 }

@@ -15,6 +15,13 @@
             android:id="@+id/toolbar"
             layout="@layout/toolbar" />
 
+        <WebView
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+        </WebView>
+
         <ProgressBar
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"

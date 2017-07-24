@@ -135,6 +135,9 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
             try {
                 Document codigoFuente = util.connect(url);
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    if (util.existenCookies(getContext())) {
+                        codigoFuente = util.connect(url, util.getCookiesEnSharedPreferences(getContext()));
+                    }
                     Animeflv animeflv = new Animeflv();
                     urlSiguiente = animeflv.siguientePagina(codigoFuente);
                     Log.d("URL", urlSiguiente);
@@ -179,6 +182,9 @@ public class GenerosContenido extends android.support.v4.app.Fragment implements
             try {
                 Document codigoFuente = util.connect(urlSiguiente);
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    if (util.existenCookies(getContext())) {
+                        codigoFuente = util.connect(urlSiguiente, util.getCookiesEnSharedPreferences(getContext()));
+                    }
                     Animeflv animeflv = new Animeflv();
                     urlSiguiente = animeflv.siguientePagina(codigoFuente);//comprueba si tiene pagina siguiente
                     tienePaginaSiguiente = !urlSiguiente.equals(""); //si urlSiguiente es igual a "" --> tienePaginaSiguiente = false, de otra manera true

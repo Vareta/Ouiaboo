@@ -4,11 +4,17 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestOptions;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.squareup.picasso.Picasso;
@@ -23,6 +29,7 @@ public class AdInfoEpisodios extends BaseExpandableListAdapter{
     private Context context;
     private HashMap<DrawerItemsListUno, List<Episodios>> informacion;
     private List<DrawerItemsListUno> infoPadre;
+    private Utilities util;
 
     public AdInfoEpisodios(Context context, List<DrawerItemsListUno> infoPadre, HashMap<DrawerItemsListUno, List<Episodios>> informacion) {
         this.context = context;
@@ -79,6 +86,8 @@ public class AdInfoEpisodios extends BaseExpandableListAdapter{
         icon.setImageResource(item.getIconId());
         nombre.setText(item.getNombre());
 
+        util = new Utilities();
+
         return convertView;
     }
 
@@ -97,7 +106,17 @@ public class AdInfoEpisodios extends BaseExpandableListAdapter{
 
         Episodios episodios = (Episodios)getChild(groupPosition, childPosition);
 
-        Picasso.with(context).load(episodios.getUrlImagen()).resize(250, 400).into(portada);
+        if (util.existenCookies(context)) {
+            GlideUrl glideUrl = new GlideUrl(episodios.getUrlImagen(), new LazyHeaders.Builder()
+                    .addHeader("Cookie", CookieManager.getInstance().getCookie("https://animeflv.net/"))
+                    .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .build()
+            );
+            Glide.with(context).load(glideUrl).apply(RequestOptions.overrideOf(250, 400)).apply(RequestOptions.centerCropTransform()).into(portada);
+        } else {
+            Glide.with(context).load(episodios.getUrlImagen()).apply(RequestOptions.overrideOf(250, 400)).apply(RequestOptions.centerCropTransform()).into(portada);
+        }
+
         tipo.setText(episodios.getTipo());
         estado.setText(episodios.getEstado());
         fechaInicio.setText(episodios.getFechaInicio());

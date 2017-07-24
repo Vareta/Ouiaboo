@@ -6,12 +6,18 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestOptions;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
-import com.squareup.picasso.Picasso;
+
 
 import java.util.List;
 
@@ -22,6 +28,7 @@ public class AdBusquedaFLV extends RecyclerView.Adapter<AdBusquedaFLV.BusquedaHo
     public List<HomeScreenEpi> items;
     public Context context;
     public CustomRecyclerListener customRecyclerListener;
+    public Utilities util;
 
     public AdBusquedaFLV (Context context, List<HomeScreenEpi> items) {
         this.context = context;
@@ -39,6 +46,7 @@ public class AdBusquedaFLV extends RecyclerView.Adapter<AdBusquedaFLV.BusquedaHo
             informacion = (TextView)itemLayoutView.findViewById(R.id.informacion_flv);
             preview = (ImageView)itemLayoutView.findViewById(R.id.preview_flv);
             itemLayoutView.setOnClickListener(this);
+            util = new Utilities();
         }
 
         @Override
@@ -75,11 +83,16 @@ public class AdBusquedaFLV extends RecyclerView.Adapter<AdBusquedaFLV.BusquedaHo
 
         busquedaHolder.nombre.setText(Html.fromHtml(items.get(i).getNombre()));
         busquedaHolder.informacion.setText(Html.fromHtml(items.get(i).getInformacion()));
-        Picasso.with(context).load(items.get(i).getPreview()).resize(200, 250).into(busquedaHolder.preview);
-        //Log.d("Nombre", items.get(i).getNombre());
-        //agrega el preview al imageview via url
-
-        // new Utilities.DownloadImageTask(preview).execute(item.getPreview());
+        if (util.existenCookies(context)) {
+            GlideUrl glideUrl = new GlideUrl(items.get(i).getPreview(), new LazyHeaders.Builder()
+                    .addHeader("Cookie", CookieManager.getInstance().getCookie("https://animeflv.net/"))
+                    .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .build()
+            );
+            Glide.with(context).load(glideUrl).apply(RequestOptions.overrideOf(200, 250)).apply(RequestOptions.centerCropTransform()).into(busquedaHolder.preview);
+        } else {
+            Glide.with(context).load(items.get(i).getPreview()).apply(RequestOptions.overrideOf(200, 250)).apply(RequestOptions.centerCropTransform()).into(busquedaHolder.preview);
+        }
 
     }
 

@@ -37,6 +37,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             editor.putBoolean("reyanime", false);
             editor.putBoolean("tutorialCompletado", false);
             editor.putBoolean("proveedorModificado", false);
+            editor.putBoolean("hayCookies", false);
+            editor.putString("cookies", "cookies");
             //editor.putBoolean("animejoy", false);
             editor.apply();
             PreferenceManager.setDefaultValues(this, PREFERENCIAS, MODE_PRIVATE, R.xml.preferences, false);

@@ -1,6 +1,7 @@
 package com.ouiaboo.ouiaboo.adaptadores;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,15 +10,34 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestOptions;
+import com.jakewharton.picasso.OkHttp3Downloader;
 import com.ouiaboo.ouiaboo.R;
+import com.ouiaboo.ouiaboo.Utilities;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
+import com.squareup.picasso.LruCache;
+import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 
+
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Cache;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  *
@@ -34,8 +54,9 @@ public class AdGenerosEndless extends RecyclerView.Adapter<RecyclerView.ViewHold
     private OnLoadMoreListener onLoadMoreListener;
     private final int VIEW_PROG = 1;
     private final int VIEW_ITEM = 0;
+    private Utilities util;
 
-    public AdGenerosEndless(Context context, @NonNull List<HomeScreenEpi> items, final RecyclerView recyclerView) {
+    public AdGenerosEndless(final Context context, @NonNull List<HomeScreenEpi> items, final RecyclerView recyclerView) {
         this.context = context;
         this.items = items;
         if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
@@ -71,6 +92,7 @@ public class AdGenerosEndless extends RecyclerView.Adapter<RecyclerView.ViewHold
             informacion = (TextView)itemLayoutView.findViewById(R.id.informacion_flv);
             preview = (ImageView)itemLayoutView.findViewById(R.id.preview_flv);
             itemLayoutView.setOnClickListener(this);
+            util = new Utilities();
         }
 
         @Override
@@ -119,7 +141,16 @@ public class AdGenerosEndless extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (holder instanceof GenerosEndlessHolder) {
             ((GenerosEndlessHolder)holder).nombre.setText(Html.fromHtml(items.get(position).getNombre()));
             ((GenerosEndlessHolder)holder).informacion.setText(Html.fromHtml(items.get(position).getInformacion()));
-            Picasso.with(context).load(items.get(position).getPreview()).resize(200, 250).into(((GenerosEndlessHolder)holder).preview);
+            if (util.existenCookies(context)) {
+                GlideUrl glideUrl = new GlideUrl(items.get(position).getPreview(), new LazyHeaders.Builder()
+                        .addHeader("Cookie", CookieManager.getInstance().getCookie("https://animeflv.net/"))
+                        .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                        .build()
+                );
+                Glide.with(context).load(glideUrl).apply(RequestOptions.overrideOf(200, 250)).apply(RequestOptions.centerCropTransform()).into(((GenerosEndlessHolder)holder).preview);
+            } else {
+                Glide.with(context).load(items.get(position).getPreview()).apply(RequestOptions.overrideOf(200, 250)).apply(RequestOptions.centerCropTransform()).into(((GenerosEndlessHolder)holder).preview);
+            }
         } else {
             ((ProgressViewHolder)holder).progressBar.setIndeterminate(true);
         }
@@ -147,5 +178,7 @@ public class AdGenerosEndless extends RecyclerView.Adapter<RecyclerView.ViewHold
     public interface OnLoadMoreListener {
         void onLoadMore();
     }
+
+
 
 }

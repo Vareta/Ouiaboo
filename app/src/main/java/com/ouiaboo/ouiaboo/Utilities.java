@@ -16,6 +16,7 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 
@@ -39,9 +40,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.Cache;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by Vareta on 27-07-2015.
@@ -198,7 +206,9 @@ public class Utilities {
                     .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                     .referrer("http://www.google.com")
                     .followRedirects(true)
+                    .ignoreHttpErrors(true) //para ignorar el error 503 para cuando se usa cloudflare
                     .get();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -206,32 +216,52 @@ public class Utilities {
         return doc;
     }
 
-    public HashMap<String, String> cookieToHashmap(String cookies) {
-        HashMap<String, String> respuesta = new HashMap<>();
+    /**
+     * Se Conecta con la pagina web y devuelve el codigo fuente en un Document Jsoup.
+     * Esta es ocupada para cuando cloudflare esta activado ya que requiere cookies
+     * @param url Url a conectar
+     * @param cookies Cookies
+     * @return Document jsoup que contiene el codigo fuente
+     */
+    public Document connect(String url, String cookies) {
+        Document doc = null;
+        try {
+            doc = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .referrer("http://www.google.com")
+                    .followRedirects(true)
+                    .ignoreHttpErrors(true) //para ignorar el error 503 para cuando se usa cloudflare
+                    .cookies(cookieToHashmap(cookies))
+                    .get();
 
-        String[] cookieAux = cookies.split(" ");
-        for (int i = 0; i < cookieAux.length; i++) {
-            if (cookieAux[i].equals("__test;")) {
-                continue;
-            } else {
-                String[] cookiesAux2 = cookieAux[i].split("=");
-                if (cookiesAux2[0].equals("_ga") || cookiesAux2[0].equals("dev")) {
-                    continue;
-                } else {
-                    respuesta.put(cookiesAux2[0], cookiesAux2[1]);
-                }
-            }
-
-            Log.d("Cokies", cookieAux[i]);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        respuesta.put("dev", "1");
+
+        return doc;
+    }
+
+    /**
+     * Recibe las cookies via string y las almacena en un hashmap para poder utilizarlas con jsoup
+     * @param cookies String que contiene las cookies
+     * @return
+     */
+    public HashMap<String, String> cookieToHashmap(String cookies) {
+        final HashMap<String, String> respuesta = new HashMap<>();
+
+        String[] cookieAux = cookies.split(";");
+        for (int i = 0; i < cookieAux.length; i++) {
+            String[] cookiesAux2 = cookieAux[i].split("=");
+            if (cookiesAux2.length == 2) {
+                respuesta.put(cookiesAux2[0].trim(), cookiesAux2[1].trim());
+            }
+        }
 
         for (Map.Entry<String,String> entry : respuesta.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             Log.d("KEY", key);
             Log.d("VALUE", value);
-            // do stuff
         }
         return respuesta;
     }
@@ -248,6 +278,50 @@ public class Utilities {
             return REYANIME;
         }
     }
+
+    /**
+     * Setea el valor de las cookies (boolean)
+     * @param hayCookies Boolean
+     * @param context
+     */
+    public void setCookiesBoolean(boolean hayCookies, Context context) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(PREFERENCIAS, Context.MODE_PRIVATE).edit();
+        editor.putBoolean("hayCookies", hayCookies);
+        editor.apply();
+    }
+
+    /**
+     * Consulta en las preferencias si acaso existen cookies
+     * @param context
+     * @return Boolean con la respuesta
+     */
+    public boolean existenCookies(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(PREFERENCIAS, Context.MODE_PRIVATE);
+
+        return preferences.getBoolean("hayCookies", true);
+    }
+
+    /**
+     * Setea las cookies en las preferencias de la aplicacion
+     * @param cookies String con las cookies
+     */
+    public void setCookiesEnSharedPreferences(String cookies, Context context) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(PREFERENCIAS, Context.MODE_PRIVATE).edit();
+        editor.putString("cookies", cookies);
+        editor.apply();
+    }
+
+    /**
+     * Obtiene las cookies en las preferencias de la aplicacion
+     * @param context
+     */
+    public String getCookiesEnSharedPreferences(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(PREFERENCIAS, Context.MODE_PRIVATE);
+
+        return preferences.getString("cookies", "cookies");
+    }
+
+
 
     /*Consulta en las preferencias si acaso el proveedor fue modifcado, en caso de haber sido modificado vuelve el valor
     a falso, ya que este al momento de ser consultado verdadero, debe ser cambiado a falso inmediatamente
@@ -450,7 +524,6 @@ public class Utilities {
     /* Obtiene la version del codigo y el enlace de descarga desde el codigo fuente*/
     public List<String> obtenerEnlaceActualizacion(Document codigoFuente) {
         List<String> resultado = new ArrayList<>();
-
         Element objEnlace = codigoFuente.getElementsByClass("entry-content").first();
         String contenido = objEnlace.select("p").first().text();
         String[] aux = contenido.split(" ");
@@ -462,5 +535,31 @@ public class Utilities {
     }
 
 
+    /**
+     * Cliente que utiliza cookies para cuando es requerido por Picasso, es decir, para cuando animeflv tiene activado
+     * cloudflare.
+     * Utiliza las cookies que se almacenan en el CookieManager
+     * @return Cliente OkHttpClient con cookies
+     */
+    public OkHttpClient cookiesClient (Context context) {
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        final Request original = chain.request();
+
+                        final Request authorized = original.newBuilder()
+                                .addHeader("Cookie", CookieManager.getInstance().getCookie("https://animeflv.net/"))
+                                .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                                .build();
+
+                        return chain.proceed(authorized);
+                    }
+                })
+                .cache(new Cache(context.getCacheDir(), 25 * 1024 * 1024))
+                .build();
+
+        return client;
+    }
 
 }

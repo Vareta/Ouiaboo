@@ -37,7 +37,7 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdGener
     private RecyclerView list;
     private ProgressBar bar;
     private String searchQuery;
-    private String queryTemplateFlv = "http://animeflv.net/search?q=";
+    private String queryTemplateFlv = "http://animeflv.net/browse?q=";
     private String queryTemplateRey = "http://reyanime.com/anime/?title=";
     private List<HomeScreenEpi> animesBuscados;
     private List<HomeScreenEpi> animesBuscadosSiguiente;
@@ -168,7 +168,12 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdGener
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
                     Animeflv animeflv = new Animeflv();
                     urlBusqueda = queryTemplateFlv + searchQuery;
+                    Log.d("urlbusqueda", urlBusqueda);
                     codigoFuente = util.connect(urlBusqueda);
+                    if (util.existenCookies(getContext())) {
+                        Log.d("existen cookies", "si");
+                        codigoFuente = util.connect(urlBusqueda, util.getCookiesEnSharedPreferences(getContext()));
+                    }
                     animesBuscados = animeflv.busquedaFLV(codigoFuente);
 
                     if (animesBuscados == null) {
@@ -246,6 +251,9 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdGener
             try {
                 Document codigoFuente = util.connect(urlSiguiente);
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
+                    if (util.existenCookies(getContext())) {
+                        codigoFuente = util.connect(urlSiguiente, util.getCookiesEnSharedPreferences(getContext()));
+                    }
                     Animeflv anime = new Animeflv();
                     urlSiguiente = anime.siguientePagina(codigoFuente);//comprueba si tiene pagina siguiente
                     tienePaginaSiguiente = !urlSiguiente.equals(""); //si urlSiguiente es igual a "" --> tienePaginaSiguiente = false, de otra manera true

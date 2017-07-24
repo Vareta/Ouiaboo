@@ -1,8 +1,12 @@
 package com.ouiaboo.ouiaboo;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.util.Log;
+import android.webkit.CookieManager;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.ouiaboo.ouiaboo.Tables.animeflv.HistorialFlvTable;
 import com.ouiaboo.ouiaboo.Tables.animeflv.HistorialTable;
@@ -28,6 +32,8 @@ import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.ouiaboo.ouiaboo.MainActivity.PREFERENCIAS;
 
 
 /**
@@ -235,28 +241,6 @@ public class Animeflv{
         return url;
     }
 
-  /*  private void crawl(String url) throws IOException {
-
-        Response response = Jsoup.connect(url).followRedirects(false).execute();
-
-        System.out.println("hola   " + response.statusCode() + " : " + url);
-
-        if (response.hasHeader("location")) {
-            String redirectUrl = response.header("location");
-            crawl(redirectUrl);
-        }
-
-    }
-
-    public void repeat(){
-        String url2 = "http://www.animeid.moe/";
-        try {
-            crawl(url2);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
-
 
     /**
      * Encuentra los animes resultantes de una busqueda realizada y los devuelve mediante una lista de elementos
@@ -267,16 +251,16 @@ public class Animeflv{
         List<HomeScreenEpi> search = new ArrayList<>();
         String urlAnime, nombre, informacion, preview;
         HomeScreenEpi item;
-        Elements animesEncontrados = codigoFuente.getElementsByClass("ListAnimes AX Rows A03 C02 D02").select("li");
+        Elements animesEncontrados = codigoFuente.getElementsByClass("ListAnimes AX Rows A03 C03 D03").select("li");
         if (animesEncontrados.size() == 0) {
             search = null;
             Log.d("Empty", "busqueda animeflv no produce resultados");
         } else {
             for (Element cadaAnime : animesEncontrados) {
-                urlAnime = animeflv + cadaAnime.getElementsByClass("Image").select("a").attr("href");
+                urlAnime = animeflv + cadaAnime.getElementsByClass("Anime alt B").select("a").first().attr("href");
                 preview = animeflv + cadaAnime.getElementsByClass("Image").select("img").attr("src");
                 informacion = cadaAnime.getElementsByClass("Image").select("span").text();
-                nombre = cadaAnime.getElementsByClass("Title").text();
+                nombre = cadaAnime.getElementsByClass("Title").first().text();
                 /*Log.d("urlAnime", urlAnime);
                 Log.d("nombre", nombre);
                 Log.d("informacion", informacion);
@@ -294,13 +278,18 @@ public class Animeflv{
      * @param url String con la url de la pagina principal del anime
      * @return Lista que contiene todos los elementos recopilados
      */
-    public List<Episodios> getEpisodios(String url) {
+    public List<Episodios> getEpisodios(String url, Context context) {
         List<Episodios> capitulos = new ArrayList<>();
         String nombreAnime, urlAnime, urlEp, numero, urlImagen, informacion, tipo, estado, generos, fechaInicio;
         Document document;
         Utilities util = new Utilities();
 
-        document = util.connect(url);
+
+        if (util.existenCookies(context)) {
+            document = util.connect(url, util.getCookiesEnSharedPreferences(context));
+        } else {
+            document = util.connect(url);
+        }
 
         if (document != null) {
             urlImagen = animeflv + document.getElementsByClass("Image").select("figure").first().select("img").attr("src");
@@ -447,7 +436,7 @@ public class Animeflv{
             preview = animeflv + episodioAux.getElementsByClass("Image").select("img").first().attr("src");
 
             home.add(new HomeScreenEpi(urlCapitulo, nombre, informacion, preview)); //agrega el nuevo objeto al array
-            /*Log.d("URLCAPITULO", urlCapitulo);
+           /* Log.d("URLCAPITULO", urlCapitulo);
             Log.d("NOMBRE", nombre);
             Log.d("CAPITULO", informacion);
             Log.d("PREVIEW", preview);*/
@@ -458,6 +447,7 @@ public class Animeflv{
 
 
     /**
+     * SERVIDOR DESCONTINUADO POR ANIMEFLV
      * Consigue la url del servidor izanagi
      * @param codigoFuente Codigo fuente que contiene las urls de los videos
      * @return Url del servidor izanagi o string en blanco si no lo encuentra
@@ -484,6 +474,7 @@ public class Animeflv{
     }
 
     /**
+     * SERVIDOR DESCONTINUADO POR ANIMEFLV
      * Consigue la url del servidor yotta
      * @param codigoFuente Codigo fuente que contiene las urls de los videos
      * @return Url del servidor yotta o string en blanco si no lo encuentra
@@ -518,20 +509,20 @@ public class Animeflv{
     }
 
     /**
-     * Consigue la url del servidor MP4Upload
+     * Consigue la url del servidor YourUpload
      * @param codigoFuente Codigo fuente que contiene las urls de los videos
-     * @return Url del servidor MP4Upload o string en blanco si no lo encuentra
+     * @return Url del servidor YourUpload o string en blanco si no lo encuentra
      */
-    private String urlMp4uploadServer(String codigoFuente){
+    private String urlYourUploadServer(String codigoFuente){
         String url = "", auxUrl = "";
 
-        Matcher localMatcher = Pattern.compile("mp4upload&v=(.*?)\"").matcher(codigoFuente);
+        Matcher localMatcher = Pattern.compile("yourupload&v=(.*?)\"").matcher(codigoFuente);
         while (localMatcher.find()) {
             auxUrl = localMatcher.group(1);
         }
         //Ahora se procede a obtener la direccion del video
         if (!auxUrl.equals("")) {//si existe una url donde buscar
-            auxUrl = "https://s3.animeflv.com/check.php?server=mp4upload&v=" + auxUrl;
+            auxUrl = "https://s3.animeflv.com/check.php?server=yourupload&v=" + auxUrl;
             Utilities util = new Utilities();
             Document respuesta = util.connect(auxUrl);
             Matcher localMatcher2 = Pattern.compile("file\":\"(.*?)\"").matcher(respuesta.toString());
@@ -543,33 +534,53 @@ public class Animeflv{
         return url;
     }
 
-    /*Servidor eliminado por animeflv*/
-    public String urlHyperionServer(List<String> paginaWeb){
-        String auxUrl = "", url = "";
+    /***
+     * Consigue la url del servidor Hyperion
+     * @param codigoFuente Codigo fuente que contiene las urls de los videos
+     * @return Url del servidor Hyperion o string en blanco si no lo encuentra
+     */
+    public String urlHyperionServer(String codigoFuente){
+        String url = "", auxUrl = "";
 
-        int max = paginaWeb.size();
-
-        for (int i = 0; i < max; i++) {
-            if (paginaWeb.get(i).contains("var videos")) {
-                Matcher localMatcher = Pattern.compile("hyperion.php\\?key=(.*?)&provider").matcher(paginaWeb.get(i));
-                //Log.d("URL  ", paginaWeb.get(i));
-                while (localMatcher.find()) {
-                    auxUrl = localMatcher.group(1);
-                    //System.out.println(aux);
-                    try {
-                        url = URLDecoder.decode("http://animeflv.net/video/hyperion.php?key=" + auxUrl, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
+        Matcher localMatcher = Pattern.compile("hyperion&v=(.*?)\"").matcher(codigoFuente);
+        while (localMatcher.find()) {
+            auxUrl = localMatcher.group(1);
         }
+        //Ahora se procede a obtener la direccion del video
+        if (!auxUrl.equals("")) {//si existe una url donde buscar
+            auxUrl = "https://s3.animeflv.com/check.php?server=hyperion&v=" + auxUrl;
+            Utilities util = new Utilities();
+            Document respuesta = util.connect(auxUrl);
+            Matcher localMatcher2 = Pattern.compile("file\":\"(.*?)\"").matcher(respuesta.toString());
+            while (localMatcher2.find()) {
+                url = localMatcher2.group(1);
+            }
+            url = url.replace("\\", "");
+        }
+        return url;
+    }
 
+    /***
+     * Consigue la url del servidor Clup
+     * @param codigoFuente Codigo fuente que contiene las urls de los videos
+     * @return Url del servidor Clup o string en blanco si no lo encuentra
+     */
+    public String urlClupServer(String codigoFuente){
+        String url = "", auxUrl = "";
+
+        Matcher localMatcher = Pattern.compile("direct\\.php\\?v=(.*?)\"").matcher(codigoFuente);
+        while (localMatcher.find()) {
+            auxUrl = localMatcher.group(1);
+        }
+        //Ahora se procede a obtener la direccion del video
+        if (!auxUrl.equals("")) {//si existe una url donde buscar
+            url = auxUrl;
+        }
         return url;
     }
 
     /**
+     * SERVIDOR DESCONTINUADO POR ANIMEFLV
      * Consigue la url del servidor Minhateca
      * @param codigoFuente Codigo fuente que contiene las urls de los videos
      * @return Url del servidor Minhateca o string en blanco si no lo encuentra
@@ -607,7 +618,7 @@ public class Animeflv{
     /**
      * Verifica dentro de los servidores soportados, cual de ellos esta disponible y entrega la url
      * del video. El orden de prioridad de los servidores es el siguiente :
-     * yotta > izanagi > minhateca > mp4upload
+     * hyperion > clup > yourupload
      * @param urlEpisodio La url del capitulo en cuestion
      * @param context
      * @return Url del video
@@ -615,51 +626,45 @@ public class Animeflv{
     public String urlDisponible(String urlEpisodio, Context context) {
         String url = "", codigoUrlVideos;
         Utilities util = new Utilities();
-        Document codigoFuente = util.connect(urlEpisodio);
-        codigoUrlVideos = codigoFuente.select("script").last().toString();
+        Document codigoFuente;
+        if (util.existenCookies(context)) {
+            codigoFuente = util.connect(urlEpisodio, util.getCookiesEnSharedPreferences(context));
+        } else {
+            codigoFuente = util.connect(urlEpisodio);
+        }
+        codigoUrlVideos = codigoFuente.select("script").toString();
         String urlAux;
-        boolean  yottaDisponible = true, izanagiDisponible = false, minhatecaDisponible = false;
+        boolean  hyperionDisponible = true, clupDisponible = false;
 
-        urlAux = urlYottaServer(codigoUrlVideos);
+        urlAux = urlHyperionServer(codigoUrlVideos);
         if (!urlAux.equals("")) {
             if (util.isServerReachable(urlAux, context)) {
                 url = urlAux;
-                Log.d("yotta", url);
+                Log.d("hyperion", url);
             } else {
-                yottaDisponible = false;
+                hyperionDisponible = false;
             }
         } else {
-            yottaDisponible = false;
+            hyperionDisponible = false;
         }
 
-        if (!yottaDisponible) {
-            urlAux = urlIzanagiServer(codigoUrlVideos);
+        if (!hyperionDisponible) {
+            urlAux = urlClupServer(codigoUrlVideos);
             if (!urlAux.equals("")) { //revisa si existe la url
                 if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible
                     url = urlAux;
-                    izanagiDisponible = true;
-                    Log.d("izanagi", url);
+                    clupDisponible = true;
+                    Log.d("clup", url);
                 }
             }
         }
 
-        if (!yottaDisponible && !izanagiDisponible) {
-            urlAux = urlMinhatecaServer(codigoUrlVideos);
+        if (!hyperionDisponible && !clupDisponible) {
+            urlAux = urlYourUploadServer(codigoUrlVideos);
             if (!urlAux.equals("")) { //revisa si existe la url
                 if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible
                     url = urlAux;
-                    minhatecaDisponible = true;
-                    Log.d("minhateca", url);
-                }
-            }
-        }
-
-        if (!yottaDisponible && !izanagiDisponible && !minhatecaDisponible) {
-            urlAux = urlMp4uploadServer(codigoUrlVideos);
-            if (!urlAux.equals("")) { //revisa si existe la url
-                if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible
-                    url = urlAux;
-                    Log.d("mp4Upload", url);
+                    Log.d("yourupload", url);
                 }
             }
         }
@@ -776,6 +781,20 @@ public class Animeflv{
 
         return imagen;
     }
+
+    /**
+     * Verifica si CloudFlare se encuentra activado en animeflv
+     * @param codigoFuente Codigo fuente de la pagina
+     * @return Respuesta
+     */
+    public boolean estaCloudflareActivado(Document codigoFuente) {
+        String cloudflare = "";
+        cloudflare = codigoFuente.getElementsByClass("attribution").select("a").text();
+        return cloudflare.contains("DDoS protection by Cloudflare");
+    }
+
+
+
 
 }
 

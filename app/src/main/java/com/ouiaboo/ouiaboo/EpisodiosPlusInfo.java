@@ -233,7 +233,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
             try {
                 if (util.queProveedorEs(context) == Utilities.ANIMEFLV) { //animeflv
                     Animeflv animeflv = new Animeflv();
-                    epi = animeflv.getEpisodios(url); //contiene los episodios y la info
+                    epi = animeflv.getEpisodios(url, context); //contiene los episodios y la info
                     epiInfo = new ArrayList<>(); //inicializa
                     epiInfo.add(new Episodios(epi.get(0).getNombreAnime(), epi.get(0).getUrlAnime(), epi.get(0).getUrlEpisodio(), epi.get(0).getNumero(), epi.get(0).getUrlImagen(),
                             epi.get(0).getInformacion(), epi.get(0).getTipo(), epi.get(0).getEstado(), epi.get(0).getGeneros(),
