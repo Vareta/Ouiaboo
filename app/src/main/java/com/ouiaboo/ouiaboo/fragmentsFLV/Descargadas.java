@@ -73,6 +73,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
     private SwipeRefreshLayout swipeRefresh;
     private AdDescargadas.CustomRecyclerListener listener;
     private Snackbar snackbar;
+    private final String TAG = "DescargadasFrag";
 
 
     public Descargadas() {
@@ -253,7 +254,9 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
                 urlAnimeAux = new ArrayList<>();
                 File carpetaDescargados = new File(path);
                 List<DescargadosTable> completas = DataSupport.where("complete=?", String.valueOf(1)).find(DescargadosTable.class);
+                Log.d(TAG, "listarDescargas");
                 if (!completas.isEmpty()) {
+                    Log.d(TAG, "Lista contiene elementos");
                     existenDescargados = true;
                     animeDescargado = new ArrayList<>();
                     // setComplete(archivos); //busca si hay archivos y los marca como completos
@@ -289,6 +292,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
                     adaptador.setClickListener(params[0]);
 
                 } else {
+                    Log.d(TAG, "No existen descargas");
                     existenDescargados = false;
                 }
 

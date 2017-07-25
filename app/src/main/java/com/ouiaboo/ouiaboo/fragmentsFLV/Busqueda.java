@@ -168,11 +168,10 @@ public class Busqueda extends android.support.v4.app.Fragment implements AdGener
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
                     Animeflv animeflv = new Animeflv();
                     urlBusqueda = queryTemplateFlv + searchQuery;
-                    Log.d("urlbusqueda", urlBusqueda);
-                    codigoFuente = util.connect(urlBusqueda);
                     if (util.existenCookies(getContext())) {
-                        Log.d("existen cookies", "si");
                         codigoFuente = util.connect(urlBusqueda, util.getCookiesEnSharedPreferences(getContext()));
+                    } else {
+                        codigoFuente = util.connect(urlBusqueda);
                     }
                     animesBuscados = animeflv.busquedaFLV(codigoFuente);
 

@@ -31,18 +31,25 @@
                 android:paddingBottom="16dp"
                 android:text="@string/tipo.AnimeInfo"
                 android:textColor="@android:color/black"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/tipo_data"
+                android:layout_toStartOf="@+id/tipo_data" />
 
             <TextView
                 android:id="@+id/tipo_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toEndOf="@+id/tipo"
-                android:layout_toRightOf="@+id/tipo"
                 android:paddingTop="16dp"
                 android:paddingBottom="16dp"
-                android:text="Anime" />
+                android:text="Anime"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignLeft="@+id/estado_data"
+                android:layout_alignStart="@+id/estado_data" />
 
             <TextView
                 android:id="@+id/estado"
@@ -54,30 +61,40 @@
                 android:paddingBottom="16dp"
                 android:text="@string/estado.AnimeInfo"
                 android:textColor="@android:color/black"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_toLeftOf="@+id/tipo_data"
+                android:layout_toStartOf="@+id/tipo_data" />
 
             <TextView
                 android:id="@+id/estado_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tipo_data"
-                android:layout_toEndOf="@+id/estado"
-                android:layout_toRightOf="@+id/estado"
                 android:paddingBottom="16dp"
-                android:text="En emision" />
+                android:text="En emision"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/tipo_data"
+                android:layout_alignBottom="@+id/estado"
+                android:layout_toEndOf="@+id/generos"
+                android:layout_toRightOf="@+id/generos" />
 
             <TextView
                 android:id="@+id/generos"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/estado"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingStart="16dp"
                 android:paddingBottom="16dp"
                 android:text="@string/genero.AnimeInfo"
                 android:textColor="@android:color/black"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_alignBaseline="@+id/generos_data"
+                android:layout_alignBottom="@+id/generos_data"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
 
             <TextView
                 android:id="@+id/generos_data"
@@ -85,61 +102,47 @@
                 android:layout_height="wrap_content"
                 android:paddingBottom="16dp"
                 android:text="Accion, comedia, humo"
-                android:layout_below="@+id/estado_data"
-                android:layout_above="@+id/fecha_inicio"
                 android:layout_toRightOf="@+id/generos"
-                android:layout_toEndOf="@+id/generos" />
+                android:layout_below="@+id/estado_data"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
 
-            <TextView
-                android:id="@+id/fecha_inicio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/generos"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingStart="16dp"
-                android:paddingBottom="16dp"
-                android:text="@string/fecha.AnimeInfo"
-                android:textColor="@android:color/black"
-                android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/fecha_inicio_data"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="16dp"
-                android:text="23-23-2323"
-                android:layout_below="@+id/generos_data"
-                android:layout_toRightOf="@+id/fecha_inicio"
-                android:layout_toEndOf="@+id/fecha_inicio" />
 
 
             <TextView
                 android:id="@+id/sinopsis"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/fecha_inicio"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingStart="16dp"
                 android:paddingBottom="16dp"
                 android:text="@string/sinopsis.AnimeInfo"
                 android:textColor="@android:color/black"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/generos" />
 
             <TextView
                 android:id="@+id/sinopsis_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignEnd="@+id/tipo_data"
-                android:layout_alignRight="@+id/tipo_data"
                 android:layout_below="@+id/sinopsis"
                 android:paddingEnd="16dp"
                 android:paddingRight="16dp"
                 android:paddingLeft="16dp"
                 android:paddingStart="16dp"
                 android:paddingBottom="16dp"
-                android:text="Este anime cuenta la historia de un niño que no podia crear buenos layouts, por lo que salio a buscar aventuras en el mundo y aprender mas de los layouts" />
+                android:text="Este anime cuenta la historia de un niño que no podia crear buenos layouts, por lo que salio a buscar aventuras en el mundo y aprender mas de los layouts"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true" />
 
         </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>

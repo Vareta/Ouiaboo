@@ -256,13 +256,12 @@ public class Utilities {
                 respuesta.put(cookiesAux2[0].trim(), cookiesAux2[1].trim());
             }
         }
-
-        for (Map.Entry<String,String> entry : respuesta.entrySet()) {
+        /*for (Map.Entry<String,String> entry : respuesta.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
             Log.d("KEY", key);
             Log.d("VALUE", value);
-        }
+        }*/
         return respuesta;
     }
 

@@ -688,18 +688,4 @@ public class Central extends AppCompatActivity implements HomeScreen.OnFragmentI
 
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        /*Log.d("destroy", "destroy");
-        Utilities util = new Utilities();
-        util.setCookiesBoolean(false, this);
-        if (util.existenCookies(this)) {
-            Log.d("cookies", "existen");
-        } else {
-            Log.d("cookies", "NO existen");
-        }*/
-
-
-    }
 }

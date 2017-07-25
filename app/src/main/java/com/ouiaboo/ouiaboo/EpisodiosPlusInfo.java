@@ -22,11 +22,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestOptions;
 import com.ouiaboo.ouiaboo.clases.Episodios;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
@@ -54,6 +57,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
     ViewPager viewPager;
     private final String EPISODIOS = "episodios";
     private final String EPISODISOPLUSINFO = "episodiosplusinfo";
+    private Utilities util;
 
 
     @Override
@@ -67,7 +71,7 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         favorito = (FloatingActionButton) findViewById(R.id.favorito);
         coordLayout = (CoordinatorLayout) findViewById(R.id.coord_layout);
         context = this;
-
+        util = new Utilities();
         if (savedInstanceState != null) {
             getSavedData(savedInstanceState);
         } else {
@@ -268,7 +272,16 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
             setupToolbar();
             setupFAB(epiInfo.get(0));
             setTitle(epiInfo.get(0).getNombreAnime());
-            Glide.with(getBaseContext()).load(epi.get(0).getUrlImagen()).into(header);
+            if (util.existenCookies(getBaseContext())) {
+                GlideUrl glideUrl = new GlideUrl(epi.get(0).getUrlImagen(), new LazyHeaders.Builder()
+                        .addHeader("Cookie", CookieManager.getInstance().getCookie("https://animeflv.net/"))
+                        .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                        .build()
+                );
+                Glide.with(context).load(glideUrl).into(header);
+            } else {
+                Glide.with(context).load(epi.get(0).getUrlImagen()).into(header);
+            }
             bar.setVisibility(View.GONE);
             appBar.setVisibility(View.VISIBLE);
         }
@@ -397,7 +410,16 @@ public class EpisodiosPlusInfo extends AppCompatActivity implements AnimeInfo.On
         setupToolbar();
         setupFAB(epiInfo.get(0));
         setTitle(epiInfo.get(0).getNombreAnime());
-        Glide.with(getBaseContext()).load(epi.get(0).getUrlImagen()).into(header);
+        if (util.existenCookies(getBaseContext())) {
+            GlideUrl glideUrl = new GlideUrl(epi.get(0).getUrlImagen(), new LazyHeaders.Builder()
+                    .addHeader("Cookie", CookieManager.getInstance().getCookie("https://animeflv.net/"))
+                    .addHeader("User-Agent", "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .build()
+            );
+            Glide.with(context).load(glideUrl).into(header);
+        } else {
+            Glide.with(context).load(epi.get(0).getUrlImagen()).into(header);
+        }
 
     }
 

@@ -293,40 +293,69 @@ public class Animeflv{
 
         if (document != null) {
             urlImagen = animeflv + document.getElementsByClass("Image").select("figure").first().select("img").attr("src");
-            Elements elementosGenero = document.getElementsByClass("Categories").select("a"); //contiene todos los generos del anime, los cuales estan contenidos en divisiones 'a'
+            Elements elementosGenero = document.getElementsByClass("Nvgnrs").select("a"); //contiene todos los generos del anime, los cuales estan contenidos en divisiones 'a'
             generos = adaptaGeneros(elementosGenero);
-            estado = document.getElementsByClass("AnimStat On fa-check").text(); //estado = en emision
-            if (estado.length() == 0) { //estado = finalizado
+            estado = document.getElementsByClass("fa-tv").text(); //estado = en emision
+            /*if (estado.length() == 0) { //estado = finalizado
                 estado = document.getElementsByClass("AnimStat Off fa-hourglass-end").text();
-            }
-            estado = adaptaEstado(estado);
-            nombreAnime = document.getElementsByClass("Container").select("h1").first().text();;//contiene el nombre del anime y el tipo (pelicula, anime u ova)
-            tipo = identificarTipo(document);
+            }*/
+            //estado = adaptaEstado(estado);
+            nombreAnime = document.getElementsByClass("Title").select("h1").first().text();;//contiene el nombre del anime y el tipo (pelicula, anime u ova)
+            tipo = document.getElementsByClass("Type tv").first().text();
             urlAnime = url;
             fechaInicio = " "; //desde el cambio de la nueva pagina, este atributo ya no existe. No se decide aun que hacer con el
-            informacion = document.getElementsByClass("Sect Descrtn").first().select("p").first().text();
-            Elements listaEpisodios = document.getElementsByClass("ListEpisodes").select("li");
+            informacion = document.getElementsByClass("Description").first().select("p").first().text();
+            Elements listaEpisodios = document.getElementsByClass("ListCaps").select("li");
             Element aux;
             Episodios episodio;
-            for (int i = 0; i < listaEpisodios.size(); i++) {
-                aux = listaEpisodios.get(i).select("a").first();
-                urlEp = animeflv + aux.attr("href");
-                numero = aux.text();
-                if (i == 0) {
-                    episodio = new Episodios(nombreAnime, urlAnime, urlEp, numero, urlImagen, informacion, tipo, estado, generos, fechaInicio);
-                } else {
-                    episodio = new Episodios(null, null, urlEp, numero, null, null, null, null, null, null);
+            if (!listaEpisodios.isEmpty()) {
+                if (listaEpisodios.first().hasClass("fa-play-circle Next")) {
+                    listaEpisodios.remove(0);
                 }
-                capitulos.add(episodio);
-               /* Log.d("urlImagen", urlImagen);
-                Log.d("generos", generos);
-                Log.d("estado", estado);
-                Log.d("nombreAnime", nombreAnime);
-                Log.d("urlAnime", urlAnime);
-                Log.d("tipo", tipo);
-                Log.d("informacion", informacion);
-                Log.d("urlEp", urlEp);
-                Log.d("numero", numero);*/
+                for (int i = 0; i < listaEpisodios.size(); i++) {
+                    aux = listaEpisodios.get(i).select("a").first();
+                    urlEp = animeflv + aux.attr("href");
+                    numero = aux.select("p").text();
+                    if (i == 0) {
+                        episodio = new Episodios(nombreAnime, urlAnime, urlEp, numero, urlImagen, informacion, tipo, estado, generos, fechaInicio);
+                    } else {
+                        episodio = new Episodios(null, null, urlEp, numero, null, null, null, null, null, null);
+                    }
+
+                    capitulos.add(episodio);
+                    /*Log.d("urlImagen", urlImagen);
+                    Log.d("generos", generos);
+                    Log.d("estado", estado);
+                    Log.d("nombreAnime", nombreAnime);
+                    Log.d("urlAnime", urlAnime);
+                    Log.d("tipo", tipo);
+                    Log.d("informacion", informacion);
+                    Log.d("urlEp", urlEp);
+                    Log.d("numero", numero);*/
+                }
+            } else {
+                listaEpisodios = document.getElementsByClass("ListEpisodes").select("li");
+                for (int i = 0; i < listaEpisodios.size(); i++) {
+                    aux = listaEpisodios.get(i).select("a").first();
+                    urlEp = animeflv + aux.attr("href");
+                    numero = aux.text();
+                    if (i == 0) {
+                        episodio = new Episodios(nombreAnime, urlAnime, urlEp, numero, urlImagen, informacion, tipo, estado, generos, fechaInicio);
+                    } else {
+                        episodio = new Episodios(null, null, urlEp, numero, null, null, null, null, null, null);
+                    }
+
+                    capitulos.add(episodio);
+                    /*Log.d("urlImagen", urlImagen);
+                    Log.d("generos", generos);
+                    Log.d("estado", estado);
+                    Log.d("nombreAnime", nombreAnime);
+                    Log.d("urlAnime", urlAnime);
+                    Log.d("tipo", tipo);
+                    Log.d("informacion", informacion);
+                    Log.d("urlEp", urlEp);
+                    Log.d("numero", numero);*/
+                }
             }
 
         } else {
@@ -405,11 +434,11 @@ public class Animeflv{
 
         Elements objEpisodios;
         if (codigoFuente != null) {
-            objEpisodios = codigoFuente.getElementsByClass("CapiList");
+            objEpisodios = codigoFuente.getElementsByClass("CapNv");
             if (objEpisodios.isEmpty()) {
-                Log.d("Error", "No se pudo encontrar la url del anime");
+                Log.d("Error", "No se pudo encontrar la url del anime desde la pagina del episodio");
             } else {
-                urlAnime = animeflv + objEpisodios.select("li").first().select("a").attr("href");
+                urlAnime = animeflv + objEpisodios.select("a").last().attr("href");
                // Log.d("URL", urlAnime);
             }
         }

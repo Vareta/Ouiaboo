@@ -300,7 +300,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
                     if (status == DownloadManager.STATUS_SUCCESSFUL) {
                         DescargadosTable descargadosTable = new DescargadosTable();
                         descargadosTable.setComplete(true);
-                        descargadosTable.updateAll("urlCapitulo=?", list.get(i).getUrlCapitulo());
+                        descargadosTable.updateAll("idDescarga=?", String.valueOf(list.get(i).getIdDescarga()));
                         break;
                     }
                 }

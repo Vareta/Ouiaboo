@@ -52,13 +52,11 @@ public class AnimeInfo extends  android.support.v4.app.Fragment {
         TextView tipoData = (TextView)view.findViewById(R.id.tipo_data);
         TextView estadoData = (TextView)view.findViewById(R.id.estado_data);
         TextView generosData = (TextView)view.findViewById(R.id.generos_data);
-        TextView fechaData = (TextView)view.findViewById(R.id.fecha_inicio_data);
         TextView sinopsisData = (TextView)view.findViewById(R.id.sinopsis_data);
 
         tipoData.setText(informacion.get(0).getTipo());
         estadoData.setText(informacion.get(0).getEstado());
         generosData.setText(informacion.get(0).getGeneros());
-        fechaData.setText(informacion.get(0).getFechaInicio());
         sinopsisData.setText(informacion.get(0).getInformacion());
     }
 

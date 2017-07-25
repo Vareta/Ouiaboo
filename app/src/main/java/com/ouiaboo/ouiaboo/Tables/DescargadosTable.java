@@ -8,13 +8,13 @@ import org.litepal.crud.DataSupport;
  * Created by Vareta on 15-10-2015.
  */
 public class DescargadosTable extends DataSupport {
-    long idDescarga;
-    String nombre;
-    String tipo;
-    String imagenPreview;
-    String dirVideo;
-    String urlCapitulo;
-    boolean complete;
+    private long idDescarga;
+    private String nombre;
+    private String tipo;
+    private String imagenPreview;
+    private String dirVideo;
+    private String urlCapitulo;
+    private boolean complete;
 
 
     public DescargadosTable(long idDescarga, String nombre, String tipo, String imagenPreview, String dirVideo, String urlCapitulo, boolean complete) {

@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -272,11 +273,19 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
                     animeflv = new Animeflv();
                     codigoFuente = util.connect(animeflvUrl);
-                    if (animeflv.estaCloudflareActivado(codigoFuente) && !util.existenCookies(getContext())) {
-                        sonNecesariasCookies = true;
-                    }
-                    if (util.existenCookies(getContext())) {
-                        codigoFuente = util.connect(animeflvUrl, util.getCookiesEnSharedPreferences(getContext()));
+                    if (animeflv.estaCloudflareActivado(codigoFuente)) { //si esta cloudflare activado
+                        System.out.println("Cloudflare activado");
+                        if (!util.existenCookies(getContext())) { //si no existen cookies
+                            System.out.println("No existen cookies");
+                            sonNecesariasCookies = true;
+                        } else { //si existen cookies
+                            System.out.println("Si existen cookies");
+                            codigoFuente = util.connect(animeflvUrl, util.getCookiesEnSharedPreferences(getContext()));
+                            if (animeflv.estaCloudflareActivado(codigoFuente)) { //para el caso en que las cookies expiren
+                                System.out.println("Caducaron las cookies");
+                                sonNecesariasCookies = true;
+                            }
+                        }
                     }
                     animesRecientes = animeflv.homeScreenAnimeFlv(codigoFuente, getResources());
 
@@ -312,10 +321,10 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         protected void onPostExecute(Void result) {
             if (sonNecesariasCookies) {
                 getCookies();
+            } else {
+                list.setAdapter(adaptador);
+                bar.setVisibility(View.GONE);
             }
-            list.setAdapter(adaptador);
-            bar.setVisibility(View.GONE);
-            //
         }
 
     }
@@ -333,10 +342,10 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         webView.setWebViewClient(new WebViewClient() {
             boolean respondioACloudflare = true;
             @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            public void onPageStarted(WebView view, final String url, Bitmap favicon) {
                 // Loading started for URL.
-                webView.clearCache(true);
-                webView.clearHistory();
+                //webView.clearCache(true);
+               // webView.clearHistory();
                 Log.d("url", url);
                 /*
                 ********* Por algun motivo ya no muestra la url direccionada, asi que se deshabilita por el momento*******/
@@ -344,6 +353,32 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                     Log.d("cloud", "1");
                     respondioACloudflare = true;
                 }*/
+                /*if (url.contains(animeflvUrl) && respondioACloudflare) {
+                    Log.d("cloud", "2");
+                    Log.d("cloud", CookieManager.getInstance().getCookie(url));
+                    util.setCookiesEnSharedPreferences(CookieManager.getInstance().getCookie(url), getContext());
+                    util.setCookiesBoolean(true, getContext());
+                    webView.destroy();
+                    new GetAnimeHomeScreen().execute(listener);
+                }*/
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("Esperando por cookies", "pasaron 6 seg");
+                        util.setCookiesEnSharedPreferences(CookieManager.getInstance().getCookie(url), getContext());
+                        util.setCookiesBoolean(true, getContext());
+                        webView.destroy();
+                        new GetAnimeHomeScreen().execute(listener);
+                    }
+                }, 6000);
+
+            }
+
+            /*@Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                Log.d("finish", url);
                 if (url.contains(animeflvUrl) && respondioACloudflare) {
                     Log.d("cloud", "2");
                     System.out.println("cookies   " + CookieManager.getInstance().getCookie(url)); //carga las cookies
@@ -352,8 +387,7 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                     webView.destroy();
                     new GetAnimeHomeScreen().execute(listener);
                 }
-
-            }
+            }*/
 
 
         });
@@ -417,12 +451,18 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         @Override
         protected Void doInBackground(String... params) {
             Utilities util = new Utilities();
-            Document codigoFuente = util.connect(params[0]);
+            Document codigoFuente = null;
             if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
                 if (util.existenCookies(getContext())) {
+                    Log.d("Ir a anime", "existe cookie");
                     codigoFuente = util.connect(params[0], util.getCookiesEnSharedPreferences(getContext()));
+                    url = animeflv.urlCapituloToUrlAnime(codigoFuente);
+                } else {
+                    Log.d("Ir a anime", "no existe cookie");
+                    codigoFuente = util.connect(params[0]);
+                    url = animeflv.urlCapituloToUrlAnime(codigoFuente);
                 }
-                url = animeflv.urlCapituloToUrlAnime(codigoFuente);
+
             } else {
                 url = reyanime.urlCapituloToUrlAnime(codigoFuente);
             }
@@ -566,9 +606,10 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                     }
                     int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
                     if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                        Log.d("HomeScreen", "Descarga completada");
                         DescargadosTable descargadosTable = new DescargadosTable();
                         descargadosTable.setComplete(true);
-                        descargadosTable.updateAll("urlCapitulo=?", list.get(i).getUrlCapitulo());
+                        descargadosTable.updateAll("idDescarga=?", String.valueOf(list.get(i).getIdDescarga()));
                         break;
                     }
                 }
