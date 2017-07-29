@@ -301,7 +301,14 @@ public class Animeflv{
             }*/
             //estado = adaptaEstado(estado);
             nombreAnime = document.getElementsByClass("Title").select("h1").first().text();;//contiene el nombre del anime y el tipo (pelicula, anime u ova)
-            tipo = document.getElementsByClass("Type tv").first().text();
+            Elements tipoAnime = document.getElementsByClass("Type tv");
+            if (tipoAnime.isEmpty()) { //no es anime
+                tipoAnime = document.getElementsByClass("Type ova");
+                if (tipoAnime.isEmpty()) {//no es ova
+                    tipoAnime = document.getElementsByClass("Type movie");
+                }
+            }
+            tipo = tipoAnime.text();
             urlAnime = url;
             fechaInicio = " "; //desde el cambio de la nueva pagina, este atributo ya no existe. No se decide aun que hacer con el
             informacion = document.getElementsByClass("Description").first().select("p").first().text();
