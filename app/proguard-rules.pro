@@ -17,6 +17,9 @@
 #}
 
 -dontwarn com.squareup.okhttp.**
+-dontwarn okio.**
+-dontwarn javax.annotation.Nullable
+-dontwarn javax.annotation.ParametersAreNonnullByDefault
 -keep class org.litepal.** { *; }
 -keep class com.ouiaboo.ouiaboo.Tables.** { *; }
 -keep class android.support.v7.widget.SearchView { *; }
