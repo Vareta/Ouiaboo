@@ -8,6 +8,7 @@ import org.litepal.crud.DataSupport;
  * Created by Vareta on 15-10-2015.
  */
 public class DescargadosTable extends DataSupport {
+    private long id;
     private long idDescarga;
     private String nombre;
     private String tipo;
@@ -31,6 +32,9 @@ public class DescargadosTable extends DataSupport {
 
     }
 
+    public void setId(long id) {
+        this.id = id;
+    }
     public void setIdDescarga(long idDescarga) {
         this.idDescarga = idDescarga;
     }
@@ -51,6 +55,9 @@ public class DescargadosTable extends DataSupport {
     }
     public void setComplete(boolean complete) {
         this.complete = complete;
+    }
+    public long getId() {
+        return id;
     }
     public long getIdDescarga() {
         return idDescarga;
@@ -73,4 +80,6 @@ public class DescargadosTable extends DataSupport {
     public boolean isComplete() {
         return complete;
     }
+
+
 }

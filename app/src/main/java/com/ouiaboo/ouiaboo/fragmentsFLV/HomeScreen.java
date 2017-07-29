@@ -1,20 +1,14 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
-import android.app.DownloadManager;
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -77,7 +71,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     private int posicionAnime;
     private AdHomeScreen.CustomRecyclerListener listener;
     private SwipeRefreshLayout swipeRefresh;
-    List<BroadcastReceiver> receivers = new ArrayList<>(); //variable que contiene el receiver de descarga
     private ProgressBar downloadBar;
     private WebView webView;
 
@@ -99,11 +92,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         iniciaView(convertView);
         listener = this;
         iniciaFragment();
-
-        //registra el servicio
-        getActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-        //agrega el servicio a la lista
-        receivers.add(onComplete);
 
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -141,28 +129,8 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         }
     }
 
-    /*en caso que la pagina contenga cloudflare*/
-   /* public void setWebView() {
-        //CookieManager.getInstance().setAcceptCookie(true);
-        String agent = "Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6";
-        webView.getSettings().setUserAgentString(agent);
-        webView.loadUrl(animeFLV);
-        webView.setWebViewClient(new WebViewClient() {
-            public void onPageFinished(WebView view, String url) {
-                String cookies = CookieManager.getInstance().getCookie(url); //carga las cookies
-
-                SharedPreferences sharedPref = getActivity().getSharedPreferences(PREFERENCIAS, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString("cookies", cookies); //guarda las cookies en preferencias
-                editor.apply();
-                Log.d("Null", "Cargue");
-            }
-        });
-    }*/
-
     @Override
     public void customClickListener(View v, int position) {
-        //flvAnimes.añadirHistorialFlv(animesRecientes.get(position).getNombre(), animesRecientes.get(position).getUrlCapitulo());
         HomeScreenEpi objEpi = animesRecientes.get(position);
         mListener.onHomeScreenInteraction(objEpi);
     }
@@ -171,8 +139,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
     public void customLongClickListener(View v, int position) {
 
         final int posAnime = position; //para diferenciar el onclick del listpopup
-        // LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        // View popUpView = inflater.inflate(R.layout.context_menu, null);
         List<DrawerItemsListUno> items = new ArrayList<>();
         items.add(new DrawerItemsListUno(getString(R.string.descargar_PopupWindow), R.drawable.ic_file_download_white_24dp));
         items.add(new DrawerItemsListUno(getString(R.string.irAnime_PopupWindow), R.drawable.ic_forward_white_24dp));
@@ -218,17 +184,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 if (position == 1) {//ir a anime
 
                     new EpiUrlToAnimeUlr().execute(animesRecientes.get(posAnime).getUrlCapitulo());
-
-                   /* if (!fun.esPosibleFavoritosHome(animesRecientes.get(posAnime))) { //no se pudo
-                        snackbar = Snackbar.make(coordLayout, getString(R.string.noti_favoritos_no), Snackbar.LENGTH_LONG);
-                        View sbView = snackbar.getView();
-                        TextView textView = (TextView)sbView.findViewById(android.support.design.R.id.snackbar_text);
-                        textView.setTextColor(Color.YELLOW);
-                        snackbar.show();
-                    } else {
-                        snackbar = Snackbar.make(coordLayout, getString(R.string.noti_favoritos_si), Snackbar.LENGTH_LONG);
-                        snackbar.show();
-                    }*/
                     listPopupWindow.dismiss();
                 }
 
@@ -487,13 +442,11 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
 
     /*Obtiene la url de un anime mediante el url del capitulo de manera asincrona*/
     public class DownloadAnime extends AsyncTask<Void, Void, Void> {
-        String nombreVideo = animesRecientes.get(posicionAnime).getNombre() + "-" + animesRecientes.get(posicionAnime).getInformacion() + ".mp4";
+        String url;
 
         @Override
         protected Void doInBackground(Void... params) {
-
             Utilities util = new Utilities();
-            String url;
             if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
                 Animeflv animeflv = new Animeflv();
                 url = animeflv.urlDisponible(animesRecientes.get(posicionAnime).getUrlCapitulo(), getContext()); //consigue la url del video a descargar
@@ -501,24 +454,9 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
                 Reyanime reyanime = new Reyanime();
                 url = reyanime.urlDisponible(animesRecientes.get(posicionAnime).getUrlCapitulo(), getContext());
             }
-            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-            request.setDescription(animesRecientes.get(posicionAnime).getInformacion()); //descripcion de la notificacion
-            request.setTitle(animesRecientes.get(posicionAnime).getNombre()); //titulo de la notificacion
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); //setea las notificaciones
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES + "/Ouiaboo", nombreVideo);
-            request.setMimeType("video/x-msvideo");
 
-            DownloadManager manager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-            long id = manager.enqueue(request);
+            util.descargarCapitulo(getContext(), animesRecientes.get(posicionAnime), url);
 
-            //almacena los capitulos guardados en la tabla, sin importar si estos estan completamente descargados
-            DescargadosTable descargas = new DescargadosTable(id, animesRecientes.get(posicionAnime).getNombre(),
-                    animesRecientes.get(posicionAnime).getInformacion(),
-                    null,//preview, null por defecto
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Ouiaboo/" + nombreVideo,
-                    animesRecientes.get(posicionAnime).getUrlCapitulo(),
-                    false); //estado de la descarga, falso por defecto
-            descargas.save();
             return null;
         }
 
@@ -566,15 +504,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         super.onDetach();
         Log.d("HOMESCREEN", "DETACH");
         setData(animesRecientes);
-        /*
-        Aqui se verifica que el receiver este registrado antes de sacarlo del registro. Ya que existen
-        casos en donde la pantalla rota y el fragment ejecuta sólo onDetach, por lo cual jamas
-        registra el receiver. lo cual genera un error
-         */
-        if (receivers.contains(onComplete)) {
-            receivers.remove(onComplete);
-            getActivity().unregisterReceiver(onComplete);
-        }
         mListener = null;
     }
 
@@ -592,30 +521,6 @@ public class HomeScreen extends android.support.v4.app.Fragment implements AdHom
         public void onHomeScreenInteraction(HomeScreenEpi objEpi);
     }
 
-    BroadcastReceiver onComplete = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            List<DescargadosTable> list = DataSupport.where("complete=?", String.valueOf(0)).find(DescargadosTable.class); //obtiene todas las descargas no completadas
-
-            if (!list.isEmpty()) {
-                for (int i = 0; i < list.size(); i++) {
-                    DownloadManager dw = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-                    Cursor c = dw.query(new DownloadManager.Query().setFilterById(list.get(i).getIdDescarga()));
-                    if (!c.moveToFirst()) {
-                        Log.e("vacio", "Empty row");
-                        return;
-                    }
-                    int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                    if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                        Log.d("HomeScreen", "Descarga completada");
-                        DescargadosTable descargadosTable = new DescargadosTable();
-                        descargadosTable.setComplete(true);
-                        descargadosTable.updateAll("idDescarga=?", String.valueOf(list.get(i).getIdDescarga()));
-                        break;
-                    }
-                }
-            }
-        }
-    };
 
     /* deprecado
     private class GetVideoUrlAndPlay extends AsyncTask<Integer, Void, Void> {

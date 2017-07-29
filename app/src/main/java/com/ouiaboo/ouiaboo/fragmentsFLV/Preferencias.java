@@ -39,7 +39,7 @@ public class Preferencias extends PreferenceFragmentCompat {
         addPreferencesFromResource(R.xml.preferences);
         getActivity().setTitle(R.string.preferencias_drawer_layout);
         tipoActualizacionListener();
-        proveedorListener();
+        //proveedorListener();
     }
 
     @Override
@@ -105,7 +105,7 @@ public class Preferencias extends PreferenceFragmentCompat {
         });
     }
 
-    private void proveedorListener() {
+    /*private void proveedorListener() {
         SharedPreferences sharedPref = getActivity().getSharedPreferences(Utilities.PREFERENCIAS, Context.MODE_PRIVATE);
         final String opcActualProveedor = sharedPref.getString("listaProveedores", "animeflv");
         final Preference tipoProveedor = getPreferenceManager().findPreference("listaProveedores");
@@ -148,7 +148,7 @@ public class Preferencias extends PreferenceFragmentCompat {
             }
         });
 
-    }
+    }*/
 
 
 

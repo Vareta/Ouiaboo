@@ -44,6 +44,7 @@ import com.ouiaboo.ouiaboo.adaptadores.AdContMenuCentral;
 import com.ouiaboo.ouiaboo.adaptadores.AdDescargadas;
 import com.ouiaboo.ouiaboo.clases.DrawerItemsListUno;
 import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
+import com.ouiaboo.ouiaboo.util.CRUD;
 
 import org.jsoup.nodes.Document;
 import org.litepal.crud.DataSupport;
@@ -250,46 +251,47 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
         @Override
         protected Void doInBackground(AdDescargadas.CustomRecyclerListener... params) {
             try {
-                String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Ouiaboo"; //direccion de donde se encuentran los capitulos
+                CRUD crud = new CRUD();
                 urlAnimeAux = new ArrayList<>();
-                File carpetaDescargados = new File(path);
-                List<DescargadosTable> completas = DataSupport.where("complete=?", String.valueOf(1)).find(DescargadosTable.class);
+                List<DescargadosTable> todasLasDescargas = crud.descargas(); //obtiene todas las descargas, no importa si estan completas o no
                 Log.d(TAG, "listarDescargas");
-                if (!completas.isEmpty()) {
+                if (!todasLasDescargas.isEmpty()) {
                     Log.d(TAG, "Lista contiene elementos");
-                    existenDescargados = true;
-                    animeDescargado = new ArrayList<>();
-                    // setComplete(archivos); //busca si hay archivos y los marca como completos
-                    File thumbnailCarpeta = getActivity().getApplicationContext().getDir("imgThumbnail", Context.MODE_PRIVATE); //direccion de donde se guardaran thumbnails
-                    for (int i = 0; i < completas.size(); i++) {
-                        if (completas.get(i).isComplete() && completas.get(i).getImagenPreview() == null) {//comprueba si existen capitulos y que no tengan preview
-                            Bitmap preview = ThumbnailUtils.createVideoThumbnail(completas.get(i).getDirVideo(), MediaStore.Images.Thumbnails.MINI_KIND);
-                            File nombreImg = new File(thumbnailCarpeta, completas.get(i).getNombre());
-                            FileOutputStream fos;
-                            fos = new FileOutputStream(nombreImg + ".jpg");
-                            preview.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                            fos.close();
+                    Utilities util = new Utilities();
+                    //verifica si hay descargas exitosas o fallidas
+                    for (int i = 0; i < todasLasDescargas.size(); i++) {
+                        util.checkAndUpdateDownloadStatus(getContext(), todasLasDescargas.get(i).getId(), todasLasDescargas.get(i).getIdDescarga());
+                    }
 
-                            DescargadosTable descargadosTable = new DescargadosTable();
-                            descargadosTable.setImagenPreview(nombreImg.getAbsolutePath() + ".jpg");
-                            descargadosTable.updateAll("urlCapitulo=?", completas.get(i).getUrlCapitulo());
+                    File thumbnailCarpeta = getActivity().getApplicationContext().getDir("imgThumbnail", Context.MODE_PRIVATE); //direccion de donde se guardaran thumbnails
+                    for (int i = 0; i < todasLasDescargas.size(); i++) {
+                        if (todasLasDescargas.get(i).isComplete() && todasLasDescargas.get(i).getImagenPreview() == null) {//comprueba si existen capitulos y que no tengan preview
+                            util.añadirThumbnail(todasLasDescargas.get(i), thumbnailCarpeta);
                         }
                     }
 
-                    List<DescargadosTable> enDisco = DataSupport.where("complete=?", String.valueOf(1)).find(DescargadosTable.class);
-                    HomeScreenEpi objeto;
-                    /*
-                    A anime descargado se le agrega la direccion del video en vez de url del anime en el atributo urlCapitulo.
-                    Pero como la url del anime tambien se debe ocupar (para efectos de historial) esta se guarda en una lista auxiliar
-                     */
-                    for (int j = 0; j < enDisco.size(); j++) {
-                        objeto = new HomeScreenEpi(enDisco.get(j).getDirVideo(), enDisco.get(j).getNombre(), enDisco.get(j).getTipo(), enDisco.get(j).getImagenPreview());
-                        animeDescargado.add(objeto);
-                        urlAnimeAux.add(enDisco.get(j).getUrlCapitulo());
-                    }
+                    List<DescargadosTable> enDisco = crud.obtenerDescargasExitosas();
 
-                    adaptador = new AdDescargadas(getActivity(), animeDescargado);
-                    adaptador.setClickListener(params[0]);
+                    if (!enDisco.isEmpty()) {
+                        existenDescargados = true;
+                        animeDescargado = new ArrayList<>();
+                        HomeScreenEpi objeto;
+                        /*
+                        A anime descargado se le agrega la direccion del video en vez de url del anime en el atributo urlCapitulo.
+                        Pero como la url del anime tambien se debe ocupar (para efectos de historial) esta se guarda en una lista auxiliar
+                         */
+                        for (int j = 0; j < enDisco.size(); j++) {
+                            objeto = new HomeScreenEpi(enDisco.get(j).getDirVideo(), enDisco.get(j).getNombre(), enDisco.get(j).getTipo(), enDisco.get(j).getImagenPreview());
+                            animeDescargado.add(objeto);
+                            urlAnimeAux.add(enDisco.get(j).getUrlCapitulo());
+                        }
+
+                        adaptador = new AdDescargadas(getActivity(), animeDescargado);
+                        adaptador.setClickListener(params[0]);
+                    } else {
+                        Log.d(TAG, "Existen (o existian) descargas, pero no estan completas");
+                        existenDescargados = false;
+                    }
 
                 } else {
                     Log.d(TAG, "No existen descargas");
@@ -307,7 +309,6 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
         protected void onPreExecute() {
             bar.setVisibility(View.VISIBLE);
             sinDescargados.setVisibility(View.GONE);
-            // Log.d("HOLA", "PREEXECUTE 333");
         }
 
         @Override

@@ -25,16 +25,6 @@
             android:title="@string/tipoActuali.Settings" />
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:key="proveedor"
-        android:title="@string/proveedorTitle.Settings">
 
-        <ListPreference
-            android:defaultValue="animeflv"
-            android:entries="@array/listProveedores"
-            android:entryValues="@array/listProveedoresValues"
-            android:key="listaProveedores"
-            android:title="@string/proveedor.Settings" />
-    </PreferenceCategory>
 
 </PreferenceScreen>

@@ -1,20 +1,14 @@
 package com.ouiaboo.ouiaboo.fragmentsFLV;
 
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.Color;
-import android.net.Uri;
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.os.Environment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,10 +18,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.ouiaboo.ouiaboo.AnalyticsApplication;
 import com.ouiaboo.ouiaboo.Animeflv;
 import com.ouiaboo.ouiaboo.Funciones;
@@ -62,7 +55,7 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     private int posicionAnime;
     private int posAnimeOnClick = -1; //valor auxiliar para actualizar el adaptador en OnAttach
     private AdEpisodios adaptador;
-    private Tracker mTracker;
+    private ProgressBar downloadBar;
 
     public EpisodiosFlv() {
         // Required empty public constructor
@@ -75,11 +68,11 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
         View convertView = inflater.inflate(R.layout.fragment_episodios, container, false);
         list = (RecyclerView)convertView.findViewById(R.id.episodios);
         coordLayout = (CoordinatorLayout)getActivity().findViewById(R.id.coord_layout);
-
-
+        downloadBar = (ProgressBar) convertView.findViewById(R.id.updateAppProgressBar);
+        downloadBar.setIndeterminate(true);
+        ((ProgressBar) convertView.findViewById(R.id.updateAppProgressBar)).getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.rojo), PorterDuff.Mode.SRC_IN);
         getData();
         setAdaptador();
-        getActivity().registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
         return convertView;
     }
@@ -126,7 +119,6 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
     @Override
     public void onDetach() {
         super.onDetach();
-        getActivity().unregisterReceiver(onComplete);
         mListener = null;
     }
 
@@ -251,60 +243,28 @@ public class EpisodiosFlv extends android.support.v4.app.Fragment implements AdE
                 Reyanime reyanime = new Reyanime();
                 url = reyanime.urlDisponible(episodios.get(posicionAnime).getUrlEpisodio(), getContext());
             }
-
-            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-            request.setDescription(episodios.get(posicionAnime).getNumero()); //descripcion de la notificacion
-            request.setTitle(episodios.get(0).getNombreAnime()); //titulo de la notificacion
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); //setea las notificaciones
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES + "/Ouiaboo", nombreVideo);
-
-            request.setMimeType("video/x-msvideo");
-
-            DownloadManager manager = (DownloadManager)getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-            long id = manager.enqueue(request);
-
-            //almacena los capitulos guardados en la tabla, sin importar si estos estan completamente descargados
-            DescargadosTable descargas = new DescargadosTable(id, episodios.get(0).getNombreAnime(),
-                    episodios.get(posicionAnime).getNumero(),
-                    null,//preview, null por defecto
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/Ouiaboo/" + nombreVideo,
-                    episodios.get(posicionAnime).getUrlEpisodio(),
-                    false); //estado de la descarga, falso por defecto
-            descargas.save();
+            Log.d("url", episodios.get(posicionAnime).getUrlEpisodio());
+            Log.d("nombre", episodios.get(0).getNombreAnime());
+            Log.d("numero", episodios.get(posicionAnime).getNumero());
+            HomeScreenEpi capitulo = new HomeScreenEpi(
+                                    episodios.get(posicionAnime).getUrlEpisodio(),
+                                    episodios.get(0).getNombreAnime(), //posicion 0, ya que ahi se encuentran los datos del anime
+                                    episodios.get(posicionAnime).getNumero(),
+                                    null);
+            util.descargarCapitulo(getContext(), capitulo, url);
             return null;
         }
 
         @Override
         protected void onPreExecute() {
+            downloadBar.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(Void result) {
+            downloadBar.setVisibility(View.GONE);
             Log.d("TERMINE", "termine");
         }
     }
 
-    BroadcastReceiver onComplete = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            List<DescargadosTable> list = DataSupport.where("complete=?", String.valueOf(0)).find(DescargadosTable.class); //obtiene todas las descargas no completadas
-
-            if (!list.isEmpty()) {
-                for (int i = 0; i < list.size(); i++) {
-                    DownloadManager dw = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-                    Cursor c = dw.query(new DownloadManager.Query().setFilterById(list.get(i).getIdDescarga()));
-                    if (!c.moveToFirst()) {
-                        Log.e("vacio", "Empty row");
-                        return;
-                    }
-                    int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                    if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                        DescargadosTable descargadosTable = new DescargadosTable();
-                        descargadosTable.setComplete(true);
-                        descargadosTable.updateAll("idDescarga=?", String.valueOf(list.get(i).getIdDescarga()));
-                        break;
-                    }
-                }
-            }
-        }
-    };
 }

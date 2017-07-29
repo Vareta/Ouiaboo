@@ -1,16 +1,20 @@
 package com.ouiaboo.ouiaboo;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.media.ThumbnailUtils;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
@@ -20,6 +24,10 @@ import android.webkit.CookieManager;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 
+
+import com.ouiaboo.ouiaboo.Tables.DescargadosTable;
+import com.ouiaboo.ouiaboo.clases.HomeScreenEpi;
+import com.ouiaboo.ouiaboo.util.CRUD;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -40,10 +48,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import okhttp3.Cache;
 import okhttp3.Interceptor;
@@ -560,5 +566,87 @@ public class Utilities {
 
         return client;
     }
+
+    /**
+     * Checkea y, de ser necesario, cambia el estatus a completado si la descarga ocurrio con exite, ó
+     * la elimina, en caso que la descarga haya fallado
+     * @param context Context de la actividad
+     * @param id long ID del elemento en la tabla
+     * @param idDescarga long ID de la descarga
+     */
+    public void checkAndUpdateDownloadStatus(Context context, long id, long idDescarga) {
+        DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+        Cursor cursor = manager.query(new DownloadManager.Query().setFilterById(idDescarga));
+
+        if (cursor.moveToFirst()) {
+            //column for download  status
+            int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
+            System.out.println("columnindex   " + columnIndex);
+            int status = cursor.getInt(columnIndex);
+            System.out.println("status   " + status);
+            //column for reason code if the download failed or paused
+            /*int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
+             int reason = cursor.getInt(columnReason);*/
+
+            CRUD crud = new CRUD();
+            if (status == DownloadManager.STATUS_FAILED) {
+                System.out.println("failed");
+                crud.removeDownload(id); //remueve la descarga de la lista de descargas de la aplicacion
+            }
+            if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                System.out.println("exito");
+                crud.updateEstado(id, true); //cambia el estado de la descarga a completado
+            }
+        }
+
+        cursor.close();
+    }
+
+    /**
+     * Crea el thumbnail para los videos descardos exitosamente
+     * @param video Elemento que contiene los atributos del video
+     * @param direccion Direccion en disco en donde se guardara el thumbnail
+     */
+    public void añadirThumbnail(DescargadosTable video, File direccion) {
+        CRUD crud = new CRUD();
+        Bitmap preview = ThumbnailUtils.createVideoThumbnail(video.getDirVideo(), MediaStore.Images.Thumbnails.MINI_KIND);
+        File nombreImg = new File(direccion, video.getNombre());
+        try {
+            FileOutputStream fos = new FileOutputStream(nombreImg + ".jpg");
+            preview.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.close();
+            crud.updatePreview(video.getId(), nombreImg.getAbsolutePath() + ".jpg");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Descarga el capitulo seleccionado via DownloadManager y luego registra el inicio de la descarga
+     * en la base de datos
+     * @param context Contexto de la actividad
+     * @param capitulo Objeto HomeScreenEpi que contiene los datos del capitulo a descargar
+     * @param urlVideo Url del capitulo, es decir, url directa del video
+     */
+    public void descargarCapitulo(Context context, HomeScreenEpi capitulo, String urlVideo) {
+        String numeroCapitulo = capitulo.getInformacion();
+        String nombreAnime = capitulo.getNombre();
+        String urlCapitulo = capitulo.getUrlCapitulo();
+        String nombreVideo = nombreAnime + "-" + numeroCapitulo + ".mp4"; //nombre que se le dara al archivo descargado
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(urlVideo));
+        request.setDescription(numeroCapitulo); //descripcion de la notificacion (numero de capitulo)
+        request.setTitle(nombreAnime); //titulo de la notificacion (nombre anime)
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); //setea las notificaciones
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES + "/Ouiaboo", nombreVideo);
+        request.setMimeType("video/x-msvideo");
+
+        DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+        long id = manager.enqueue(request);
+
+        CRUD crud = new CRUD();
+        crud.registraInicioDescarga(id, nombreAnime, numeroCapitulo, nombreVideo, urlCapitulo);
+    }
+
 
 }
