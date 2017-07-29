@@ -91,7 +91,6 @@ public class AdDescargadas extends RecyclerView.Adapter<AdDescargadas.AdDescarga
 
     @Override
     public void onBindViewHolder(AdDescargadasHolder adHoScAnFLVHolder, int i) {
-
         adHoScAnFLVHolder.nombre.setText(Html.fromHtml(items.get(i).getNombre()));
         adHoScAnFLVHolder.informacion.setText(Html.fromHtml(items.get(i).getInformacion()));
         Glide.with(context).load(new File(items.get(i).getPreview())).apply(RequestOptions.overrideOf(250, 150)).apply(RequestOptions.centerCropTransform()).into(adHoScAnFLVHolder.preview);//para imagenes guardadas dentro de la sd

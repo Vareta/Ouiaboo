@@ -434,11 +434,16 @@ public class Animeflv{
 
         Elements objEpisodios;
         if (codigoFuente != null) {
-            objEpisodios = codigoFuente.getElementsByClass("CapNv");
+            objEpisodios = codigoFuente.getElementsByClass("CapNv").select("a");
             if (objEpisodios.isEmpty()) {
                 Log.d("Error", "No se pudo encontrar la url del anime desde la pagina del episodio");
             } else {
-                urlAnime = animeflv + objEpisodios.select("a").last().attr("href");
+                for (int i = 0; i < objEpisodios.size(); i++ ) {
+                    if (objEpisodios.get(i).hasClass("CapNvLs fa-th-list")) { //clase que contiene la url del anime
+                        urlAnime = animeflv + objEpisodios.get(i).attr("href");
+                        break;
+                    }
+                }
                // Log.d("URL", urlAnime);
             }
         }
@@ -663,7 +668,7 @@ public class Animeflv{
         }
         codigoUrlVideos = codigoFuente.select("script").toString();
         String urlAux;
-        boolean  hyperionDisponible = true, clupDisponible = false;
+        boolean  hyperionDisponible = true, clupDisponible = false, izanagiDisponible = false;
 
         urlAux = urlHyperionServer(codigoUrlVideos);
         if (!urlAux.equals("")) {
@@ -678,6 +683,17 @@ public class Animeflv{
         }
 
         if (!hyperionDisponible) {
+            urlAux = urlIzanagiServer(codigoUrlVideos);
+            if (!urlAux.equals("")) { //revisa si existe la url
+                if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible
+                    url = urlAux;
+                    izanagiDisponible = true;
+                    Log.d("izanagi", url);
+                }
+            }
+        }
+
+        if (!hyperionDisponible && !izanagiDisponible) {
             urlAux = urlClupServer(codigoUrlVideos);
             if (!urlAux.equals("")) { //revisa si existe la url
                 if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible
@@ -688,7 +704,7 @@ public class Animeflv{
             }
         }
 
-        if (!hyperionDisponible && !clupDisponible) {
+        if (!hyperionDisponible && !izanagiDisponible && !clupDisponible) {
             urlAux = urlYourUploadServer(codigoUrlVideos);
             if (!urlAux.equals("")) { //revisa si existe la url
                 if (util.isServerReachable(urlAux, context)) { //revisa si la url es accesible

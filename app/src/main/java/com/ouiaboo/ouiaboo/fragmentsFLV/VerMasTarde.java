@@ -249,13 +249,10 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
             try {
                 masTardeAnime = new ArrayList<>();
                 if (util.queProveedorEs(getContext()) == Utilities.ANIMEFLV) {
-                    Log.d("HOLA", "1");
                     List<VerMasTardeTable> datos = DataSupport.findAll(VerMasTardeTable.class);
                     if (datos == null || datos.isEmpty()) {
-                        Log.d("HOLA", "1.1");
                         existeAnimeMastarde = false;
                     } else {
-                        Log.d("HOLA", "1.2");
                         existeAnimeMastarde = true;
                         for (int i = 0; i < datos.size(); i++) {
                             masTardeAnime.add(new HomeScreenEpi(datos.get(i).getUrlCapitulo(), datos.get(i).getNombre(), datos.get(i).getTipo(), datos.get(i).getUrlImagen()));
@@ -264,7 +261,6 @@ public class VerMasTarde extends android.support.v4.app.Fragment implements AdVe
                         adaptador.setClickListener(params[0]);
                     }
                 } else { //reyanime
-                    Log.d("HOLA", "2");
                     List<VerMasTardeTableRey> datos = DataSupport.findAll(VerMasTardeTableRey.class);
                     if (datos.isEmpty()) {
                         existeAnimeMastarde = false;

@@ -263,14 +263,16 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
                         util.checkAndUpdateDownloadStatus(getContext(), todasLasDescargas.get(i).getId(), todasLasDescargas.get(i).getIdDescarga());
                     }
 
+                    List<DescargadosTable> descargasExitosas = crud.obtenerDescargasExitosas(); //obtiene las descargas exitosas
                     File thumbnailCarpeta = getActivity().getApplicationContext().getDir("imgThumbnail", Context.MODE_PRIVATE); //direccion de donde se guardaran thumbnails
-                    for (int i = 0; i < todasLasDescargas.size(); i++) {
-                        if (todasLasDescargas.get(i).isComplete() && todasLasDescargas.get(i).getImagenPreview() == null) {//comprueba si existen capitulos y que no tengan preview
-                            util.añadirThumbnail(todasLasDescargas.get(i), thumbnailCarpeta);
+                    for (int i = 0; i < descargasExitosas.size(); i++) {
+                        if (descargasExitosas.get(i).isComplete() && descargasExitosas.get(i).getImagenPreview() == null) {//comprueba si existen capitulos y que no tengan preview
+                            Log.d(TAG, "preview null");
+                            util.añadirThumbnail(descargasExitosas.get(i), thumbnailCarpeta);
                         }
                     }
 
-                    List<DescargadosTable> enDisco = crud.obtenerDescargasExitosas();
+                    List<DescargadosTable> enDisco = crud.obtenerDescargasExitosas(); //obtiene nuevamente las descargas exitosas para asi obtener el preview actualizado de las que no lo tenian
 
                     if (!enDisco.isEmpty()) {
                         existenDescargados = true;
@@ -281,6 +283,7 @@ public class Descargadas extends android.support.v4.app.Fragment implements AdDe
                         Pero como la url del anime tambien se debe ocupar (para efectos de historial) esta se guarda en una lista auxiliar
                          */
                         for (int j = 0; j < enDisco.size(); j++) {
+                            Log.d(TAG, enDisco.get(j).getNombre());
                             objeto = new HomeScreenEpi(enDisco.get(j).getDirVideo(), enDisco.get(j).getNombre(), enDisco.get(j).getTipo(), enDisco.get(j).getImagenPreview());
                             animeDescargado.add(objeto);
                             urlAnimeAux.add(enDisco.get(j).getUrlCapitulo());

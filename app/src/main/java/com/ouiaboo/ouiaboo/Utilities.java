@@ -581,20 +581,18 @@ public class Utilities {
         if (cursor.moveToFirst()) {
             //column for download  status
             int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
-            System.out.println("columnindex   " + columnIndex);
             int status = cursor.getInt(columnIndex);
-            System.out.println("status   " + status);
             //column for reason code if the download failed or paused
             /*int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
              int reason = cursor.getInt(columnReason);*/
 
             CRUD crud = new CRUD();
             if (status == DownloadManager.STATUS_FAILED) {
-                System.out.println("failed");
+                System.out.println("download failed");
                 crud.removeDownload(id); //remueve la descarga de la lista de descargas de la aplicacion
             }
             if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                System.out.println("exito");
+                System.out.println("download exito");
                 crud.updateEstado(id, true); //cambia el estado de la descarga a completado
             }
         }
@@ -616,6 +614,7 @@ public class Utilities {
             preview.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.close();
             crud.updatePreview(video.getId(), nombreImg.getAbsolutePath() + ".jpg");
+            Log.d(video.getNombre() , "thumbnailañadida");
         } catch (IOException e) {
             e.printStackTrace();
         }
