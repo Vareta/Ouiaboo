@@ -6,3 +6,8 @@
 .DS_Store
 /build
 /captures
+.idea/
+build.gradle
+app/release/output.json
+app/release/app-release.apk/Ouiaboo.apk
+gradle/wrapper/gradle-wrapper.properties
